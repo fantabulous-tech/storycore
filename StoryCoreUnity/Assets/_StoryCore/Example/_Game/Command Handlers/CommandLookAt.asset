@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b57cb4de2aa4410aa4dbc7805bb1395c, type: 3}
+  m_Name: CommandLookAt
+  m_EditorClassIdentifier: 
+  m_EventName: 
+  m_EventDescription: "/lookat <target>\r\nTells the focused character to look at
+    the specified target. Current targets include \u2018player\u2019 or a character
+    name.\r"
+  m_DebugLog: 0
+  m_StoryTellerLocator: {fileID: 11400000, guid: 85a4a29d31b08ac4483a67cbd6781dae,
+    type: 2}

@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b62011216bd2c7042957fcd3e476265c, type: 3}
+  m_Name: Command Bucket
+  m_EditorClassIdentifier: 
+  m_BucketName: Commands
+  m_CommandEvent: {fileID: 11400000, guid: bd0e54926275d6643ac6f08f51dcae5c, type: 2}
+  m_CommandBindings:
+  - CommandName: action
+    CommandHandler: {fileID: 11400000, guid: c58795ade33fb65488f508441df9ed75, type: 2}
+  - CommandName: character
+    CommandHandler: {fileID: 11400000, guid: 7ac57fafaf40e914a9b634ee0ecd15d0, type: 2}
+  - CommandName: emotion
+    CommandHandler: {fileID: 11400000, guid: f9f4530172f288346bf7f9f7234ac0b2, type: 2}
+  - CommandName: list
+    CommandHandler: {fileID: 11400000, guid: d2063022ced32c043ae198c6e7b1bb74, type: 2}
+  - CommandName: log
+    CommandHandler: {fileID: 11400000, guid: 29ed3a72ef36cb24cadc86ebb33d2603, type: 2}
+  - CommandName: logWarning
+    CommandHandler: {fileID: 11400000, guid: 6b5d30eab90411c4db590aa264bd085c, type: 2}
+  - CommandName: logError
+    CommandHandler: {fileID: 11400000, guid: 87c91f4298ce62c4e822b613bf9e2c4c, type: 2}
+  - CommandName: lookat
+    CommandHandler: {fileID: 11400000, guid: a36b6be8a9b30cc43af88cd153e63042, type: 2}
+  - CommandName: ambient
+    CommandHandler: {fileID: 11400000, guid: adcedecf72bf7a840a8cfe67fd6ef06d, type: 2}
+  - CommandName: music
+    CommandHandler: {fileID: 11400000, guid: cff797222eef1ef42a434fa121ecd2b1, type: 2}
+  - CommandName: sound
+    CommandHandler: {fileID: 11400000, guid: 9ecbc191d1c04154a83ddad6d1480986, type: 2}
+  - CommandName: notify
+    CommandHandler: {fileID: 11400000, guid: 249af3c3180b81c4bbf9ac7d17679d7a, type: 2}
+  - CommandName: open_link
+    CommandHandler: {fileID: 11400000, guid: fa0b6ed63e4a47549866c17c46a99257, type: 2}
+  - CommandName: perform
+    CommandHandler: {fileID: 11400000, guid: c7c4af09f14602e4484a0f2a58b75416, type: 2}
+  - CommandName: quit
+    CommandHandler: {fileID: 11400000, guid: da78bdb13077287478d2d35130afe18c, type: 2}
+  - CommandName: recenter
+    CommandHandler: {fileID: 11400000, guid: 4116ecd259f61a942920e9eedf71c366, type: 2}
+  - CommandName: scene
+    CommandHandler: {fileID: 11400000, guid: 5b973461150bd8840938fa906e8ed69a, type: 2}
+  - CommandName: wait
+    CommandHandler: {fileID: 11400000, guid: f095dbb9201dcfb4eb3e676f91441c0d, type: 2}

@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: c74d7451953446b480f418ddae427baa
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - m_StoryTellerLocator: {fileID: 11400000, guid: 85a4a29d31b08ac4483a67cbd6781dae,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

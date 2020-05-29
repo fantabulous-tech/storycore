@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1d044d44a0e9aa04f990ceb4f7e3ef75
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - m_StoryTeller: {instanceID: 0}
+  - m_DistractedEvent: {fileID: 11400000, guid: 5aeaafaeb26f4084a946b2e9049b8e3a,
+      type: 2}
+  - m_AttentionEvent: {fileID: 11400000, guid: 4cdb28e929357974ca7336d3b3f276fb, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

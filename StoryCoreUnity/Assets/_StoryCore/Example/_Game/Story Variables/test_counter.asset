@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c74d7451953446b480f418ddae427baa, type: 3}
+  m_Name: test_counter
+  m_EditorClassIdentifier: 
+  m_EventName: 
+  m_EventDescription: 
+  m_DebugLog: 0
+  m_InitialValue: 0
+  m_StoryTellerLocator: {fileID: 11400000, guid: 85a4a29d31b08ac4483a67cbd6781dae,
+    type: 2}

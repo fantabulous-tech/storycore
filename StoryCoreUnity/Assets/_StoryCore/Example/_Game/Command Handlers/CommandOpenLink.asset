@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1309d6ff245a4f6c9a576a3f34c3f810, type: 3}
+  m_Name: CommandOpenLink
+  m_EditorClassIdentifier: 
+  m_EventName: 
+  m_EventDescription: "/open_link <url>\r\nThis opens a web page to the specified
+    <url>. This is currently used to open the page with the access code when trying
+    to enter an early access area."
+  m_DebugLog: 0

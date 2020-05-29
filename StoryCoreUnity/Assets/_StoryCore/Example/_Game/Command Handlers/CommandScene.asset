@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8d9524f3fef4bd49829806e87f06d5f, type: 3}
+  m_Name: CommandScene
+  m_EditorClassIdentifier: 
+  m_EventName: 
+  m_EventDescription: "/scene <room>.<staging>\r\nLoads the two Unity scenes that
+    make up a fully assembled scene in the game. The <room> part of the name is the
+    room that the scene takes place in. The <staging> part of the name is the name
+    of the staged scene that contains the layout of elements in the room like the
+    player\u2019s spawn location, move location, and starting scene characters."
+  m_DebugLog: 0
+  m_Audio: {fileID: 24100000, guid: d5aca515a3f318a4fb876ea1c62a3784, type: 2}
+  m_Normal: {fileID: 24500006, guid: d5aca515a3f318a4fb876ea1c62a3784, type: 2}
+  m_Faded: {fileID: 245443401883140606, guid: d5aca515a3f318a4fb876ea1c62a3784, type: 2}
+  m_StoryTellerLocator: {fileID: 11400000, guid: 85a4a29d31b08ac4483a67cbd6781dae,
+    type: 2}
+  m_SceneBucket: {fileID: 11400000, guid: 62a253973a22d09488c16b0dbad723cf, type: 2}

@@ -1,0 +1,71 @@
+=== scenario_test ===
+
+/scene office.hallway
+
+- (start)
+
++ [move] -> enter
++ [Add to Counter]
+    ~ test_counter++
+    /log Counter is now {test_counter}.
+    -> start
++ [Subtract from Counter]
+    ~ test_counter--
+    /log Counter is now {test_counter}.
+    -> start
+
+- (enter)
+
+/scene office.interior
+/character kelly
+/perform idle_skeptical
+
++ [move:approach]
+
+- /wait 1
+
+Hello. #01
+This demo shows off how Ink and Unity  #02
+can be integrated to quickly load environments  #03
+with lip synched characters and branching narrative #04
+based on player actions. #05
+
+What do you think? #06
+
+- (respond)
+
+{shuffle:
+    - Pretty neat, huh? #07
+    - Not bad, huh? #08
+    - Pretty cool, right? #09
+    - Like it? #10
+}
+
++ [yes]
+    /perform react_thankful happy 70
+    I'm glad you like it! #11
+    Head on out when you like. #12
+
++ [no]
+    /perform idle_unhappy
+    /emotion angry 50
+    What?! #13
+    /perform do_you_leave
+    Well you can just go, then. #14
+
++ [timeout] 
+    Nod your head for Yes. #15
+    /perform do_you_leave skeptical 70
+    Shake your head for No. #16
+    -> respond
+
+TODO: Add more interactions.
+
+- (exit)
+
++ [move:leave]
+    ~ hasRestarted = true
+    -> scenario_test
+
+
+

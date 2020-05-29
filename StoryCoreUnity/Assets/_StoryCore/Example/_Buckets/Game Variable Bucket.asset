@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a8c8762f95d4cd59fb8a4423bb2cd85, type: 3}
+  m_Name: Game Variable Bucket
+  m_EditorClassIdentifier: 
+  m_BucketName: 
+  m_Sources:
+  - {fileID: 102900000, guid: 3bed3621a7f83fa4b9889e585f8b5a44, type: 3}
+  m_AssetRefs:
+  - Name: options-subtitles
+    Asset: {fileID: 11400000, guid: 07d7491b8e882344b8b0f5db0ee6c1a4, type: 2}
+  - Name: journal open
+    Asset: {fileID: 11400000, guid: 398e91aadb7a2ef44aa506e9fbeb7a00, type: 2}
+  - Name: options-antialiasing
+    Asset: {fileID: 11400000, guid: 5d4fbdd307556ed4ebd7752404aa7c92, type: 2}
+  - Name: options-qualitylevel
+    Asset: {fileID: 11400000, guid: 736c15a7610881844a136a688b7fa218, type: 2}
+  - Name: focused character
+    Asset: {fileID: 11400000, guid: 7c9ef05b0b934a74d992fe9a0d93c2fd, type: 2}
+  - Name: options-snaprotate
+    Asset: {fileID: 11400000, guid: 7dae737f4f71c5d4b9c476e40a9b3a9d, type: 2}
+  - Name: storyteller locator
+    Asset: {fileID: 11400000, guid: 85a4a29d31b08ac4483a67cbd6781dae, type: 2}
+  - Name: options-music
+    Asset: {fileID: 11400000, guid: 8ea99fccfb6ec26429431f030fe2e767, type: 2}
+  - Name: options-headgesture
+    Asset: {fileID: 11400000, guid: 976ddcc6826fd7747a5d843ff5a17157, type: 2}
+  - Name: invr
+    Asset: {fileID: 11400000, guid: bda0774c746e69a41b061a666fbc55a9, type: 2}
+  - Name: current spawn point
+    Asset: {fileID: 11400000, guid: bda536a885ac21d4e9a58fde7c6a7c1d, type: 2}
+  - Name: current choice
+    Asset: {fileID: 11400000, guid: c4e27a967c96f824a8ba9332191bedd0, type: 2}
+  - Name: options-headgesturefeedback
+    Asset: {fileID: 11400000, guid: d7b1c587b7fb4b443986cb007cdbd08a, type: 2}
+  - Name: togglemenulocator
+    Asset: {fileID: 11400000, guid: e1450a18808a3a445bcee2baafa2ea4f, type: 2}
+  - Name: test_counter
+    Asset: {fileID: 11400000, guid: e3ce4c87c8e69814580dcf60c55023da, type: 2}
+  - Name: recenter target
+    Asset: {fileID: 11400000, guid: efad312b9d641ee4b913f7fdf516e61a, type: 2}
+  - Name: options-postprocess
+    Asset: {fileID: 11400000, guid: fb3adee4600fb884490853832b208085, type: 2}
+  m_ManualUpdate: 0

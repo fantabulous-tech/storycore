@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d49cfae7f94e4dcc9e903219c9d367f7, type: 3}
+  m_Name: Performance Bucket
+  m_EditorClassIdentifier: 
+  m_BucketName: Performances
+  m_Sources:
+  - {fileID: 102900000, guid: 542137963ac1dee4fb547ac61b2f5a95, type: 3}
+  m_AssetRefs:
+  - Name: react_thankful
+    Asset: {fileID: 7400000, guid: 09b9c0a93d25d8043bc21ffc1d47288b, type: 2}
+  - Name: idle_cocks_head_to_left
+    Asset: {fileID: 7400000, guid: 0d04c173c4253b241a533091ec2185a1, type: 2}
+  - Name: talk_consider
+    Asset: {fileID: 7400000, guid: 448c20c4521138548b242b426937aed7, type: 2}
+  - Name: do_shake_finger_stern
+    Asset: {fileID: 7400000, guid: 46b5030d77d9e7d4faab554f64e643b2, type: 2}
+  - Name: react_shrug_long
+    Asset: {fileID: 11400000, guid: 4842b63751dd5444493aacf9451af342, type: 2}
+  - Name: idle_unhappy
+    Asset: {fileID: 7400000, guid: 4a4308e5b828d7046aab7968138ff2e9, type: 2}
+  - Name: do_inspect
+    Asset: {fileID: 11400000, guid: 5026f493d4651f046bffa6849fbf4e3f, type: 2}
+  - Name: react_nod
+    Asset: {fileID: 11400000, guid: 51fc52d1dfcd54e4791f210ca0bd7c75, type: 2}
+  - Name: do_you_leave
+    Asset: {fileID: 7400000, guid: 541644dcb0abf624c85ea761788fd4fc, type: 2}
+  - Name: talk_annoyed
+    Asset: {fileID: 11400000, guid: 61a8b344ac17c644da18de089cb82cc1, type: 2}
+  - Name: talk_question
+    Asset: {fileID: 7400000, guid: 6c8223a476fb6bb4ab0121aaa6a9ff66, type: 2}
+  - Name: react_head_toss_casual
+    Asset: {fileID: 11400000, guid: 892197430c7b85f42b13079705092e4b, type: 2}
+  - Name: talk_bashful
+    Asset: {fileID: 7400000, guid: 91d65a0d0b549be4ba83d367c54ba665, type: 2}
+  - Name: idle_bored
+    Asset: {fileID: 11400000, guid: b5a0c2aa5951f184cb7817abcb223eea, type: 2}
+  - Name: talk_thoughtful
+    Asset: {fileID: 11400000, guid: c155ad46b911dd144901c0b4ca23a1b4, type: 2}
+  - Name: idle_skeptical
+    Asset: {fileID: 7400000, guid: d2748961c4c2faf42942bd27867df2a2, type: 2}
+  - Name: talk_threaten
+    Asset: {fileID: 7400000, guid: d3cd4f228a8e5fd4f94cce144a0d5cd7, type: 2}
+  - Name: do_throat_cut
+    Asset: {fileID: 7400000, guid: f30c32aac1d0fd643992f7f3aeaab90e, type: 2}
+  m_ManualUpdate: 0

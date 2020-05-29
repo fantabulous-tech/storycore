@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 079f64bf0ff345fda33d6724f5cae0bb, type: 3}
+  m_Name: CommandList
+  m_EditorClassIdentifier: 
+  m_EventName: 
+  m_EventDescription: "/list <bucket>\nLists out the items in a specific bucket of
+    assets. Bucket names: actions\r, ambient\r, characters\r, choices\r, commands\r\r,
+    music, performances\r, poses\r, scenes\r, vo\r"
+  m_DebugLog: 0
+  m_Buckets: {fileID: 11400000, guid: ba6bd1f32c85265498198e1dda114a37, type: 2}

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c29115ab884a189429868640c2646fbb
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - m_AudioSource: {instanceID: 0}
+  - m_MusicBucket: {fileID: 11400000, guid: 8b4e8274ff477574a8353e5dcd29b41a, type: 2}
+  - m_StoryTeller: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

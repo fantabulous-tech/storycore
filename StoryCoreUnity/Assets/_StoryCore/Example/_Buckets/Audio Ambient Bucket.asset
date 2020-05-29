@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5d5e2cb215d4af09f4073493f20b89f, type: 3}
+  m_Name: Audio Ambient Bucket
+  m_EditorClassIdentifier: 
+  m_BucketName: Ambient
+  m_Sources:
+  - {fileID: 102900000, guid: 97a4125ed7e174c48af7e80e3ead6fa8, type: 3}
+  m_AssetRefs:
+  - Name: crowd
+    Asset: {fileID: 8300000, guid: 1aad47cfcfd61c142a2478e7681dcc99, type: 3}
+  - Name: howling-wind
+    Asset: {fileID: 8300000, guid: ddf84f2ba4137cd4b8723219a14baa6f, type: 3}
+  - Name: rain
+    Asset: {fileID: 8300000, guid: f7bcb484508138e43811c90c8d2ddd50, type: 3}
+  m_ManualUpdate: 0

@@ -1,0 +1,51 @@
+Please follow these instructions when importing, or LipSync Pro may not work correctly.
+
+If you have not had any version of LipSync - Pro or Lite - in this project before, double click the LipSync Pro 1.52 package and import everything.
+
+If you currently have LipSync Lite (1.4 +) in this project:
+ 1) Click File > New Scene.
+ 2) Copy the Project Settings file (Rogo Digital/LipSync Pro/ProjectSettings.asset) and any custom Blend Systems, Phoneme Sets and Presets from their folders to somewhere outside the project folder.
+ 3) Delete the following files/folders:
+    - Editor Default Resources/Rogo Digital/LipSync
+    - Plugins/Editor/Rogo Digital/LipSync-Lite-CSharp-Editor.dll
+    - Plugins/Rogo Digital/LipSync-Lite-CSharp.dll
+    - Rogo Digital/LipSync
+ 4) Double click the LipSync Pro 1.52 package and import everything.
+ 5) Return any Blend Systems, Phoneme Sets or presets you backed up to their correct folders.
+
+If you currently have LipSync Lite (any older version) in this project:
+ 1) Click File > New Scene.
+ 2) Copy any presets (Rogo Digital/LipSync/Presets) and custom Blend Systems (Rogo Digital/LipSync/BlendSystems) from their folders to somewhere outside the project folder.
+ 3) Delete the following files/folders:
+    - Editor Default Resources/Rogo Digital/LipSync
+    - Plugins/Editor/Rogo Digital/LipSync-Lite-CSharp-Editor.dll
+    - Plugins/Rogo Digital/LipSync-Lite-CSharp.dll
+    - Rogo Digital/LipSync
+ 4) Double click the LipSync Pro 1.52 package and import everything.
+ 5) Return any Blend Systems or presets you backed up to their correct folders.
+
+ If you currently have LipSync Pro (1.3 +) in this project:
+ 1) Click File > New Scene.
+ 2) Copy the Project Settings file (Rogo Digital/LipSync Pro/ProjectSettings.asset) and any custom Blend Systems, Phoneme Sets and Presets from their folders to somewhere outside the project folder.
+ 3) Delete the following files/folders:
+    - Editor Default Resources/Rogo Digital/LipSync
+    - Editor Default Resources/Rogo Digital/Eye Controller
+    - Plugins/Editor/Rogo Digital/LipSync
+    - Rogo Digital/LipSync Pro
+ 4) Double click the LipSync Pro 1.52 package and import everything.
+ 5) Return project settings and any other files you backed up to their correct folders.
+
+If you currently have LipSync Pro (1.0 to 1.201) in this project:
+ 1) Click File > New Scene.
+ 2) Copy the Project Settings file (Rogo Digital/LipSync/ProjectSettings.asset) and any custom Blend Systems and Presets from their folders to somewhere outside the project folder.
+ 3) Delete the following files/folders:
+    - Editor Default Resources/Rogo Digital/LipSync
+    - Editor Default Resources/Rogo Digital/Eye Controller
+    - Plugins/Editor/Rogo Digital/LipSync
+    - Rogo Digital/LipSync
+ 4) Double click the LipSync Pro 1.52 package and import everything.
+ 5) Return project settings and any other files you backed up to their correct folders.
+
+ **** IMPORTANT NOTE ****
+ If you wish to use AutoSync for automating the creation of LipSyncData assets, please run the AutoSync Setup Wizard from the Window > Rogo Digital > LipSync Pro menu, or from the AutoSync
+ menu in the Clip Editor. If you need more information on the process, the AutoSync guide can be found in the AutoSync menu in the Clip Editor, or at https://lipsync.rogodigital.com/documentation/autosync-guide.php

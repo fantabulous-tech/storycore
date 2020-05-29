@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a8c8762f95d4cd59fb8a4423bb2cd85, type: 3}
+  m_Name: Options Bucket
+  m_EditorClassIdentifier: 
+  m_BucketName: 
+  m_Sources:
+  - {fileID: 102900000, guid: 74cedd49cefabc7488c282b865c3278a, type: 3}
+  m_AssetRefs:
+  - Name: options-subtitles
+    Asset: {fileID: 11400000, guid: 07d7491b8e882344b8b0f5db0ee6c1a4, type: 2}
+  - Name: options-antialiasing
+    Asset: {fileID: 11400000, guid: 5d4fbdd307556ed4ebd7752404aa7c92, type: 2}
+  - Name: options-qualitylevel
+    Asset: {fileID: 11400000, guid: 736c15a7610881844a136a688b7fa218, type: 2}
+  - Name: options-snaprotate
+    Asset: {fileID: 11400000, guid: 7dae737f4f71c5d4b9c476e40a9b3a9d, type: 2}
+  - Name: options-music
+    Asset: {fileID: 11400000, guid: 8ea99fccfb6ec26429431f030fe2e767, type: 2}
+  - Name: options-headgesture
+    Asset: {fileID: 11400000, guid: 976ddcc6826fd7747a5d843ff5a17157, type: 2}
+  - Name: options-headgesturefeedback
+    Asset: {fileID: 11400000, guid: d7b1c587b7fb4b443986cb007cdbd08a, type: 2}
+  - Name: options-postprocess
+    Asset: {fileID: 11400000, guid: fb3adee4600fb884490853832b208085, type: 2}
+  m_ManualUpdate: 0

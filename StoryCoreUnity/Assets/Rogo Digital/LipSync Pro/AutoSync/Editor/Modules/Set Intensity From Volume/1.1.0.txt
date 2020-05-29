@@ -1,0 +1,4 @@
+Set Intensity From Volume AutoSync Module
+V1.0.0
+-------
+Initial Release

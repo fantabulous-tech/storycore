@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 726fbe3f9ca3b4142a670c4486429b24, type: 3}
+  m_Name: Scene Bucket
+  m_EditorClassIdentifier: 
+  m_BucketName: Scenes
+  m_Items:
+  - assets/_storycore/example/_scenes/office.hallway.unity
+  - assets/_storycore/example/_scenes/office.interior.unity
+  - assets/_storycore/example/_scenes/office.unity
+  m_MainPath: Assets/_StoryCore/Example/StoryCoreExample.unity
+  m_MainScene: {fileID: 102900000, guid: 687eab66e2402584e9cc0830a119b199, type: 3}
+  m_SceneFolder: {fileID: 102900000, guid: 69b82cf5e4d6a7f4dbea4faf346dc358, type: 3}
+  m_AutoUpdateBuildScenes: 0

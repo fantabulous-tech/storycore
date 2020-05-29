@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0699ef34de0422e4f8a743ff79f10d20
+timeCreated: 1512278043
+licenseType: Pro
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - m_SubtitleCanvas: {fileID: 223092532188818398, guid: 9b6d42dbe8693084592a9832c3005240,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

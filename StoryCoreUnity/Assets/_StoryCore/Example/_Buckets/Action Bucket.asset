@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd03932f1724e22a71ab368c581da16, type: 3}
+  m_Name: Action Bucket
+  m_EditorClassIdentifier: 
+  m_BucketName: Actions
+  m_ActionBindings:
+  - ActionName: restart
+    GameEvent: {fileID: 11400000, guid: aa4d47a11c283774281e75ede6c5fbc0, type: 2}

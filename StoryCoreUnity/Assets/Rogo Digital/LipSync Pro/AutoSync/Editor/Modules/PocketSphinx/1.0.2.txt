@@ -1,0 +1,13 @@
+PocketSphinx AutoSync Module
+
+V1.0.2
+-------
+Fixed issue with audio conversion creating audio files with the wrong format.
+
+V1.0.1
+-------
+Fixed float parsing issue on certain system culture/language settings.
+
+V1.0.0
+-------
+Initial Release
