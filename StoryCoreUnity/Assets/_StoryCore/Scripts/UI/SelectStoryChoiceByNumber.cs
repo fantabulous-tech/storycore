@@ -5,7 +5,7 @@ using UnityEngine;
 namespace StoryCore {
     public class SelectStoryChoiceByNumber : MonoBehaviour {
         [SerializeField] private int m_ChoiceIndex;
-        [SerializeField, AutoFillAsset] private StoryTellerLocator m_StoryTeller;
+        [SerializeField] private StoryTellerLocator m_StoryTeller;
 
         private StoryTeller StoryTeller => m_StoryTeller ? m_StoryTeller.Value : null;
 

@@ -11,7 +11,7 @@ namespace StoryCore.GameVariables {
     }
 
     public abstract class BaseGameVariableStory<thisT, T> : BaseGameVariable<thisT, T>, IStoryVariable where thisT : BaseGameVariableStory<thisT, T> {
-        [SerializeField, AutoFillAsset] private StoryTellerLocator m_StoryTellerLocator;
+        [SerializeField] private StoryTellerLocator m_StoryTellerLocator;
 
         private StoryTeller StoryTeller => m_StoryTellerLocator ? m_StoryTellerLocator.Value : null;
 

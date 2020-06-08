@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace StoryCore {
     public class EmotionTester : MonoBehaviour {
-        [SerializeField, AutoFillAsset] private EmotionBucket m_EmotionBucket;
+        [SerializeField] private EmotionBucket m_EmotionBucket;
         [SerializeField] private TMP_Dropdown m_Dropdown;
 
         private int m_LastIndex = -1;

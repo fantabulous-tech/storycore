@@ -16,7 +16,7 @@ namespace StoryCore {
         [SerializeField] private GameVariableSpawnPoint m_CurrentSpawnPoint;
         [SerializeField] private StoryTeller m_StoryTeller;
         [SerializeField] private GameVariableBool m_IsJournalOpen;
-        [SerializeField, AutoFillAsset] private VOBucket m_VO;
+        [SerializeField] private VOBucket m_VO;
 
         public static bool IsActive => s_Instance;
         public static CommandHandler CommandRecenter => s_Instance ? s_Instance.m_CommandRecenter : null;

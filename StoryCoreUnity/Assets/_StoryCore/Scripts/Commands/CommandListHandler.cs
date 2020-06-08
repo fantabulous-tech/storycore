@@ -7,7 +7,7 @@ using UnityEngine;
 namespace StoryCore.Commands {
     [CreateAssetMenu(menuName = "Commands/Command List")]
     public class CommandListHandler : CommandHandler {
-        [SerializeField, AutoFillAsset] private BucketBucket m_Buckets;
+        [SerializeField] private BucketBucket m_Buckets;
 
         public override DelaySequence Run(ScriptCommandInfo info) {
             string bucketName = info.Params.FirstOrDefault() ?? "";

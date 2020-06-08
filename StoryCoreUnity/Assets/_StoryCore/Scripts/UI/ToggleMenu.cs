@@ -14,10 +14,9 @@ namespace StoryCore.UI {
         [SerializeField] private Vector3 m_RotationOffset = new Vector3(0, 180, 0);
         [SerializeField] private Vector3 m_PositionOffsetPC = Vector3.forward;
         [SerializeField] private bool m_CanToggleOff;
-        [SerializeField, AutoFillAsset] private ToggleMenuLocator m_ToggleMenuLocator;
+        [SerializeField] private ToggleMenuLocator m_ToggleMenuLocator;
 
-        [SerializeField, AutoFillAsset(DefaultName = "InVR")]
-        private GameVariableBool m_InVR;
+        [SerializeField] private GameVariableBool m_InVR;
 
         private bool m_Pressed;
         private bool m_On;

@@ -4,9 +4,7 @@ using UnityEngine;
 namespace StoryCore.Utils {
     public class OpenUrl : MonoBehaviour {
         [SerializeField] private string m_Url;
-
-        [SerializeField, AutoFillAsset(DefaultName = "InVR")]
-        private GameVariableBool m_InVR;
+        [SerializeField] private GameVariableBool m_InVR;
 
         public void Go() {
             Application.OpenURL(m_Url);

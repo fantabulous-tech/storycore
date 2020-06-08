@@ -19,16 +19,16 @@ namespace StoryCore {
         [SerializeField] private bool m_DebugLog;
         [SerializeField] private TextAsset m_InkJson;
         [SerializeField] private SubtitleUI m_PromptUI;
-        [SerializeField, AutoFillAsset] private GameVariableBool m_OptionSubtitles;
+        [SerializeField] private GameVariableBool m_OptionSubtitles;
 
-        [SerializeField, AutoFillAsset(DefaultName = "Restart")]
+        [SerializeField]
         private GameEvent m_RestartEvent;
 
-        [SerializeField, AutoFillAsset] private GameVariableChoice m_CurrentChoice;
-        [SerializeField, AutoFillAsset] private GameVariableString m_FocusedCharacterName;
-        [SerializeField, AutoFillAsset] private CharacterBucket m_CharacterBucket;
-        [SerializeField, AutoFillAsset] private TextReplacementConfig m_TextReplacement;
-        [SerializeField, AutoFillAsset] private StoryTellerLocator m_StoryTellerLocator;
+        [SerializeField] private GameVariableChoice m_CurrentChoice;
+        [SerializeField] private GameVariableString m_FocusedCharacterName;
+        [SerializeField] private CharacterBucket m_CharacterBucket;
+        [SerializeField] private TextReplacementConfig m_TextReplacement;
+        [SerializeField] private StoryTellerLocator m_StoryTellerLocator;
 
         [FormerlySerializedAs("m_CustomDialogLineSequenceProvider"), SerializeField]
         private AbstractLineSequenceProvider m_CustomDialogLineProvider;
@@ -387,6 +387,18 @@ namespace StoryCore {
 
             if (storyChoice == null) {
                 Debug.LogWarning($"Choice '{choice}' was not found. Current choices: {CurrentChoices.AggregateToString()}", this);
+                return false;
+            }
+
+            Choose(storyChoice);
+            return true;
+        }
+
+        public bool Choose(int choice) {
+            StoryChoice storyChoice = CurrentChoices.ElementAtOrDefault(choice);
+
+            if (storyChoice == null) {
+                Debug.LogWarning($"Choice #{choice} was not found. Current choices: {CurrentChoices.AggregateToString()}", this);
                 return false;
             }
 

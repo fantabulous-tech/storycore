@@ -8,8 +8,8 @@ namespace StoryCore.Commands {
     public class NotificationUI : MonoBehaviour {
         [SerializeField] private TextMeshProUGUI m_Title;
         [SerializeField] private TextMeshProUGUI m_Text;
-        [SerializeField, AutoFillAsset] private TextReplacementConfig m_Replacement;
-        [SerializeField, AutoFillAsset] private StoryTellerLocator m_StoryTellerLocator;
+        [SerializeField] private TextReplacementConfig m_Replacement;
+        [SerializeField] private StoryTellerLocator m_StoryTellerLocator;
 
         public void Show(ScriptCommandInfo info) {
             m_Title.text = info.NamedParams.ContainsKey("title") ? info.NamedParams["title"] : "";

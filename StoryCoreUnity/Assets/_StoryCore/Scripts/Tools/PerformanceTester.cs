@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace StoryCore {
     public class PerformanceTester : MonoBehaviour {
-        [SerializeField, AutoFillAsset] private PerformanceBucket m_AnimBucket;
+        [SerializeField] private PerformanceBucket m_AnimBucket;
         [SerializeField] private bool m_Loop;
         [SerializeField] private TMP_Dropdown m_Dropdown;
 

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace StoryCore.GameVariables {
     public class SaveLoadVariables : Singleton<SaveLoadVariables> {
-        [SerializeField, AutoFillAsset] private GameVariableBucket m_GameVariablesToSave;
+        [SerializeField] private GameVariableBucket m_GameVariablesToSave;
 
         public static BaseGameVariable[] SavedVariables => Instance.m_GameVariablesToSave.Items;
 
