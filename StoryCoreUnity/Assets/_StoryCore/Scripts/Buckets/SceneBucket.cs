@@ -16,37 +16,49 @@ namespace StoryCore.Commands {
         public override string[] ItemNames => m_Items.Select(i => i.ReplaceRegex(@"^.*[/\\]([^/\\]+)\.unity$", "$1", RegexOptions.IgnoreCase)).ToArray();
 
 #if UNITY_EDITOR
-        [SerializeField, HideInInspector] private string m_MainPath;
-        [SerializeField] private Object m_MainScene;
+        [SerializeField, HideInInspector] private string[] m_MainPaths;
+        [SerializeField] private Object[] m_MainScenes;
         [SerializeField] private Object m_SceneFolder;
         [SerializeField] private bool m_AutoUpdateBuildScenes;
 
         public void OnValidate() {
-            ValidateMainScene();
+            ValidateMainScenes();
             ValidateSceneList();
-            UpdateBuildScenes();
+            UpdateBuildScenes(false);
         }
 
-        private void UpdateBuildScenes() {
-            if (!m_AutoUpdateBuildScenes) {
+        private void UpdateBuildScenes(bool force) {
+            if (!m_AutoUpdateBuildScenes && !force) {
                 return;
             }
+
             List<EditorBuildSettingsScene> scenes = new List<EditorBuildSettingsScene>(Items.Select(path => new EditorBuildSettingsScene(path, true)));
-            if (m_MainPath != null) {
-                scenes.Insert(0, new EditorBuildSettingsScene(m_MainPath, true));
+
+            for (int i = m_MainPaths.Length - 1; i >= 0; i--) {
+                string path = m_MainPaths[i];
+                if (!path.IsNullOrEmpty()) {
+                    scenes.Insert(0, new EditorBuildSettingsScene(path, true));
+                }
             }
+
             EditorBuildSettings.scenes = scenes.ToArray();
         }
 
-        private void ValidateMainScene() {
-            if (!m_MainScene) {
-                return;
-            }
-            string scenePath = AssetDatabase.GetAssetPath(m_MainScene);
-            if (!scenePath.EndsWith(".unity", StringComparison.OrdinalIgnoreCase)) {
-                m_MainScene = null;
-            } else {
-                m_MainPath = scenePath;
+        public void ForceUpdateBuildScenes() {
+            ValidateMainScenes();
+            ValidateSceneList();
+            UpdateBuildScenes(true);
+        }
+
+        private void ValidateMainScenes() {            
+            m_MainPaths = new string[m_MainScenes.Length];
+
+            for (int i = 0; i < m_MainScenes.Length; i++) {
+                Object scene = m_MainScenes[i];
+                string path = scene ? AssetDatabase.GetAssetPath(scene) : null;
+                bool isScene = !path.IsNullOrEmpty() && path.EndsWith(".unity");
+                m_MainScenes[i] = isScene ? scene : null;
+                m_MainPaths[i] = isScene ? path : null;
             }
         }
 

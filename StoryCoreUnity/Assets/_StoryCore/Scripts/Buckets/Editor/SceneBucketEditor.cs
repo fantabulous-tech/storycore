@@ -7,7 +7,7 @@ namespace StoryCore.Commands {
     [CustomEditor(typeof(SceneBucket))]
     public class SceneBucketEditor : GenericBucketEditor<SceneBucket, string> {
         public override void OnInspectorGUI() {
-            DrawDefaultInspector();
+            DrawPropertiesExcluding(serializedObject, "m_Items");
 
             GUILayout.Label("Included Scenes:", EditorStyles.boldLabel);
 
@@ -16,9 +16,11 @@ namespace StoryCore.Commands {
             }
 
             if (GUILayout.Button("Update Build Scenes")) {
-                Target.OnValidate();
+                Target.ForceUpdateBuildScenes();
                 EditorUtility.SetDirty(Target);
             }
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         [InitializeOnLoadMethod]
