@@ -10,7 +10,7 @@ namespace StoryCore {
 
         public void Fill(StoryChoice choice) {
             m_Choice = choice;
-            m_Text.text = choice.DisplayText.ToSpacedName().Replace(":", ": ");
+            m_Text.text = choice.DisplayText.ToSpacedName(true, false).Replace(":", ": ");
         }
 
         public void OnChoice() {

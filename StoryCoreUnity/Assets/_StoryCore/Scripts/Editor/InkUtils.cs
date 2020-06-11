@@ -12,6 +12,8 @@ using Object = UnityEngine.Object;
 
 namespace StoryCore.InkTodo {
     public static class InkUtils {
+        const string kStoryScriptPath = "Assets/_Stories/_game.ink";
+
         private static AutoSyncPreset s_AutoSyncPreset;
         private static AutoSyncModule[] s_AutoSyncModules;
         private static readonly Regex s_CleanTranscriptRegex = new Regex(@"^(\s*//\s*|(\s*//)?\s*-\s*(\([^\)]*\)\s*)?|(\s*//)?\s*\+\s*\[[^\]]+\]\s*)(?<text>.*)");
@@ -83,8 +85,6 @@ namespace StoryCore.InkTodo {
         private static Dictionary<string, string> GetTranscriptLookup() {
             Dictionary<string, string> transcriptLookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-            const string kStoryScriptPath = "Assets/_Stories/_game.ink";
-
             List<InkFileInfo> inkFiles = GetInkFiles(kStoryScriptPath);
 
             string currentKnot = null;
@@ -114,7 +114,7 @@ namespace StoryCore.InkTodo {
                             if (transcriptLookup.TryGetValue(result, out string previousScript) && previousScript != script) {
                                 Debug.LogWarning($"Duplicate VO reference found: {script} vs. {previousScript} in {info.DisplayPath}", info.InkAsset);
                             }
-                            transcriptLookup[result] = CleanupTranscript(line);
+                            transcriptLookup[result] = script;
                         }
                     }
                 }

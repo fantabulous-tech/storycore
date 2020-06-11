@@ -416,6 +416,10 @@ namespace StoryCore.Utils {
             return fi;
         }
 
+        public static string GetGuidFromAsset(Object obj) {
+            return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(obj));
+        }
+
         public static T GetAssetFromGuid<T>(string guid) where T : Object {
             return (T) GetAssetFromGuid(guid, typeof(T));
         }

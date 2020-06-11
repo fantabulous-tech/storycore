@@ -14,14 +14,22 @@ namespace StoryCore {
 
         public string Text => m_InkChoice.text.TrimEnd('!');
 
-        public string DisplayText => Text.ReplaceRegex(@"\([^\)].*\)", "");
+        // Remove text in parenthesis and additional parameters
+        public string DisplayText => Text.ReplaceRegex(@"(\([^\)].*\)|\b [^:].*)", "");
 
         private string ChoiceName => GetChoicePieces().First().TrimEnd('!');
-
+        
         public IEnumerable<string> ChoiceParams => GetChoicePieces().Skip(1);
 
         public bool IsValidChoice(string choiceName) {
-            return string.Equals(ChoiceName, choiceName, StringComparison.OrdinalIgnoreCase);
+            choiceName = choiceName.Replace(" ", "");
+
+            if (string.Equals(ChoiceName, choiceName, StringComparison.OrdinalIgnoreCase)) {
+                return true;
+            }
+
+            // Try to match the command + first parameter. (e.g. 'pose:stand')
+            return string.Equals(ChoiceName + ":" + ChoiceParams.FirstOrDefault(), choiceName);
         }
 
         public StoryChoice(Choice inkChoice, StoryTeller storyTeller) {

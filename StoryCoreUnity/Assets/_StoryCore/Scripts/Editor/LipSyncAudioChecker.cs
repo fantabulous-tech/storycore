@@ -14,8 +14,8 @@ using UnityEngine;
 
 namespace StoryCore {
     public static class LipSyncAudioChecker {
-        private const string kVoiceScriptPath = "Voice Script.txt";
-        private const string kMissingLinesPath = "Missing Lines Script.txt";
+        private const string kVoiceScriptPath = "Exports\\Voice Script.txt";
+        private const string kMissingLinesPath = "Exports\\Missing Lines Script.txt";
         private static Queue<string> s_LipSyncQueue;
         private static ProgressBarCounted s_AutoSyncProgress;
         private static int s_AutoSyncProgressTotal;
@@ -280,7 +280,7 @@ namespace StoryCore {
         }
 
         private static string CleanTranscript(string transcript) {
-            if (transcript.Contains('<')) {
+            if (!transcript.IsNullOrEmpty() && transcript.Contains('<')) {
                 transcript = transcript.Replace(@"<br/>", " ");
                 transcript = transcript.ReplaceRegex(@"<[^>]*>", "");
             }

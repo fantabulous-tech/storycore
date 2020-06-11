@@ -47,6 +47,7 @@ namespace StoryCore.Commands {
         public override Transform AttentionPoint => m_EyeController && m_EyeController.LeftEyeLookAtBone ? m_EyeController.LeftEyeLookAtBone : m_VoiceSource ? m_VoiceSource.transform : transform;
 
         public AnimationClip CurrentAnim => m_LastAnim.IsValid() ? m_LastAnim.GetAnimationClip() : null;
+        public bool IsTalking => m_LipSync.IsPlaying;
 
         protected override void Awake() {
             base.Awake();

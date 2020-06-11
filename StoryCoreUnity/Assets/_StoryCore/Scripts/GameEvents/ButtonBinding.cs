@@ -8,12 +8,13 @@ namespace Bindings {
         [SerializeField] private BaseGameEvent m_GameEvent;
         [SerializeField] private Button m_Button;
         [SerializeField] private TextMeshProUGUI m_Label;
+        [SerializeField] private bool OverrideName;
 
         private bool m_LastValue;
 
         private void Start() {
             m_Button.onClick.AddListener(OnClick);
-            if (m_Label && m_GameEvent) {
+            if (m_Label && m_GameEvent && !OverrideName) {
                 m_Label.text = m_GameEvent.Name;
             }
         }
@@ -30,7 +31,7 @@ namespace Bindings {
         }
 
         private void OnValidate() {
-            if (m_Label && m_GameEvent) {
+            if (m_Label && m_GameEvent && !OverrideName) {
                 m_Label.text = m_GameEvent.Name;
             }
         }

@@ -140,7 +140,7 @@ namespace StoryCore.Utils {
                 if (!CanTag(line, fileId, i, context)) {
                     continue;
                 }
-                lines[i] = line + " #" + GetNextId(currentKnotName, ref currentId, existingTags).ToString("00");
+                lines[i] = line.TrimEnd() + " #" + GetNextId(currentKnotName, ref currentId, existingTags).ToString("00");
                 changed = true;
             }
 
@@ -178,7 +178,7 @@ namespace StoryCore.Utils {
             line = line.ReplaceRegex(@"\-\>\s*[a-zA-Z0-9_.]+(\([^)]*\))?(\([\w\s,]*\))?", "");
 
             // Remove '- else:' and other conditionals that end with ':'
-            line = line.ReplaceRegex(@"^\s*-\s+[^{""]*:", "", RegexOptions.IgnoreCase);
+            line = line.ReplaceRegex(@"^\s*-\s*[^{""]*:", "", RegexOptions.IgnoreCase);
 
             // Skip '<blockquote>' passages used for the web stuff.
             if (line.ContainsRegex(@"^\s*<blockquote>", RegexOptions.IgnoreCase)) {
@@ -218,11 +218,6 @@ namespace StoryCore.Utils {
                 return false;
             }
 
-            // Ignore command lines
-            if (line.StartsWith("/")) {
-                return false;
-            }
-
             // Ignore comments
             line = line.ReplaceRegex(@"\s*//.*", "");
 
@@ -236,6 +231,11 @@ namespace StoryCore.Utils {
             // Replace 'if' code with first option.
             while (ifCode.IsMatch(line)) {
                 line = ifCode.Replace(line, "$1");
+            }
+
+            // Ignore command lines
+            if (line.StartsWith("/")) {
+                return false;
             }
 
             // Remove in-line code

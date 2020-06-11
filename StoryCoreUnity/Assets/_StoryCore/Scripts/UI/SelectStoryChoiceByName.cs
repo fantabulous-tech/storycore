@@ -18,7 +18,7 @@ namespace StoryCore {
                 if (StoryTeller.CanChoose(m_ChoiceName)) {
                     StoryTeller.Choose(m_ChoiceName);
                 } else {
-                    Debug.LogError($"Couldn't choose {m_ChoiceName}.", this);
+                    Debug.LogWarning($"Tried to choose '{m_ChoiceName}', but that choice isn't available.", this);
                 }
             }
         }

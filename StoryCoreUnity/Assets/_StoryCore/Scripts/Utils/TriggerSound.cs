@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Events;
 using Random = UnityEngine.Random;
 
 namespace StoryCore.Utils {
@@ -38,6 +39,8 @@ namespace StoryCore.Utils {
         private float m_DelayOffsetTime;
 
         private AudioClip m_Clip;
+
+        public UnityEvent OnSoundTriggered;
 
         private void Awake() {
             m_AudioSource = m_AudioSource ? m_AudioSource : GetComponent<AudioSource>();
@@ -82,6 +85,7 @@ namespace StoryCore.Utils {
                 m_AudioSource.Stop();
             }
             m_AudioSource.PlayOneShot(m_Clip);
+            OnSoundTriggered?.Invoke();
         }
 
         public void Stop() {
