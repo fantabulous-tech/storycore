@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using StoryCore.Utils;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -14,15 +16,23 @@ namespace StoryCore.Editor {
         private float m_WindowWidth;
         private List<ObjectBookmark> m_Bookmarks;
 
-        private const string kPlayerPrefsKeyBookmarkItemCount = "ObjectBookmarkWindow_ItemCount";
-        private const string kPlayerPrefsKeyBookMarkIsSceneObjectFormat = "ObjectBookmarkWindow_Item{0}_IsSceneObject";
-        private const string kPlayerPrefsKeyBookMarkObjectGUID = "ObjectBookmarkWindow_Item{0}_GUID";
-        private const string kPlayerPrefsKeyBookMarkObjectScenePath = "ObjectBookmarkWindow_Item{0}_ScenePath";
+        private const string kPrefsKeyBookmarkItemCount = "ObjectBookmarkWindow_ItemCount";
+        private const string kPrefsKeyBookMarkIsSceneObjectFormat = "ObjectBookmarkWindow_Item{0}_IsSceneObject";
+        private const string kPrefsKeyBookMarkObjectGUIDFormat = "ObjectBookmarkWindow_Item{0}_GUID";
+        private const string kPrefsKeyBookMarkObjectScenePathFormat = "ObjectBookmarkWindow_Item{0}_ScenePath";
 
         private const int kMaxDisplayStringLength = 32;
-        private static readonly GUILayoutOption[] s_IconLayoutOptions = {GUILayout.Width(32), GUILayout.Height(19)};
         private static readonly GUILayoutOption[] s_ButtonLayoutOptions = {GUILayout.Width(22), GUILayout.Height(19)};
         private static readonly GUILayoutOption[] s_SmallLayoutLayoutOptions = {GUILayout.Width(32), GUILayout.Height(19)};
+
+        private static string m_ProjectKeyPrefix;
+
+        private static string ProjectKeyPrefix => UnityUtils.GetOrSet(ref m_ProjectKeyPrefix, () => Path.GetFileName(Directory.GetCurrentDirectory()) + "_");
+
+        private static string KeyItemCount = ProjectKeyPrefix + kPrefsKeyBookmarkItemCount;
+        private static string KeyIsSceneObjectFormat = ProjectKeyPrefix + kPrefsKeyBookMarkIsSceneObjectFormat;
+        private static string KeyObjectGUIDFormat = ProjectKeyPrefix + kPrefsKeyBookMarkObjectGUIDFormat;
+        private static string KeyObjectScenePathFormat = ProjectKeyPrefix + kPrefsKeyBookMarkObjectScenePathFormat;
 
         [MenuItem("Window/Object Bookmarks")]
         public static void OpenWindow() {
@@ -31,7 +41,7 @@ namespace StoryCore.Editor {
         }
 
         private void Awake() {
-            LoadProfile();
+            LoadProfileFromEditorPrefs();
         }
 
         public void OnGUI() {
@@ -44,7 +54,7 @@ namespace StoryCore.Editor {
             }
 
             if (m_Bookmarks == null) {
-                LoadProfile();
+                LoadProfileFromEditorPrefs();
             }
 
             ObjectBookmark toDelete = null;
@@ -96,19 +106,19 @@ namespace StoryCore.Editor {
             SaveProfile();
         }
 
-        private void LoadProfile() {
+        private void LoadProfileFromPlayerPrefs() {
             m_ScrollPosition = new Vector2(0.0f, 0.0f);
             m_Bookmarks = new List<ObjectBookmark>();
 
             int itemCount = 0;
-            if (PlayerPrefs.HasKey(kPlayerPrefsKeyBookmarkItemCount)) {
-                itemCount = PlayerPrefs.GetInt(kPlayerPrefsKeyBookmarkItemCount);
+            if (PlayerPrefs.HasKey(kPrefsKeyBookmarkItemCount)) {
+                itemCount = PlayerPrefs.GetInt(kPrefsKeyBookmarkItemCount);
             }
 
             for (int i = 0; i < itemCount; ++i) {
-                string isSceneObjectProfileKey = string.Format(kPlayerPrefsKeyBookMarkIsSceneObjectFormat, i);
-                string objectGUIDProfileKey = string.Format(kPlayerPrefsKeyBookMarkObjectGUID, i);
-                string objectScenePathProfileKey = string.Format(kPlayerPrefsKeyBookMarkObjectScenePath, i);
+                string isSceneObjectProfileKey = string.Format(kPrefsKeyBookMarkIsSceneObjectFormat, i);
+                string objectGUIDProfileKey = string.Format(kPrefsKeyBookMarkObjectGUIDFormat, i);
+                string objectScenePathProfileKey = string.Format(kPrefsKeyBookMarkObjectScenePathFormat, i);
 
                 if (PlayerPrefs.HasKey(isSceneObjectProfileKey)) {
                     bool isSceneObject = PlayerPrefs.GetInt(isSceneObjectProfileKey) == 1;
@@ -128,17 +138,53 @@ namespace StoryCore.Editor {
             }
         }
 
+        private void LoadProfileFromEditorPrefs() {
+            m_ScrollPosition = new Vector2(0.0f, 0.0f);
+            m_Bookmarks = new List<ObjectBookmark>();
+
+            int itemCount = 0;
+            if (EditorPrefs.HasKey(KeyItemCount)) {
+                itemCount = EditorPrefs.GetInt(KeyItemCount);
+            } else {
+                LoadProfileFromPlayerPrefs();
+                SaveProfile();
+                return;
+            }
+
+            for (int i = 0; i < itemCount; ++i) {
+                string isSceneObjectProfileKey = string.Format(KeyIsSceneObjectFormat, i);
+                string objectGUIDProfileKey = string.Format(KeyObjectGUIDFormat, i);
+                string objectScenePathProfileKey = string.Format(KeyObjectScenePathFormat, i);
+
+                if (EditorPrefs.HasKey(isSceneObjectProfileKey)) {
+                    bool isSceneObject = EditorPrefs.GetInt(isSceneObjectProfileKey) == 1;
+                    ObjectBookmark newBookmark;
+
+                    if (isSceneObject) {
+                        string scenePath = EditorPrefs.GetString(objectScenePathProfileKey);
+                        newBookmark = new SceneBookmark(scenePath);
+                    } else {
+                        string guid = EditorPrefs.GetString(objectGUIDProfileKey);
+                        newBookmark = new AssetBookmark(guid);
+                    }
+
+                    newBookmark.UpdateDisplayString(m_WindowWidth);
+                    m_Bookmarks.Add(newBookmark);
+                }
+            }
+        }
+
         private void SaveProfile() {
-            PlayerPrefs.SetInt(kPlayerPrefsKeyBookmarkItemCount, m_Bookmarks.Count);
+            EditorPrefs.SetInt(KeyItemCount, m_Bookmarks.Count);
 
             for (int i = 0; i < m_Bookmarks.Count; ++i) {
-                string isSceneObjectProfileKey = string.Format(kPlayerPrefsKeyBookMarkIsSceneObjectFormat, i);
-                string objectGUIDProfileKey = string.Format(kPlayerPrefsKeyBookMarkObjectGUID, i);
-                string objectScenePathProfileKey = string.Format(kPlayerPrefsKeyBookMarkObjectScenePath, i);
+                string isSceneObjectProfileKey = string.Format(KeyIsSceneObjectFormat, i);
+                string objectGUIDProfileKey = string.Format(KeyObjectGUIDFormat, i);
+                string objectScenePathProfileKey = string.Format(KeyObjectScenePathFormat, i);
 
-                PlayerPrefs.SetInt(isSceneObjectProfileKey, m_Bookmarks[i] is SceneBookmark ? 1 : 0);
-                PlayerPrefs.SetString(objectGUIDProfileKey, m_Bookmarks[i].ItemRef);
-                PlayerPrefs.SetString(objectScenePathProfileKey, m_Bookmarks[i].ItemRef);
+                EditorPrefs.SetInt(isSceneObjectProfileKey, m_Bookmarks[i] is SceneBookmark ? 1 : 0);
+                EditorPrefs.SetString(objectGUIDProfileKey, m_Bookmarks[i].ItemRef);
+                EditorPrefs.SetString(objectScenePathProfileKey, m_Bookmarks[i].ItemRef);
             }
         }
 

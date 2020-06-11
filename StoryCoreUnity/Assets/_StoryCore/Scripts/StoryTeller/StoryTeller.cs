@@ -483,12 +483,8 @@ namespace StoryCore {
             }
         }
 
-        public void EnableDebugInScript() {
-            m_SetDebugInScript = true;
-        }
-
-        public void DisableDebugInScript() {
-            m_SetDebugInScript = false;
+        public void SetDebugInScript(bool value) {
+            m_SetDebugInScript = value;
         }
 
         private string ChoiceInfo {

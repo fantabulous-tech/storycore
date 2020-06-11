@@ -10,6 +10,7 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace StoryCore.Utils {
+
     /// <summary>
     ///     Extends how ScriptableObject object references are displayed in the inspector
     ///     Shows you all values under the object reference
@@ -30,7 +31,7 @@ namespace StoryCore.Utils {
 
         [SettingsProvider, UsedImplicitly]
         private static SettingsProvider GetSettingsProvider() {
-            return new SettingsProvider("Scriptable Object Expander", SettingsScope.User) {
+            return new SettingsProvider("StoryCore/Scriptable Object Expander", SettingsScope.User) {
                 guiHandler = searchContext => {
                     bool enabled = EditorGUILayout.Toggle("Enabled", s_Enabled);
 
