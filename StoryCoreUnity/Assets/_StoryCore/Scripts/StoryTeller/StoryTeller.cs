@@ -20,18 +20,14 @@ namespace StoryCore {
         [SerializeField] private TextAsset m_InkJson;
         [SerializeField] private SubtitleUI m_PromptUI;
         [SerializeField] private GameVariableBool m_OptionSubtitles;
-
-        [SerializeField]
-        private GameEvent m_RestartEvent;
-
+        [SerializeField] private GameEvent m_RestartEvent;
+        [SerializeField] private string m_RestartStoryPath = "game_start";
         [SerializeField] private GameVariableChoice m_CurrentChoice;
         [SerializeField] private GameVariableString m_FocusedCharacterName;
         [SerializeField] private CharacterBucket m_CharacterBucket;
         [SerializeField] private TextReplacementConfig m_TextReplacement;
         [SerializeField] private StoryTellerLocator m_StoryTellerLocator;
-
-        [FormerlySerializedAs("m_CustomDialogLineSequenceProvider"), SerializeField]
-        private AbstractLineSequenceProvider m_CustomDialogLineProvider;
+        [SerializeField] private AbstractLineSequenceProvider m_CustomDialogLineProvider;
 
         private readonly Queue<ISequence> m_SequenceQueue = new Queue<ISequence>();
         private ISequence m_CurrentSequence;
@@ -222,7 +218,7 @@ namespace StoryCore {
         }
 
         private void RestartStory() {
-            RestartStory("game_start");
+            RestartStory(m_RestartStoryPath);
         }
 
         public void RestartStory(string storyPath) {
