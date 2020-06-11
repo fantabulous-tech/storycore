@@ -1,29 +1,74 @@
 fileFormatVersion: 2
 guid: 23a3a957dfeb8b946b6a1102998a37bf
 ModelImporter:
-  serializedVersion: 23
-  fileIDToRecycleName:
-    100000: //RootNode
-    100002: Journal-Right_0
-    100004: Journal-Right_1
-    100006: Journal-Right_2
-    400000: //RootNode
-    400002: Journal-Right_0
-    400004: Journal-Right_1
-    400006: Journal-Right_2
-    2100000: Journal-Right_0Mat
-    2100002: Journal-Right_1Mat
-    2100004: Journal-Right_2Mat
-    2300000: Journal-Right_0
-    2300002: Journal-Right_1
-    2300004: Journal-Right_2
-    3300000: Journal-Right_0
-    3300002: Journal-Right_1
-    3300004: Journal-Right_2
-    4300000: Journal-Right_0
-    4300002: Journal-Right_1
-    4300004: Journal-Right_2
+  serializedVersion: 19300
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: //RootNode
+  - first:
+      1: 100002
+    second: Journal-Right_0
+  - first:
+      1: 100004
+    second: Journal-Right_1
+  - first:
+      1: 100006
+    second: Journal-Right_2
+  - first:
+      4: 400000
+    second: //RootNode
+  - first:
+      4: 400002
+    second: Journal-Right_0
+  - first:
+      4: 400004
+    second: Journal-Right_1
+  - first:
+      4: 400006
+    second: Journal-Right_2
+  - first:
+      21: 2100000
+    second: Journal-Right_0Mat
+  - first:
+      21: 2100002
+    second: Journal-Right_1Mat
+  - first:
+      21: 2100004
+    second: Journal-Right_2Mat
+  - first:
+      23: 2300000
+    second: Journal-Right_0
+  - first:
+      23: 2300002
+    second: Journal-Right_1
+  - first:
+      23: 2300004
+    second: Journal-Right_2
+  - first:
+      33: 3300000
+    second: Journal-Right_0
+  - first:
+      33: 3300002
+    second: Journal-Right_1
+  - first:
+      33: 3300004
+    second: Journal-Right_2
+  - first:
+      43: 4300000
+    second: Journal-Right_0
+  - first:
+      43: 4300002
+    second: Journal-Right_1
+  - first:
+      43: 4300004
+    second: Journal-Right_2
   externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Journal-RightMat
+    second: {fileID: 2100000, guid: e3aad8cab2a805545984e3733882ac62, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -40,7 +85,7 @@ ModelImporter:
       name: Journal-Right_2Mat
     second: {fileID: 2100000, guid: 70b5ae13bd4d57e4eaacfc968d237add, type: 2}
   materials:
-    importMaterials: 1
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1
@@ -73,6 +118,7 @@ ModelImporter:
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
     importVisibility: 1
     importBlendShapes: 1
     importCameras: 1
@@ -80,18 +126,19 @@ ModelImporter:
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
     preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
     secondaryUVPackMargin: 4
     useFileScale: 1
-    previousCalculatedGlobalScale: 1
-    hasPreviousCalculatedGlobalScale: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
@@ -100,10 +147,10 @@ ModelImporter:
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
-    serializedVersion: 2
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -113,13 +160,16 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 0
   humanoidOversampling: 1
+  avatarSetup: 0
   additionalBone: 0
   userData: 
   assetBundleName: 
