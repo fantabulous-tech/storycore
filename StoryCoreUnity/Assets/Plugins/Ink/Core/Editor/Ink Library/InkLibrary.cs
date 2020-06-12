@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
@@ -6,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 /// <summary>
 /// Holds a reference to an InkFile object for every .ink file detected in the Assets folder.
@@ -148,10 +150,54 @@ namespace Ink.UnityIntegration {
 		}
 
         public static void Add (InkFile inkFile) {
-            Instance.inkLibrary.Add(inkFile);
+            Insert(Instance.inkLibrary, inkFile);
             Instance.inkLibraryDictionary.Add(inkFile.inkAsset, inkFile);
             InkMetaLibrary.Instance.metaLibrary.Add(new InkMetaFile(inkFile));
         }
+
+        private static void Insert(List<InkFile> list, InkFile inkFile) {
+            bool added = false;
+            string newGuid = GetGuid(inkFile.inkAsset);
+            for (int i = 0; i < list.Count(); i++) {
+                string testGuid = GetGuid(list[i].inkAsset);
+                if (String.Compare(testGuid, newGuid, StringComparison.Ordinal) >= 0) {
+                    list.Insert(i, inkFile);
+                    added = true;
+                    break;
+                }
+            }
+
+            if (!added) {
+                list.Add(inkFile);
+            }
+        }
+
+        private static bool Different(List<InkFile> l1, List<InkFile> l2) {
+            if (l1 == null && l2 == null) {
+                return true;
+            }
+
+            if (l1 == null || l2 == null) {
+                return false;
+            }
+
+            if (l1.Count != l2.Count) {
+                return false;
+            }
+
+            for (int i = 0; i < l1.Count; i++) {
+                if (l1[i].inkAsset != l2[i].inkAsset) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static string GetGuid(Object obj) {
+            return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(obj));
+        }
+
         public static void RemoveAt (int index) {
             var inkFile = Instance.inkLibrary[index];
             Instance.inkLibrary.RemoveAt(index);
@@ -191,8 +237,11 @@ namespace Ink.UnityIntegration {
 				}
 				newInkLibrary.Add(inkFile);
 			}
-			if(inkLibraryChanged)
-				Instance.inkLibrary = newInkLibrary;
+
+            if (inkLibraryChanged || Different(newInkLibrary, Instance.inkLibrary)) {
+                Instance.inkLibrary = newInkLibrary.OrderBy(i => GetGuid(i.inkAsset)).ToList();
+            }
+
             CreateDictionary();
 
             // Validate the meta files
@@ -220,6 +269,9 @@ namespace Ink.UnityIntegration {
 					inkFile.metaInfo.ParseContent();
 				}
 			}
+
+            Instance.inkLibrary.Sort((i1, i2) => String.Compare(GetGuid(i1.inkAsset), GetGuid(i1.inkAsset), StringComparison.Ordinal));
+            
 			// Now we've updated all the include paths for the ink library we can create master/child references between them.
 			InkMetaLibrary.RebuildInkFileConnections();
 		}
@@ -280,8 +332,8 @@ namespace Ink.UnityIntegration {
 
 			if (addIfMissing) {
 				InkFile newFile = new InkFile(file);
-				Instance.inkLibrary.Add(newFile);
 				Debug.Log(file + " missing from ink library. Adding it now.");
+                Add(newFile);
 				return newFile;
 			} else {
 				Debug.LogWarning (file + " missing from ink library. Please rebuild.");
