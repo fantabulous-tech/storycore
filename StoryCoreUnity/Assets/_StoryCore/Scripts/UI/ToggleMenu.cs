@@ -31,7 +31,7 @@ namespace StoryCore.UI {
         }
 
         private void Start() {
-            Debug.Log($"Journal at start. m_On = {m_On}");
+            StoryDebug.Log($"Journal at start. m_On = {m_On}");
             m_Menu.gameObject.SetActive(m_On);
 
             if (!m_Menu) {
@@ -66,7 +66,7 @@ namespace StoryCore.UI {
         private void OnPress() {
             m_On = !m_CanToggleOff || !m_Menu.gameObject.activeSelf;
             m_Menu.gameObject.SetActive(m_On);
-            Debug.Log($"Toggling journal. m_On = {m_On}");
+            StoryDebug.Log($"Toggling journal. m_On = {m_On}");
             UpdateJournalLocation();
         }
 
@@ -95,14 +95,14 @@ namespace StoryCore.UI {
             }
             m_On = true;
             m_Menu.gameObject.SetActive(m_On);
-            Debug.Log($"Showing journal because it's opening. m_On = {m_On}");
+            StoryDebug.Log($"Showing journal because it's opening. m_On = {m_On}");
             UpdateJournalLocation();
         }
 
         public void Close() {
             m_On = false;
             m_Menu.gameObject.SetActive(m_On);
-            Debug.Log($"Hiding journal because it's closing. m_On = {m_On}");
+            StoryDebug.Log($"Hiding journal because it's closing. m_On = {m_On}");
             OnHold();
         }
     }

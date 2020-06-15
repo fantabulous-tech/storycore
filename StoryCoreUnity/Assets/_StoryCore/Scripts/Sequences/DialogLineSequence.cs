@@ -77,7 +77,7 @@ namespace StoryCore {
         }
 
         protected void Log(string log, Object context = null) {
-            m_StoryTeller.Log(log, context);
+            StoryDebug.Log(log, context);
         }
     }
 }

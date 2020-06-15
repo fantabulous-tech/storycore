@@ -32,7 +32,7 @@ namespace StoryCore.GameEvents {
                     duration = parsedDuration;
                 }
 
-                m_StoryTeller.Log($"Found [{choice.Text}] choice. Waiting for " + duration);
+                StoryDebug.Log($"Found [{choice.Text}] choice. Waiting for " + duration);
 
                 if (duration > 0) {
                     m_Delay = Delay.For(duration, this).Then(m_ChoiceEvent.Raise);
@@ -60,7 +60,7 @@ namespace StoryCore.GameEvents {
                     duration = parsedDuration;
                 }
 
-                m_StoryTeller.Log($"Found [{choice.Text}] choice. Waiting for " + duration);
+                StoryDebug.Log($"Found [{choice.Text}] choice. Waiting for " + duration);
 
                 if (duration > 0) {
                     m_Delay = Delay.For(duration, this).Then(m_ChoiceEvent.Raise);

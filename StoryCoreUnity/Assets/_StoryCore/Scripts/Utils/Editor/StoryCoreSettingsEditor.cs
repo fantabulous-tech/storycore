@@ -38,6 +38,7 @@ namespace StoryCore.Editor {
             EditorGUILayout.HelpBox("NOTE: These settings only apply at editor time.", MessageType.Info);
             StoryCoreSettings.UseDebugInInk = EditorGUILayout.Toggle("Set 'isDebug' in Ink", StoryCoreSettings.UseDebugInInk);
             StoryCoreSettings.ForceSimulationMode = EditorGUILayout.Toggle("Force VR Simulator Mode", StoryCoreSettings.ForceSimulationMode);
+            StoryCoreSettings.EnableLogging = EditorGUILayout.Toggle("Enable StoryDebug.Log()", StoryCoreSettings.EnableLogging);
         }
     }
 }

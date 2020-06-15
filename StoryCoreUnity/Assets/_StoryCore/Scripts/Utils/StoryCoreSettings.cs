@@ -1,23 +1,25 @@
 ﻿using System;
-using StoryCore;
 using StoryCore.Utils;
 using UnityEngine;
+using VRTK;
 
-namespace VRTK {
+namespace StoryCore {
     public class StoryCoreSettings : MonoBehaviour {
 
         #region Global Settings
 
         private static string kUseDebugInInkKey = "StoryCore-UseDebugInInk";
-        private static string kForceSimulationMode = "StoryCore-ForceSimulationMode";
+        private static string kForceSimulationKey = "StoryCore-ForceSimulationMode";
+        private const string kEnableLoggingKey = "StoryCore-LoggingEnabled";
 
         private static int s_UseDebugInInk = -1;
         private static int s_ForceSimulationMode = -1;
+        private static int s_EnableLogging = -1;
 
         public static bool UseDebugInInk {
             get {
                 if (s_UseDebugInInk < 0) {
-                    s_UseDebugInInk = PlayerPrefs.GetInt(kUseDebugInInkKey);
+                    s_UseDebugInInk = PlayerPrefs.GetInt(kUseDebugInInkKey, 0);
                 }
 
                 return s_UseDebugInInk > 0;
@@ -35,7 +37,7 @@ namespace VRTK {
         public static bool ForceSimulationMode {
             get {
                 if (s_ForceSimulationMode < 0) {
-                    s_ForceSimulationMode = PlayerPrefs.GetInt(kForceSimulationMode);
+                    s_ForceSimulationMode = PlayerPrefs.GetInt(kForceSimulationKey, 0);
                 }
 
                 return s_ForceSimulationMode > 0;
@@ -46,7 +48,25 @@ namespace VRTK {
                 }
 
                 s_ForceSimulationMode = value ? 1 : 0;
-                PlayerPrefs.SetInt(kForceSimulationMode, s_ForceSimulationMode);
+                PlayerPrefs.SetInt(kForceSimulationKey, s_ForceSimulationMode);
+            }
+        }
+
+        public static bool EnableLogging {
+            get {
+                if (s_EnableLogging < 0) {
+                    s_EnableLogging = PlayerPrefs.GetInt(kEnableLoggingKey, 1);
+                }
+
+                return s_EnableLogging > 0;
+            }
+            set {
+                if (s_EnableLogging == (value ? 1 : 0)) {
+                    return;
+                }
+
+                s_EnableLogging = value ? 1 : 0;
+                PlayerPrefs.SetInt(kEnableLoggingKey, s_EnableLogging);
             }
         }
 

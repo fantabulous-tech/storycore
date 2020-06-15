@@ -47,7 +47,7 @@ namespace StoryCore.Utils {
                             s_Instance = singleton.GetOrAddComponent<T>();
                             DontDestroyOnLoad(s_Instance.gameObject);
                         } else {
-                            Debug.Log("[Singleton] Using instance already created: " + s_Instance.name);
+                            //Debug.Log("[Singleton] Using instance already created: " + s_Instance.name);
                         }
                     }
 

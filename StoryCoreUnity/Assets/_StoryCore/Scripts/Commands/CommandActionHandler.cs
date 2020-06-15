@@ -26,7 +26,7 @@ namespace StoryCore.Commands {
                 return DelaySequence.Empty;
             }
 
-            Debug.LogFormat(this, "Generic Command: Raising '" + binding.GameEvent.name + "'");
+            StoryDebug.LogFormat(this, "Generic Command: Raising '" + binding.GameEvent.name + "'");
 
             GameEventString gameEventString = binding.GameEvent as GameEventString;
 

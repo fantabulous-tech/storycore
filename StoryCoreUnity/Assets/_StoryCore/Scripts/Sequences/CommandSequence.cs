@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using StoryCore.Utils;
 
 namespace StoryCore {
     internal class CommandSequence : ISequence {
@@ -28,7 +29,7 @@ namespace StoryCore {
         }
 
         private void Log(string log) {
-            m_StoryTeller.Log(log);
+            StoryDebug.Log(log);
         }
     }
 }

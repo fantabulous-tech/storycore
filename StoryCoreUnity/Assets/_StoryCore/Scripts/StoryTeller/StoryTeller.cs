@@ -16,7 +16,6 @@ using Object = UnityEngine.Object;
 
 namespace StoryCore {
     public class StoryTeller : MonoBehaviour {
-        [SerializeField] private bool m_DebugLog;
         [SerializeField] private TextAsset m_InkJson;
         [SerializeField] private SubtitleUI m_PromptUI;
         [SerializeField] private GameVariableBool m_OptionSubtitles;
@@ -124,7 +123,7 @@ namespace StoryCore {
         }
 
         private void OnEnable() {
-            Debug.Log("Persistent Data Path = " + Application.persistentDataPath);
+            StoryDebug.Log("Persistent Data Path = " + Application.persistentDataPath);
 
             if (!File.Exists(OverrideInstructionsPath)) {
                 File.WriteAllText(OverrideInstructionsPath, "Place a _game.json file here to override the default _game.json.");
@@ -184,13 +183,13 @@ namespace StoryCore {
 
         private void TryChoice(string choiceKey) {
             if (CurrentChoices.Count == 0) {
-                Log($"StoryTeller: No choices currently available, so we can't try '{choiceKey}'");
+                StoryDebug.Log($"StoryTeller: No choices currently available, so we can't try '{choiceKey}'");
                 return;
             }
 
             StoryChoice choice = CurrentChoices.FirstOrDefault(c => c.Text.Contains(choiceKey, StringComparison.OrdinalIgnoreCase));
             if (choice != null) {
-                Log($"Choosing '{choice.Text}' match found for '{choiceKey}'");
+                StoryDebug.Log($"Choosing '{choice.Text}' match found for '{choiceKey}'");
                 choice.Select();
                 return;
             }
@@ -227,7 +226,7 @@ namespace StoryCore {
             // Stop listening so we don't raise the variable changes when resetting the state.
             storyVariables.ForEach(v => v.Unsubscribe());
 
-            Debug.Log("Resetting game state.");
+            StoryDebug.Log("Resetting game state.");
             m_Story.ResetState();
 
             // Set the story to use the saved story variables and re-subscribe.
@@ -244,7 +243,7 @@ namespace StoryCore {
         private string m_LastSection;
 
         private void GetNextQueue(string reason) {
-            Log("Story Queue Updating: " + reason);
+            StoryDebug.Log("Story Queue Updating: " + reason);
 
             if (m_CurrentSequence != null) {
                 m_CurrentSequence.Cancel();
@@ -438,7 +437,7 @@ namespace StoryCore {
         }
 
         public void EndStory() {
-            Log("END!");
+            StoryDebug.Log("END!");
             RaiseOnEnd();
             m_Complete = true;
         }
@@ -450,14 +449,14 @@ namespace StoryCore {
         private void RaiseOnChoicesReady() {
             if (CurrentChoices.Count > 0) {
                 OnChoicesReady?.Invoke();
-                Log($"Current Choices: {ChoiceInfo}");
+                StoryDebug.Log($"Current Choices: {ChoiceInfo}");
             }
         }
 
         public void RaiseOnChoicesReadyAndWaiting() {
             if (CurrentChoices.Count > 0) {
                 OnChoicesReadyAndWaiting?.Invoke();
-                Log($"Current Choices And Waiting: {ChoiceInfo}");
+                StoryDebug.Log($"Current Choices And Waiting: {ChoiceInfo}");
             }
         }
 
@@ -475,12 +474,6 @@ namespace StoryCore {
 
         public bool IsValidChoice(BaseGameEvent gameEvent) {
             return CurrentChoices.Any(c => c.IsValidChoice(ChoiceManager.Choices[gameEvent]));
-        }
-
-        public void Log(string format, Object context = null) {
-            if (m_DebugLog) {
-                Debug.LogFormat(context ? context : this, format);
-            }
         }
 
         public void SetDebugInScript(bool value) {

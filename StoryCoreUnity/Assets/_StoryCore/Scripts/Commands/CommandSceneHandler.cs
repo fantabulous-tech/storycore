@@ -31,7 +31,7 @@ namespace StoryCore.Commands {
             m_UnloadOperations.Clear();
             string sceneName = info.Params[0];
 
-            Debug.Log("Load scene " + sceneName + ": START");
+            StoryDebug.Log("Load scene " + sceneName + ": START");
             m_NextSceneList = GetSceneList(sceneName);
             if (!m_Loading && info.Params.Length == 1 || info.Params.Length > 1 && info.Params[1] != "false") {
                 Save(sceneName);
@@ -99,7 +99,7 @@ namespace StoryCore.Commands {
 
                         Scene oldScene = SceneManager.GetSceneByName(sceneName);
                         if (oldScene.isLoaded) {
-                            Debug.Log("Unload scene " + sceneName + ": START");
+                            StoryDebug.Log("Unload scene " + sceneName + ": START");
                             m_UnloadOperations.Add(new SceneActionInfo(sceneName, SceneManager.UnloadSceneAsync(oldScene)));
                         }
                     }
@@ -108,7 +108,7 @@ namespace StoryCore.Commands {
                 for (int i = m_UnloadOperations.Count - 1; i >= 0; i--) {
                     SceneActionInfo sceneUnload = m_UnloadOperations[i];
                     if (sceneUnload.Done) {
-                        Debug.Log("Unload scene " + sceneUnload.Name + ": COMPLETE");
+                        StoryDebug.Log("Unload scene " + sceneUnload.Name + ": COMPLETE");
                         m_UnloadOperations.Remove(sceneUnload);
                     }
                 }
@@ -132,7 +132,7 @@ namespace StoryCore.Commands {
                                 continue;
                             }
 
-                            Debug.Log("Load scene " + sceneName + ": START");
+                            StoryDebug.Log("Load scene " + sceneName + ": START");
                             m_LoadOperations.Add(new SceneActionInfo(sceneName, SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive)));
                         } else {
                             Debug.LogWarningFormat(this, "Could not load scene '" + sceneName + "' as it was not found.");
@@ -143,7 +143,7 @@ namespace StoryCore.Commands {
                 for (int i = m_LoadOperations.Count - 1; i >= 0; i--) {
                     SceneActionInfo sceneLoad = m_LoadOperations[i];
                     if (sceneLoad.Done) {
-                        Debug.Log("Load scene " + sceneLoad.Name + ": COMPLETE");
+                        StoryDebug.Log("Load scene " + sceneLoad.Name + ": COMPLETE");
                         m_LoadOperations.Remove(sceneLoad);
                     }
                 }

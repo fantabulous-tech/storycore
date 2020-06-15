@@ -144,7 +144,7 @@ namespace StoryCore.Commands {
         }
 
         public override void LookAt(Transform target) {
-            Debug.Log($"{Name} now looking at {target}", this);
+            StoryDebug.Log($"{Name} now looking at {target}", this);
             if (m_LookAtIK != null) {
                 m_LookAtIK.DOKill();
                 Sequence sequence = DOTween.Sequence();

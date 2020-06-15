@@ -10,7 +10,7 @@ namespace StoryCore.Commands {
 
         public override DelaySequence Run(ScriptCommandInfo info) {
             string characterName = info.Params[0];
-            Debug.LogFormat(this, "Character Command: Focusing on '" + characterName + "'");
+            StoryDebug.LogFormat(this, "Character Command: Focusing on '" + characterName + "'");
             m_FocusedCharacter.Value = characterName;
 
             // Pass on parameters to '/perform' command.
