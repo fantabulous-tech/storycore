@@ -35,8 +35,8 @@ namespace StoryCore.Commands {
             RunCommand(commandInfo);
         }
 
-        public void RunCommand(string commandText, Action callback = null, Action failCallback = null) {
-            ScriptCommandInfo commandInfo = new ScriptCommandInfo(commandText);
+        public void RunCommand(string commandText, List<string> tags, Action callback = null, Action failCallback = null) {
+            ScriptCommandInfo commandInfo = new ScriptCommandInfo(commandText, tags);
             RunCommand(commandInfo, callback, failCallback);
         }
 

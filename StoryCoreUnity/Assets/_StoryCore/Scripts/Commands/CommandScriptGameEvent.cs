@@ -17,13 +17,15 @@ namespace StoryCore.Commands {
         public string Text { get; private set; }
         public string Command { get; private set; }
         public string[] Params { get; private set; }
+        public List<string> StoryTags { get; private set; }
         public Dictionary<string, string> NamedParams { get; private set; }
 
-        public ScriptCommandInfo(string commandText) {
+        public ScriptCommandInfo(string commandText, List<string> storyTags = null) {
             Text = commandText;
             Match[] matches = s_ParamRegex.Matches(commandText).Cast<Match>().ToArray();
             Command = matches.First().Value.TrimStart('/');
             Params = matches.Skip(1).Select(m => m.Value).ToArray();
+            StoryTags = storyTags;
 
             NamedParams = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 

@@ -279,7 +279,7 @@ namespace StoryCore {
                 }
 
                 if (text.StartsWith("/")) {
-                    CommandSequence commandSequence = new CommandSequence(this, text);
+                    CommandSequence commandSequence = new CommandSequence(this, text, Story.currentTags);
                     m_SequenceQueue.Enqueue(commandSequence);
                     commandSequence.OnQueue();
 

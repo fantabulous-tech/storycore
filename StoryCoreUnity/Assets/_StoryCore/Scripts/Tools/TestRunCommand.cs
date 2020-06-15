@@ -9,7 +9,7 @@ namespace StoryCore {
             if (m_Run) {
                 m_Run = false;
                 Debug.Log("Running Command: " + m_Command);
-                CommandManager.RunCommand(m_Command, OnCommandSuccess, OnCommandFail);
+                CommandManager.RunCommand(m_Command, null, OnCommandSuccess, OnCommandFail);
             }
         }
 

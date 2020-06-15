@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using StoryCore.Commands;
 using StoryCore.Utils;
 using UnityEngine;
@@ -38,8 +39,8 @@ namespace StoryCore {
             Instance.m_Commands.QueueCommand(text);
         }
 
-        public static void RunCommand(string text, Action callback = null, Action failCallback = null) {
-            Instance.m_Commands.RunCommand(text, callback, failCallback);
+        public static void RunCommand(string text, List<string> storyTags = null, Action callback = null, Action failCallback = null) {
+            Instance.m_Commands.RunCommand(text, storyTags, callback, failCallback);
         }
     }
 }
