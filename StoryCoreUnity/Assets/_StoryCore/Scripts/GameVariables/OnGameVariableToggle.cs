@@ -7,7 +7,7 @@ namespace StoryCore.GameVariables {
 
         public UnityEvent OnTrue;
         public UnityEvent OnFalse;
-        public UnityEvent<bool> OnChanged;
+        public UnityEventBool OnChanged;
 
         private void Awake() {
             if (m_ToggleVariable != null) {
