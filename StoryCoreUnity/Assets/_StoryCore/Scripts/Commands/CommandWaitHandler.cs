@@ -7,15 +7,17 @@ namespace StoryCore.Commands {
         [SerializeField] private float m_DefaultWait = 1;
 
         public override DelaySequence Run(ScriptCommandInfo info) {
+            float duration = m_DefaultWait;
+
             if (info.Params.Length > 0) {
                 if (float.TryParse(info.Params[0], out float paramDuration)) {
-                    m_DefaultWait = paramDuration;
+                    duration = paramDuration;
                 } else {
                     Debug.LogWarningFormat(this, "Couldn't convert {0} to a duration. (command = {1})", info.Params[0], info);
                 }
             }
 
-            return Delay.For(m_DefaultWait, this);
+            return Delay.For(duration, this);
         }
     }
 }
