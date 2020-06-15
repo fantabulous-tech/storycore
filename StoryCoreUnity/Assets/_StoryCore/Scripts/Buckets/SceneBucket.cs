@@ -50,7 +50,11 @@ namespace StoryCore.Commands {
             UpdateBuildScenes(true);
         }
 
-        private void ValidateMainScenes() {            
+        private void ValidateMainScenes() {
+            if (m_MainScenes == null) {
+                return;
+            }
+
             m_MainPaths = new string[m_MainScenes.Length];
 
             for (int i = 0; i < m_MainScenes.Length; i++) {
