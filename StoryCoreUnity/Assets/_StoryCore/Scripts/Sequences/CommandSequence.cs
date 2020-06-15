@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using StoryCore.Utils;
 
 namespace StoryCore {
     internal class CommandSequence : ISequence {
