@@ -8,7 +8,7 @@ namespace StoryCore.AssetBuckets {
     public abstract class PrefabInstanceBucket<T> : GenericAssetBucket<T> where T : Object {
         private Dictionary<string, T> m_Instances;
 
-        protected Dictionary<string, T> Instances => UnityUtils.GetOrSet(ref m_Instances, () => new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase));
+        public Dictionary<string, T> Instances => UnityUtils.GetOrSet(ref m_Instances, () => new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase));
 
         public event Action<T> Added;
         public event Action<T> Removed;
