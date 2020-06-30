@@ -88,6 +88,7 @@ namespace StoryCore.InkTodo {
             List<InkFileInfo> inkFiles = GetInkFiles(kStoryScriptPath);
 
             string currentKnot = null;
+            string currentCharacter = null;
 
             foreach (InkFileInfo info in inkFiles) {
                 for (int i = 0; i < info.Lines.Length; i++) {
@@ -97,6 +98,13 @@ namespace StoryCore.InkTodo {
 
                     if (knotMatch.Success) {
                         currentKnot = knotMatch.Groups["knot"].Value;
+                        continue;
+                    }
+
+                    Match characterMatch = InkEditorUtils.CharacterRegex.Match(line);
+
+                    if (characterMatch.Success) {
+                        currentCharacter = characterMatch.Groups["character"].Value;
                         continue;
                     }
 
@@ -110,7 +118,7 @@ namespace StoryCore.InkTodo {
                         Match match = tagMatches[j];
                         if (int.TryParse(match.Groups["tag"].Value, out int tagId)) {
                             string result = currentKnot + "." + tagId.ToString("00");
-                            string script = CleanupTranscript(line);
+                            string script = currentCharacter + ": " + CleanupTranscript(line);
                             if (transcriptLookup.TryGetValue(result, out string previousScript) && previousScript != script) {
                                 Debug.LogWarning($"Duplicate VO reference found: {script} vs. {previousScript} in {info.DisplayPath}", info.InkAsset);
                             }

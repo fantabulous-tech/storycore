@@ -11,6 +11,7 @@ namespace StoryCore.Utils {
     public static class InkEditorUtils {
         public static readonly Regex TagRegex = new Regex(@"^(?!\/\/).*#(?<tag>[0-9]+)(\s|$)");
         public static readonly Regex KnotRegex = new Regex(@"^\s*=[=]+\s*(?<knot>\w+)");
+        public static readonly Regex CharacterRegex = new Regex(@"^[\s-]*(\([^\)]+\))?[\s-]*\/character\s+(?<character>\w+).*$");
 
         private static BaseBucket s_VOBucket;
         private static BaseBucket VOBucket {
