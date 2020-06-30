@@ -5,9 +5,9 @@ using UnityEngine;
 namespace StoryCore.Commands {
     public class Buckets : Singleton<Buckets> {
         [SerializeField] private CharacterBucket m_CharacterBucket;
-        [SerializeField] private PerformanceBucket m_PerformanceBucket;
+		[SerializeField] private PerformanceBucket m_PerformanceBucket;
 
-        public static CharacterBucket Characters => Exists ? UnityUtils.GetOrInstantiate(ref Instance.m_CharacterBucket) : null;
-        public static PerformanceBucket Performances => Exists ? UnityUtils.GetOrInstantiate(ref Instance.m_PerformanceBucket) : null;
+        public static CharacterBucket Characters => Exists ? Instance.m_CharacterBucket : null;
+		public static PerformanceBucket Performances => Exists ? Instance.m_PerformanceBucket : null;
     }
 }

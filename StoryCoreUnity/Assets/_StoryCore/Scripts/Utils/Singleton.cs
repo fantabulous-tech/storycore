@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace StoryCore.Utils {
     /// <summary>
@@ -8,13 +10,13 @@ namespace StoryCore.Utils {
     ///     NOTE: If there is a prefab with the same name as T,
     ///     it will be used instead of an empty GameObject.
     /// </summary>
-    public class Singleton<T> : MonoBehaviour where T : MonoBehaviour {
+    public class Singleton<T> : MonoBehaviour where T : Singleton<T> {
         private static T s_Instance;
 
         // ReSharper disable once StaticMemberInGenericType
         private static readonly object s_Lock = new object();
 
-        public static bool Exists => AppTracker.IsPlaying && !AppTracker.IsQuitting;
+        public static bool Exists => AppTracker.IsPlaying && !AppTracker.IsQuitting && s_Instance;
 
         public static T Instance {
             get {
@@ -33,8 +35,9 @@ namespace StoryCore.Utils {
                         s_Instance = (T) FindObjectOfType(typeof(T));
 
 #if DEBUG
-                        if (FindObjectsOfType(typeof(T)).Length > 1) {
-                            Debug.LogError("[Singleton] Something went really wrong " + " - there should never be more than 1 singleton!" + " Reopening the scene might fix it.");
+                        Object[] duplicates = FindObjectsOfType(typeof(T));
+                        if (duplicates.Length > 1) {
+                            LogDuplicateSingleton(duplicates);
                             return s_Instance;
                         }
 #endif
@@ -52,6 +55,31 @@ namespace StoryCore.Utils {
                     }
 
                     return s_Instance;
+                }
+            }
+        }
+
+        protected virtual void OnEnable() {
+            if (s_Instance == null) {
+                s_Instance = (T)this;
+            } else if (s_Instance != this) {
+                LogDuplicateSingleton(s_Instance, this);
+            }
+        }
+
+        protected virtual void OnDisable() {
+            if (s_Instance == this) {
+                s_Instance = null;
+            }
+        }
+
+        private static void LogDuplicateSingleton(params Object[] allSingletons) {
+            for (int i = 0; i < allSingletons.Length; i++) {
+                Object singleton = allSingletons[i];
+                if (i == 0) {
+                    Debug.LogError($"[Singleton] Something went really wrong. Duplicate {typeof(T).Name} singleton found. Original singleton: {singleton.name}", singleton);
+                } else {
+                    Debug.LogError($"[Singleton] Duplicate singleton: {singleton.name}", singleton);
                 }
             }
         }

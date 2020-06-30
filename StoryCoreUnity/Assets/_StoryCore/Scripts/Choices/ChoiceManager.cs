@@ -10,12 +10,14 @@ namespace StoryCore {
 
         public static event Action<string> ChoiceEvent;
 
-        private void OnEnable() {
+        protected override void OnEnable() {
+            base.OnEnable();
             Choices.Init();
             Choices.ChoiceEvent.Event += OnChoiceEvent;
         }
 
-        private void OnDisable() {
+        protected override void OnDisable() {
+            base.OnDisable();
             if (Choices != null && Choices.ChoiceEvent != null) {
                 Choices.ChoiceEvent.Event -= OnChoiceEvent;
             }

@@ -31,7 +31,8 @@ namespace StoryCore {
 
         private CommandKeyBindings Commands => UnityUtils.GetOrInstantiate(ref m_Commands);
 
-        private void OnEnable() {
+        protected override void OnEnable() {
+            base.OnEnable();
             Commands.Init();
         }
 
