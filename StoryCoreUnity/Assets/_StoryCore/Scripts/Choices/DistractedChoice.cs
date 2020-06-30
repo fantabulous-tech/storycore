@@ -4,11 +4,11 @@ using StoryCore.Utils;
 using UnityEngine;
 using VRTK;
 
-namespace StoryCore {
+namespace StoryCore.Choices {
     public class DistractedChoice : MonoBehaviour {
         [SerializeField] private StoryTeller m_StoryTeller;
-        [SerializeField] private GameEvent m_DistractedEvent;
-        [SerializeField] private GameEvent m_AttentionEvent;
+        [SerializeField] private ChoiceHandler m_DistractedEvent;
+        [SerializeField] private ChoiceHandler m_AttentionEvent;
         [SerializeField] private float m_DistractedDelay = 1;
         [SerializeField] private float m_AttentionDelay = 1;
 
@@ -62,9 +62,9 @@ namespace StoryCore {
             }
 
             if (CanRaiseDistracted) {
-                m_DistractedEvent.Raise();
+                m_DistractedEvent.Choose();
             } else if (CanRaisePayingAttention) {
-                m_AttentionEvent.Raise();
+                m_AttentionEvent.Choose();
             }
         }
 

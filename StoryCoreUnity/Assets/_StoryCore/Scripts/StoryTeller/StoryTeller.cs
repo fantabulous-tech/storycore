@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Ink.Runtime;
 using StoryCore.AssetBuckets;
+using StoryCore.Choices;
 using StoryCore.Commands;
 using StoryCore.GameEvents;
 using StoryCore.GameVariables;
@@ -128,7 +129,6 @@ namespace StoryCore {
                 File.WriteAllText(OverrideInstructionsPath, "Place a _game.json file here to override the default _game.json.");
             }
 
-            ChoiceManager.ChoiceEvent += TryChoice;
             if (m_RestartEvent) {
                 m_RestartEvent.GenericEvent += RestartStory;
             }
@@ -146,7 +146,6 @@ namespace StoryCore {
         }
 
         private void OnDisable() {
-            ChoiceManager.ChoiceEvent -= TryChoice;
             CurrentChoices.Clear();
             Story = null;
         }
@@ -183,22 +182,6 @@ namespace StoryCore {
             }
 
             RaiseOnNext();
-        }
-
-        private void TryChoice(string choiceKey) {
-            if (CurrentChoices.Count == 0) {
-                StoryDebug.Log($"StoryTeller: No choices currently available, so we can't try '{choiceKey}'");
-                return;
-            }
-
-            StoryChoice choice = CurrentChoices.FirstOrDefault(c => c.Text.Contains(choiceKey, StringComparison.OrdinalIgnoreCase));
-            if (choice != null) {
-                StoryDebug.Log($"Choosing '{choice.Text}' match found for '{choiceKey}'");
-                choice.Choose();
-                return;
-            }
-
-            Debug.LogWarning(string.Format("No choice matching '{0}' found. (options = {1})", choiceKey, CurrentChoices.AggregateToString(c => c.Text)));
         }
 
         public void StartStory() {
@@ -338,12 +321,9 @@ namespace StoryCore {
             RaiseOnChoicesReady();
         }
 
-        public void EnableAllChoices(bool waiting) {
+        public void EnableAllChoices() {
             CurrentChoices = Story.currentChoices.Select((c, i) => new StoryChoice(c, this)).ToList();
             RaiseOnChoicesReady();
-            if (waiting) {
-                RaiseOnChoicesReadyAndWaiting();
-            }
         }
 
         private static bool CanInterrupt(Choice choice) {
@@ -435,7 +415,7 @@ namespace StoryCore {
 
             //Delay.For(1, this).Then(() => {
             Story.ChooseChoiceIndex(choice.Index);
-            EnableAllChoices(false);
+            EnableAllChoices();
             m_CurrentChoice.Value = choice;
             RaiseOnChosen();
             GetNextQueue("Choice pause complete.");
@@ -478,18 +458,14 @@ namespace StoryCore {
             OnEnd?.Invoke();
         }
 
-        public bool IsValidChoice(BaseGameEvent gameEvent) {
-            return CurrentChoices.Any(c => c.IsValidChoice(ChoiceManager.Choices[gameEvent]));
+        public bool IsValidChoice(ChoiceHandler handler) {
+            return ChoiceManager.IsValidChoice(handler);
         }
 
         private string ChoiceInfo {
             get {
                 return CurrentChoices.AggregateToString(c => c.Text);
             }
-        }
-
-        public StoryChoice GetChoice(BaseGameEvent choiceEvent) {
-            return CurrentChoices.FirstOrDefault(c => c.IsValidChoice(ChoiceManager.Choices[choiceEvent]));
         }
 
         private void OnFocusChanged(string characterName) {

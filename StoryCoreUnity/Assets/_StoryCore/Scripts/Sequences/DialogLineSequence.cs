@@ -30,7 +30,7 @@ namespace StoryCore {
         public virtual void Start() {
             // Enable all choices when starting the last story line.
             if (HasChoice) {
-                m_StoryTeller.EnableAllChoices(false);
+                m_StoryTeller.EnableAllChoices();
             }
 
             // If there is no text, then we were just here to play the audio.

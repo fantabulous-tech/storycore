@@ -1,14 +1,14 @@
 ﻿using StoryCore.Utils;
 using UnityEditor;
 
-namespace StoryCore {
+namespace StoryCore.Choices {
     [CustomEditor(typeof(ChoiceKeyBindings))]
     public class ChoiceKeyBindingsEditor : Editor<ChoiceKeyBindings> {
-        private ReorderableListGUI<ChoiceKeyBindings.ChoiceBinding> m_List;
+        private ReorderableListGUI<ChoiceBinding> m_List;
 
         private void OnEnable() {
-            m_List = new ReorderableListGUI<ChoiceKeyBindings.ChoiceBinding>(serializedObject, "m_Bindings");
-            m_List.AddColumn("GameEvent", "On this event...");
+            m_List = new ReorderableListGUI<ChoiceBinding>(serializedObject, "m_Bindings");
+            m_List.AddColumn("ChoiceHandler", "On this choice handler...");
             m_List.AddColumn("ChoiceKey", "Select this choice.");
         }
 

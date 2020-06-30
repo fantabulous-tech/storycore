@@ -2,7 +2,7 @@ using StoryCore.Utils;
 using UnityEditor;
 using UnityEngine;
 
-namespace StoryCore {
+namespace StoryCore.Choices {
     [CustomEditor(typeof(DistractedChoice))]
     public class DistractedChoiceEditor : Editor<DistractedChoice> {
         private void OnEnable() {

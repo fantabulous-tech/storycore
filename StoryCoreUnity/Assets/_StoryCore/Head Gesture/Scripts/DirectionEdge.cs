@@ -1,4 +1,5 @@
 ﻿using System;
+using StoryCore.Utils;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -12,7 +13,7 @@ namespace StoryCore.HeadGesture {
         [SerializeField] private GameObject m_RightUI;
         [SerializeField] private CanvasGroup m_Fader;
 
-        private HeadGestureTracker m_Tracker;
+        private HeadGestureChoiceHandler m_ChoiceHandler;
         private Vector3 m_CenterDirection;
         private GameObject m_UI;
         private Vector3 m_Axis;
@@ -29,8 +30,8 @@ namespace StoryCore.HeadGesture {
 
         private Vector3 GlobalAxis => Head.TransformDirection(m_Axis);
         private Vector3 GlobalOffAxis => Head.TransformDirection(m_OffAxis);
-        private Transform Head => HeadGestureTracker.Head;
-        private Vector3 Offset => m_Tracker.Offset;
+        private Transform Head => UnityUtils.CameraTransform;
+        private Vector3 Offset => m_ChoiceHandler.Offset;
 
         // TODO: Optimize Angle/OffAngle into a head-space euler angle Vector2 calculated once per frame.
 
@@ -49,11 +50,11 @@ namespace StoryCore.HeadGesture {
             }
         }
 
-        public DirectionEdge Init(HeadGestureTracker tracker, Direction direction) {
+        public DirectionEdge Init(HeadGestureChoiceHandler choiceHandler, Direction direction) {
             name = direction + " Edge";
 
             m_Init = true;
-            m_Tracker = tracker;
+            m_ChoiceHandler = choiceHandler;
 
             m_UpUI.SetActive(false);
             m_DownUI.SetActive(false);
@@ -93,10 +94,10 @@ namespace StoryCore.HeadGesture {
                 return;
             }
 
-            m_Fader.alpha = 1 - Mathf.Clamp01((Time.unscaledTime - m_FadeStart)/m_Tracker.MaxDuration);
+            m_Fader.alpha = 1 - Mathf.Clamp01((Time.unscaledTime - m_FadeStart)/m_ChoiceHandler.MaxDuration);
 
             // Check to see if angle is too far off.
-            if (OffAngle > m_Tracker.OffAngleMax) {
+            if (OffAngle > m_ChoiceHandler.OffAngleMax) {
                 OffCenter();
             }
 
@@ -106,9 +107,9 @@ namespace StoryCore.HeadGesture {
             }
 
             // Check if we need to drag the edge along with the head.
-            else if (Angle >= m_Tracker.GestureAngle) {
+            else if (Angle >= m_ChoiceHandler.GestureAngle) {
                 PullPos();
-            } else if (Angle < m_Tracker.GestureAngle/2 && m_AtLimit) {
+            } else if (Angle < m_ChoiceHandler.GestureAngle/2 && m_AtLimit) {
                 m_AtLimit = false;
                 //Debug.LogFormat(this, "{0} NOT at limit anymore.", name);
             }
@@ -129,7 +130,7 @@ namespace StoryCore.HeadGesture {
         }
 
         private void PullPos() {
-            Vector3 rotatedOffset = Quaternion.AngleAxis(-m_Tracker.GestureAngle, m_Axis)*Offset;
+            Vector3 rotatedOffset = Quaternion.AngleAxis(-m_ChoiceHandler.GestureAngle, m_Axis)*Offset;
             Vector3 pos = Head.position + Head.TransformDirection(rotatedOffset);
             transform.position = pos;
 

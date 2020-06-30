@@ -11,7 +11,7 @@ namespace StoryCore {
         public void OnQueue() { }
 
         public void Start() {
-            m_StoryTeller.EnableAllChoices(true);
+            m_StoryTeller.RaiseOnChoicesReadyAndWaiting();
         }
 
         public void Cancel() { }
