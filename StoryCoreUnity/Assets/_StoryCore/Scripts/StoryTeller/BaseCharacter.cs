@@ -1,4 +1,3 @@
-using StoryCore.AssetBuckets;
 using StoryCore.Utils;
 using UnityEngine;
 
@@ -14,6 +13,8 @@ namespace StoryCore.Commands {
         public abstract DelaySequence Perform(ScriptCommandInfo command);
 
         public abstract DelaySequence SetEmotion(ScriptCommandInfo command);
+
+        public abstract DelaySequence MoveTo(ScriptCommandInfo command);
 
         protected virtual void Awake() {
             Buckets.Characters.Add(this);

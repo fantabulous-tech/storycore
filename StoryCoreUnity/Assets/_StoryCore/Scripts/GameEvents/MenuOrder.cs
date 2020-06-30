@@ -5,10 +5,12 @@
         EventGameObject,
         EventString,
         EventTransform,
+        EventPosAndRot,
         VariableBool,
         VariableFloat,
         VariableFloatRange,
         VariableInt,
-        VariableString
+        VariableString,
+        VariableVector3
     }
 }

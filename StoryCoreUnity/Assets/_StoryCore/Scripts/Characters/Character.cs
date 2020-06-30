@@ -4,6 +4,7 @@ using DG.Tweening;
 using RogoDigital;
 using RogoDigital.Lipsync;
 using RootMotion.FinalIK;
+using StoryCore.GameVariables;
 using StoryCore.Utils;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -21,8 +22,12 @@ namespace StoryCore.Commands {
         [SerializeField] private EyeController m_EyeController;
         [SerializeField] private LookAtIK m_LookAtIK;
         [SerializeField] private AnimationClip m_IdleAnim;
+        [SerializeField] private Locomotion m_LocomotionController;
 
+        private AnimationMixerPlayable m_ControllerAndClipMixer;
         private const float kLookAtTransition = 0.5f;
+
+        private const float kLocomotionBlendTime = 0.5f;
 
         private PlayableGraph m_Graph;
         private AnimationLayerMixerPlayable m_LayerMixer;
@@ -128,7 +133,17 @@ namespace StoryCore.Commands {
             m_LayerMixer.SetLayerAdditive(1, true);
             playableOutput.SetSourcePlayable(m_LayerMixer);
 
-            m_LayerMixer.ConnectInput(0, m_TransitionMixer, 0, 1);
+            if (m_Animator.runtimeAnimatorController != null) {
+                m_ControllerAndClipMixer = AnimationMixerPlayable.Create(m_Graph, 2);
+                AnimatorControllerPlayable animControllerPlayable = AnimatorControllerPlayable.Create(m_Graph, m_Animator.runtimeAnimatorController);
+                m_Graph.Connect(m_TransitionMixer, 0, m_ControllerAndClipMixer, 0);
+                m_Graph.Connect(animControllerPlayable, 0, m_ControllerAndClipMixer, 1);
+                m_ControllerAndClipMixer.SetInputWeight(0, 1.0f);
+                m_ControllerAndClipMixer.SetInputWeight(1, 0.0f);
+                m_LayerMixer.ConnectInput(0, m_ControllerAndClipMixer, 0, 1);
+            } else {
+                m_LayerMixer.ConnectInput(0, m_TransitionMixer, 0, 1);
+            }
 
             m_Graph.Play();
         }
@@ -358,12 +373,15 @@ namespace StoryCore.Commands {
                         // Debug.Log("Setting lookAt weight to " + lookAt.IKPositionWeight.ToString("N2"));
                     }, 1, clip.averageDuration)).SetLoops(clip.isLooping ? -1 : 0);
                 } else {
-                    m_Sequence.Join(DOTween.To(() => lookAt.IKPositionWeight, weight => { lookAt.IKPositionWeight = weight; }, 1, transition)).SetEase(Ease.InOutSine);
+                    m_Sequence.Join(DOTween.To(() => lookAt.IKPositionWeight, weight => {
+                        lookAt.IKPositionWeight = weight;
+                    }, 1, transition)).SetEase(Ease.InOutSine);
                 }
             }
 
             m_LastAnim = nextAnim;
             return DelaySequence.Empty;
+            //return Delay.For(nextAnim.GetAnimationClip().length, this);
         }
 
         public DelaySequence PlayAudio(AudioClip clip, float delay = 0) {
@@ -378,5 +396,107 @@ namespace StoryCore.Commands {
             Debug.LogWarning("PlayPlayable not implemented for Characters.");
             return DelaySequence.Empty;
         }
+
+        public override DelaySequence MoveTo(ScriptCommandInfo command) {
+            // Find the move target, this is a locator name in the scene.
+            string moveTargetName = command.Params.GetFirst();
+
+            if (moveTargetName.IsNullOrEmpty()) {
+                Debug.LogWarningFormat(this, "No MoveTo target found.");
+                return DelaySequence.Empty;
+            }
+
+            int speedParamIndex = 1;
+
+            Vector3 moveToTarget = Vector3.zero;
+            GameVariableVector3 locatorVariable = null;
+
+            // try to parse this first value as a float, in which case expect x,y,z
+            float paramAsFloat;
+
+            if (float.TryParse(moveTargetName, out paramAsFloat)) {
+                if (command.Params.Length < 3) {
+                    Debug.LogWarningFormat(this, "MoveTo unable to parse vector3 for Move Target.");
+                    return DelaySequence.Empty;
+                }
+                moveToTarget.x = paramAsFloat;
+                if (!float.TryParse(command.Params[1], out paramAsFloat)) {
+                    Debug.LogWarningFormat(this, "MoveTo unable to parse vector3 for Move Target.");
+                    return DelaySequence.Empty;
+                }
+                moveToTarget.y = paramAsFloat;
+                if (!float.TryParse(command.Params[2], out paramAsFloat)) {
+                    Debug.LogWarningFormat(this, "MoveTo unable to parse vector3 for Move Target.");
+                    return DelaySequence.Empty;
+                }
+                moveToTarget.z = paramAsFloat;
+                speedParamIndex = 3;
+            } else {
+                // otherwise search the scene for a node of that name to move to
+
+                // Find the performance object.
+                locatorVariable = Buckets.Locators.Items.First(i => i && Equals(i.name, moveTargetName));
+                if (locatorVariable != null) {
+                    moveToTarget = locatorVariable.Value;
+                } else {
+                    Debug.LogWarningFormat(this, $"MoveTo target {moveTargetName} not found.");
+                    return DelaySequence.Empty;
+                }
+                // GameObject targetLocator = GameObject.Find(moveTargetName);
+                // if (targetLocator == null) {
+                // 	Debug.LogWarningFormat(this, $"MoveTo target {moveTargetName} not found.");
+                // 	return DelaySequence.Empty;
+                // }
+                //moveToTarget = targetLocator.transform.position;
+            }
+
+            float moveSpeed = 2.0f;
+
+            if (command.Params.Length > speedParamIndex) {
+                string moveSpeedString = command.Params[speedParamIndex];
+                float parsedSpeed;
+                if (!float.TryParse(moveSpeedString, out parsedSpeed)) {
+                    Debug.LogWarningFormat(this, $"MoveTo second parameter needs to be a float, found {moveSpeedString}.");
+                    return DelaySequence.Empty;
+                }
+                moveSpeed = parsedSpeed;
+            }
+
+            bool turnToTarget = false;
+            if (command.Params.Length > speedParamIndex + 1) {
+                string turnBoolString = command.Params[speedParamIndex + 1];
+                if (turnBoolString.Contains('T') || turnBoolString.Contains('t') || turnBoolString.Contains('1')) {
+                    turnToTarget = true;
+                }
+            }
+
+            return MoveTo(locatorVariable, moveToTarget, moveSpeed, turnToTarget);
+        }
+
+        public DelaySequence MoveTo(GameVariableVector3 targetVariable, Vector3 targetPosition, float speed, bool turnToTarget) {
+            // blend in locomotion control
+            BlendAnimControlTo(1.0f, kLocomotionBlendTime);
+
+            if (targetVariable != null) {
+                m_LocomotionController.MoveTo(targetVariable, speed, turnToTarget);
+            } else {
+                m_LocomotionController.MoveTo(targetPosition, speed, turnToTarget);
+            }
+            return Delay.Until(() => !m_LocomotionController.IsMoving, m_LocomotionController).Then(() => {
+                // blend out locomotion control
+                BlendAnimControlTo(0.0f, kLocomotionBlendTime);
+            });
+        }
+
+        private void BlendAnimControlTo(float animControllerWeight, float duration) {
+            //m_ControllerAndClipMixer.SetInputWeight(0, 1.0f - animControllerWeight);
+            //m_ControllerAndClipMixer.SetInputWeight(1, animControllerWeight);
+            DOTween.To(() => m_ControllerAndClipMixer.GetInputWeight(1), weight => {
+                weight = Mathf.Clamp01(weight);
+                m_ControllerAndClipMixer.SetInputWeight(0, 1.0f - weight);
+                m_ControllerAndClipMixer.SetInputWeight(1, weight);
+            }, animControllerWeight, duration);
+        }
+
     }
 }
