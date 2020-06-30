@@ -15,7 +15,6 @@ namespace StoryCore.Editor {
             }
 
             Target.Manager = Target.Manager ? Target.Manager : FindObjectOfType<VRTK_SDKManager>();
-            Target.StoryTeller = Target.StoryTeller ? Target.StoryTeller : FindObjectOfType<StoryTeller>();
             m_ManagerProperty = serializedObject.FindProperty("m_Manager");
         }
 

@@ -10,9 +10,7 @@ using StoryCore.GameVariables;
 using StoryCore.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using VRSubtitles;
-using Object = UnityEngine.Object;
 
 namespace StoryCore {
     public class StoryTeller : MonoBehaviour {
@@ -27,6 +25,7 @@ namespace StoryCore {
         [SerializeField, AutoFillAsset] private TextReplacementConfig m_TextReplacement;
         [SerializeField, AutoFillAsset] private StoryTellerLocator m_StoryTellerLocator;
         [SerializeField] private AbstractLineSequenceProvider m_CustomDialogLineProvider;
+        [SerializeField] private bool m_StartStoryOnEnable = true;
 
         private readonly Queue<ISequence> m_SequenceQueue = new Queue<ISequence>();
         private ISequence m_CurrentSequence;
@@ -140,7 +139,10 @@ namespace StoryCore {
                 m_CharacterBucket.Added += OnCharacterAdded;
             }
             SceneManager.sceneLoaded += OnSceneLoaded;
-            StartStory();
+
+            if (m_StartStoryOnEnable) {
+                StartStory();
+            }
         }
 
         private void OnDisable() {
@@ -153,8 +155,10 @@ namespace StoryCore {
             if (m_Complete) {
                 return;
             }
-            UpdateSequences();
-            UpdateChoiceDelay();
+            if (m_Story != null) {
+                UpdateSequences();
+                UpdateChoiceDelay();
+            }
         }
 
         private void UpdateChoiceDelay() {
@@ -197,7 +201,7 @@ namespace StoryCore {
             Debug.LogWarning(string.Format("No choice matching '{0}' found. (options = {1})", choiceKey, CurrentChoices.AggregateToString(c => c.Text)));
         }
 
-        private void StartStory() {
+        public void StartStory() {
             if (!m_InkJson && !File.Exists(OverrideInkPath)) {
                 Debug.LogErrorFormat(this, "Cannot start story. No Ink JSON text file assigned.");
                 return;
@@ -237,9 +241,9 @@ namespace StoryCore {
 
             m_Story.variablesState["hasRestarted"] = true;
             m_Story.ChoosePathString(storyPath);
-            
+
             // Add loading an empty scene as the first command.
-            CommandSceneHandler.LoadScene("none").Then(() => GetNextQueue("Restarting story."));
+            CommandSceneHandler.LoadScene("empty").Then(() => GetNextQueue("Restarting story."));
         }
 
         private string m_LastSection;

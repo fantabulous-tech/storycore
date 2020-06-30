@@ -55,7 +55,7 @@ namespace StoryCore {
         public static bool EnableLogging {
             get {
                 if (s_EnableLogging < 0) {
-                    s_EnableLogging = PlayerPrefs.GetInt(kEnableLoggingKey, 1);
+                    s_EnableLogging = PlayerPrefs.GetInt(kEnableLoggingKey, 0);
                 }
 
                 return s_EnableLogging > 0;
@@ -73,17 +73,11 @@ namespace StoryCore {
         #endregion
 
         [SerializeField] private VRTK_SDKManager m_Manager;
-        [SerializeField] private StoryTeller m_StoryTeller;
-
+        
 #if UNITY_EDITOR
         public VRTK_SDKManager Manager {
             get => m_Manager;
             set => m_Manager = value;
-        }
-
-        public StoryTeller StoryTeller {
-            get => m_StoryTeller;
-            set => m_StoryTeller = value;
         }
 
         private void Awake() {
@@ -99,11 +93,8 @@ namespace StoryCore {
                 return;
             }
             Manager.forceSimulatorInEditor = true;
-        }
-
         private void Reset() {
             Manager = FindObjectOfType<VRTK_SDKManager>();
-            StoryTeller = FindObjectOfType<StoryTeller>();
         }
 #endif
     }
