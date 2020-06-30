@@ -1,6 +1,5 @@
 ﻿using System;
 using StoryCore.GameEvents;
-using StoryCore.GameVariables;
 using StoryCore.Utils;
 using UnityEngine;
 using UnityEngine.Events;
@@ -8,8 +7,9 @@ using UnityEngine.SceneManagement;
 using VRTK;
 
 namespace StoryCore.UI {
+
     public class Journal : MonoBehaviour {
-        private enum PageState {
+        public enum PageState {
             Unset,
             Closed,
             ChoiceMenu,
@@ -18,7 +18,7 @@ namespace StoryCore.UI {
         }
 
         [Serializable]
-        private class PageSet {
+        public class PageSet {
             public PageState PageState;
             public GameObject RightPage;
             public GameObject LeftPage;
@@ -27,37 +27,38 @@ namespace StoryCore.UI {
         [SerializeField] private Transform m_LeftSide;
         [SerializeField] private Transform m_RightSide;
         [SerializeField] private PageSet[] m_Pages;
-        [SerializeField] private GameEvent m_OpenJournalEvent;
-        [SerializeField] private GameEvent m_CloseJournalEvent;
-        [SerializeField] private GameEvent m_ToggleMainMenu;
         [SerializeField] private float m_AutoCloseDistance = 2f;
-        [SerializeField] private ToggleMenuLocator m_ToggleMenuLocator;
+
+        //  --- Note: the GameVariableBool MenuOpen is controlled by a standalone component
+        [SerializeField] private GameEvent m_CloseJournalEvent;
+        [SerializeField] private GameEventPosAndRot m_MenuLocationMoveEvent;
 
         public UnityEvent PageSelected;
         private PageState m_PageState;
         private Transform m_Hmd;
+        private int m_LastTooFarFrame;
 
         private Transform Hmd => UnityUtils.GetOrSet(ref m_Hmd, VRTK_DeviceFinder.HeadsetTransform);
+        public PageSet[] Pages => m_Pages;
 
         private void Awake() {
-            m_OpenJournalEvent.GenericEvent += OnOpenJournal;
-            m_CloseJournalEvent.GenericEvent += OnCloseJournal;
-            m_ToggleMainMenu.GenericEvent += OnToggleMainMenu;
+            m_MenuLocationMoveEvent.Event += OnNewLocation;
             SceneManager.sceneUnloaded += OnSceneLoaded;
-            gameObject.SetActive(false);
         }
 
         private void OnDestroy() {
-            m_OpenJournalEvent.GenericEvent -= OnOpenJournal;
-            m_CloseJournalEvent.GenericEvent -= OnCloseJournal;
-            m_ToggleMainMenu.GenericEvent -= OnToggleMainMenu;
+            m_MenuLocationMoveEvent.Event -= OnNewLocation;
             SceneManager.sceneUnloaded -= OnSceneLoaded;
         }
 
         private void OnEnable() {
             m_LeftSide.localRotation = Quaternion.AngleAxis(90, Vector3.up);
             m_RightSide.localRotation = Quaternion.AngleAxis(-90, Vector3.up);
-            ShowChoiceMenu();
+
+            //  --- Should probably chose based on which was last open.
+            // ShowChoiceMenu();
+            ShowMainMenu();
+
             Physics.autoSimulation = false;
         }
 
@@ -69,41 +70,38 @@ namespace StoryCore.UI {
         }
 
         private void Update() {
-            CheckDistance();
-
             // Simulate physics while the journal is open
             // so the colliders can get where they need to be
             // even when the game is paused.
             Physics.Simulate(Time.fixedUnscaledDeltaTime);
+
+            CheckDistance();
+        }
+
+        private void OnNewLocation(PosAndRot placement) {
+            transform.SetPositionAndRotation(placement.position, placement.rotation);
         }
 
         private void CheckDistance() {
-            if (transform.position.DistanceTo(Hmd.position) > m_AutoCloseDistance) {
-                Debug.Log("Turning journal off based on distance.");
-                m_CloseJournalEvent.Raise();
+            Transform hmd = Hmd;
+            if (!hmd) {
+                return;
             }
-        }
 
-        private void OnToggleMainMenu() {
-            if (gameObject.activeSelf && m_PageState == PageState.MainMenu) {
-                OnCloseJournal();
-            } else {
-                OnOpenJournal();
-                ShowMainMenu();
+            float distanceSq = (transform.position - Hmd.position).sqrMagnitude;
+
+            if (distanceSq > m_AutoCloseDistance*m_AutoCloseDistance) {
+                //  --- Must be outside this distance for more than one frame,
+                //      to give repositioners a chance.
+                if (Time.frameCount - m_LastTooFarFrame == 1) {
+                    Debug.Log("Turning journal off based on distance.");
+                    m_CloseJournalEvent.Raise();
+                }
+                m_LastTooFarFrame = Time.frameCount;
             }
-        }
-
-        private void OnOpenJournal() {
-            m_ToggleMenuLocator.Value.Open();
-        }
-
-        private void OnCloseJournal() {
-            m_ToggleMenuLocator.Value.Close();
-            m_PageState = PageState.Closed;
         }
 
         private void OnSceneLoaded(Scene scene) {
-            m_ToggleMenuLocator.Value.Close();
             m_PageState = PageState.Closed;
         }
 
@@ -119,7 +117,7 @@ namespace StoryCore.UI {
             ShowPage(PageState.SceneMenu);
         }
 
-        private void ShowPage(PageState page) {
+        public void ShowPage(PageState page) {
             m_PageState = page;
             UpdatePages();
             PageSelected.Invoke();
