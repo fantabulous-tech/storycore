@@ -67,8 +67,8 @@ namespace StoryCore {
             if (m_StoryTeller.FocusedCharacter is IPerformLipSync lipSyncCharacter) {
                 lipSyncCharacter.PlayLipSync(clip);
             } else {
-                Debug.LogWarning("No audio source found for VO. Playing from camera's position.");
-                AudioSource.PlayClipAtPoint(clip.clip, UnityUtils.CameraTransform.position, 0.5f);
+                Debug.LogWarning("No audio source found for VO. Playing as a '2D' sound.");
+                clip.clip.PlayOneShot();
             }
         }
     }

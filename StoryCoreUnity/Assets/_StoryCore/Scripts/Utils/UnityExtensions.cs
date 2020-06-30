@@ -120,5 +120,18 @@ namespace StoryCore.Utils {
         public static void Resume(this Animator a, float speed = 1) {
             a.speed = speed;
         }
+
+        public static void PlayOneShot(this AudioClip clip, float volume = 1) {
+            DefaultAudioSource.PlayOneShot(clip, volume);
+        }
+
+        private static AudioSource s_DefaultAudioSource;
+        private static AudioSource DefaultAudioSource => UnityUtils.GetOrSet(ref s_DefaultAudioSource, CreateDefaultAudioSource);
+
+        private static AudioSource CreateDefaultAudioSource() {
+            GameObject go = new GameObject("Default Audio Source");
+            Object.DontDestroyOnLoad(go);
+            return go.AddComponent<AudioSource>();
+        }
     }
 }
