@@ -67,7 +67,7 @@ namespace VRSubtitles {
             UIInstance.Show(subtitle, m_Player);
             subtitle.Show();
             string duration = subtitle.AutoCloseDuration > 1000000 ? "∞" : subtitle.AutoCloseDuration.ToString("N2");
-            Debug.Log($"[Subtitles] Showing ({duration}) \'{subtitle.Text}\'");
+            //Debug.Log($"[Subtitles] Showing ({duration}) \'{subtitle.Text}\'");
             Delay.For(subtitle.AutoCloseDuration, this).Then(() => FadeOut(subtitle));
         }
 
@@ -140,6 +140,10 @@ namespace VRSubtitles {
         ///     Hides the current subtitle and clears the subtitle queue.
         /// </summary>
         public static void Clear() {
+            if (!Exists) {
+                return;
+            }
+
             Instance.m_SubtitleQueue.Clear();
             if (Instance.m_CurrentSubtitle != null) {
                 FadeOut(Instance.m_CurrentSubtitle);
