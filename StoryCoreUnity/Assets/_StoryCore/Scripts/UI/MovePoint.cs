@@ -86,7 +86,7 @@ namespace StoryCore {
 
         private void OnUse(object sender, InteractableObjectEventArgs e) {
             if (m_MoveChoice != null) {
-                m_MoveChoice.Select();
+                m_MoveChoice.Choose();
             } else {
                 Debug.LogWarningFormat(this, "No move choice found, but we are somehow trying to move to " + name);
             }

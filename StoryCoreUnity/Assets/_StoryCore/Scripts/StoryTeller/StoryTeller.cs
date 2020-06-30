@@ -190,7 +190,7 @@ namespace StoryCore {
             StoryChoice choice = CurrentChoices.FirstOrDefault(c => c.Text.Contains(choiceKey, StringComparison.OrdinalIgnoreCase));
             if (choice != null) {
                 StoryDebug.Log($"Choosing '{choice.Text}' match found for '{choiceKey}'");
-                choice.Select();
+                choice.Choose();
                 return;
             }
 

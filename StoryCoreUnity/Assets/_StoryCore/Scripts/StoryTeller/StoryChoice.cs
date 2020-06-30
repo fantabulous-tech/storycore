@@ -18,6 +18,8 @@ namespace StoryCore {
         public string DisplayText => Text.ReplaceRegex(@"(\([^\)].*\)|\b [^:].*)", "");
 
         private string ChoiceName => GetChoicePieces().First().TrimEnd('!');
+
+        public string ChoiceBody => m_InkChoice.text.Split(':').Last();
         
         public IEnumerable<string> ChoiceParams => GetChoicePieces().Skip(1);
 
@@ -28,7 +30,7 @@ namespace StoryCore {
                 return true;
             }
 
-            // Try to match the command + first parameter. (e.g. 'pose:stand')
+            // Try to match the command + first parameter. (e.g. 'say:ask_to_enter')
             return string.Equals(ChoiceName + ":" + ChoiceParams.FirstOrDefault(), choiceName);
         }
 
@@ -41,8 +43,12 @@ namespace StoryCore {
             return m_InkChoice.text.Split(new[] {' ', '\t', ':'}, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public void Select() {
+        public void Choose() {
             m_StoryTeller.Choose(this);
+        }
+
+        public override string ToString() {
+            return $"{base.ToString()}: {Text}";
         }
     }
 }

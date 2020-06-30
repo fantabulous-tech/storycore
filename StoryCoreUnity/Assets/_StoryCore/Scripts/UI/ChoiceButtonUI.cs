@@ -14,7 +14,7 @@ namespace StoryCore {
         }
 
         public void OnChoice() {
-            m_Choice?.Select();
+            m_Choice?.Choose();
         }
     }
 }

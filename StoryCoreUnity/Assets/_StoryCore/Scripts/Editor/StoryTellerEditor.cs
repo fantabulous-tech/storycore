@@ -42,7 +42,7 @@ namespace StoryCore {
             for (int i = 0; i < Target.CurrentChoices.Count; i++) {
                 StoryChoice choice = Target.CurrentChoices[i];
                 if (GUILayout.Button(choice.Text)) {
-                    choice.Select();
+                    choice.Choose();
                 }
             }
         }
