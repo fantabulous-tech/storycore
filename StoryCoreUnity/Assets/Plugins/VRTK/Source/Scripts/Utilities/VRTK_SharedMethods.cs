@@ -303,6 +303,11 @@ namespace VRTK
         /// <returns>The found component. If no component is found `null` is returned.</returns>
         public static T FindEvenInactiveComponent<T>(bool searchAllScenes = false) where T : Component
         {
+            T result = GameObject.FindObjectOfType<T>();
+            if (result) {
+                return result;
+            }
+
             return FindEvenInactiveComponentsInValidScenes<T>(searchAllScenes, true).FirstOrDefault();
         }
 

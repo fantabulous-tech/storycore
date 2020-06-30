@@ -730,8 +730,8 @@ namespace VRTK
                 }
 
                 VRTK_SDKSetup[] missingVRDeviceSetups = sdkSetups
-                    .Where(setup => setup.usedVRDeviceNames.Except(XRSettings.supportedDevices.Concat(new[] { "None" })).Any())
-                    .ToArray();
+                                                        .Where(setup => setup.usedVRDeviceNames.Except(XRSettings.supportedDevices.Concat(new[] { "None", "pico" })).Any())
+                                                        .ToArray();
                 foreach (VRTK_SDKSetup missingVRDeviceSetup in missingVRDeviceSetups)
                 {
                     string missingVRDevicesText = string.Join(
