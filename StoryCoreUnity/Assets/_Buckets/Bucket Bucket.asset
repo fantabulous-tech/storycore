@@ -20,6 +20,8 @@ MonoBehaviour:
     Asset: {fileID: 11400000, guid: 10cbe4ee809d4a74abc23273b8795b2c, type: 2}
   - Name: audio ambient bucket
     Asset: {fileID: 11400000, guid: 149d68a076a4d6f41bcdf984d07d01f7, type: 2}
+  - Name: scenario bucket
+    Asset: {fileID: 11400000, guid: 19b0c84255b94f44397e3a4b1dba142e, type: 2}
   - Name: performance bucket
     Asset: {fileID: 11400000, guid: 2f3310cf6841a2f41a4de3155ef81ecb, type: 2}
   - Name: command bucket

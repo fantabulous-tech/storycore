@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 317496dedf67e44498d2e9a6c5db8a47, type: 3}
   m_Name: ToggleMainMenu
   m_EditorClassIdentifier: 
-  m_EventName: 
-  m_EventDescription: 
+  m_EventName: Toggle Main Menu
+  m_EventDescription: Opens or closes the main menu.
   m_DebugLog: 0

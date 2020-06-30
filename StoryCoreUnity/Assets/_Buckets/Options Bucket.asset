@@ -18,6 +18,8 @@ MonoBehaviour:
   m_AssetRefs:
   - Name: options-subtitles
     Asset: {fileID: 11400000, guid: 07d7491b8e882344b8b0f5db0ee6c1a4, type: 2}
+  - Name: options-debuglog
+    Asset: {fileID: 11400000, guid: 37e84065aa645eb4693cb5b3cccd88a3, type: 2}
   - Name: options-antialiasing
     Asset: {fileID: 11400000, guid: 5d4fbdd307556ed4ebd7752404aa7c92, type: 2}
   - Name: options-qualitylevel

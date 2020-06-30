@@ -18,4 +18,8 @@ MonoBehaviour:
   m_AssetRefs:
   - Name: door-bell
     Asset: {fileID: 8300000, guid: 05ddde5c23343d64c8cfe5d38dda1e81, type: 3}
+  - Name: book_open
+    Asset: {fileID: 8300000, guid: d9f1405472d92f347a515c4a6d728f0f, type: 3}
+  - Name: book_close
+    Asset: {fileID: 8300000, guid: e4ddb6ebd1f56464eb2239050ea47e73, type: 3}
   m_ManualUpdate: 0
