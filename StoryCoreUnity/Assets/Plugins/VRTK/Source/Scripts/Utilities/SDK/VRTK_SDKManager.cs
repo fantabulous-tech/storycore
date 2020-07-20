@@ -322,6 +322,8 @@ namespace VRTK
 
         private static VRTK_SDKManager _instance;
 
+        public bool forceSimulatorInEditor = false;
+
         [Tooltip("Determines whether the scripting define symbols required by the installed SDKs are automatically added to and removed from the player settings.")]
         public bool autoManageScriptDefines = true;
 
@@ -616,6 +618,15 @@ namespace VRTK
         /// <param name="tryUseLastLoadedSetup">Attempt to use the last loaded setup if it's available.</param>
         public void TryLoadSDKSetupFromList(bool tryUseLastLoadedSetup = true)
         {
+
+#if UNITY_EDITOR
+            if (forceSimulatorInEditor) {
+                VRTK_SDKSetup simSetup = Array.Find(setups, setup => setup.usedVRDeviceNames.All(vrDeviceName => vrDeviceName == "None"));
+                TryLoadSDKSetup(0, false, new VRTK_SDKSetup[] {simSetup});
+                return;
+            }
+#endif
+
             int index = 0;
 
             if (tryUseLastLoadedSetup && _previouslyUsedSetupInfos.Count > 0)
@@ -896,7 +907,14 @@ namespace VRTK
             yield return null;
 
             string loadedDeviceName = string.IsNullOrEmpty(XRSettings.loadedDeviceName) ? "None" : XRSettings.loadedDeviceName;
+
+#if UNITY_EDITOR
+            if (forceSimulatorInEditor) {
+                loadedDeviceName = "None";
+            }
+#endif
             loadedSetup = sdkSetups.FirstOrDefault(setup => setup.usedVRDeviceNames.Contains(loadedDeviceName));
+
 
             if (loadedSetup == null)
             {

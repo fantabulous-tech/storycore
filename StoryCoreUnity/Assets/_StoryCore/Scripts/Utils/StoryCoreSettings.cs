@@ -86,38 +86,19 @@ namespace StoryCore {
             set => m_StoryTeller = value;
         }
 
-        private void OnEnable() {
+        private void Awake() {
             if (!Application.isEditor) {
                 return;
             }
 
             CheckForceSimulationMode();
-            CheckIsDebug();
-        }
-
-        private void CheckIsDebug() {
-            if (StoryTeller) {
-                StoryTeller.SetDebugInScript(UseDebugInInk);
-            }
         }
 
         private void CheckForceSimulationMode() {
             if (!ForceSimulationMode) {
                 return;
             }
-
-            Delay.ForFrameCount(10, this).Then(SetForceSimulationMode);
-        }
-
-        private void SetForceSimulationMode() {
-            int setupIndex = Manager.setups.IndexOf(s => s.name.Equals("Simulator", StringComparison.OrdinalIgnoreCase));
-
-            if (setupIndex >= 0 && Manager) {
-                Debug.Log("Forcing VR Simulator Mode (Mouse & Keyboard)");
-                Manager.TryLoadSDKSetup(setupIndex, true, Manager.setups);
-            } else {
-                Debug.LogWarning("Couldn't force VR Simulator Mode. 'Simulator' not found.");
-            }
+            Manager.forceSimulatorInEditor = true;
         }
 
         private void Reset() {

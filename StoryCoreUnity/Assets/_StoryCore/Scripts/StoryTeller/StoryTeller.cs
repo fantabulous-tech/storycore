@@ -31,7 +31,6 @@ namespace StoryCore {
         private readonly Queue<ISequence> m_SequenceQueue = new Queue<ISequence>();
         private ISequence m_CurrentSequence;
         private StoryChoice m_NextChoice;
-        private bool m_SetDebugInScript;
         private bool m_Complete;
         private Story m_Story;
         private BaseCharacter m_FocusedCharacter;
@@ -206,7 +205,7 @@ namespace StoryCore {
 
             m_Complete = false;
             Story = new Story(InkJsonText);
-            Story.BindExternalFunction("isDebug", () => Debug.isDebugBuild && m_SetDebugInScript);
+            Story.BindExternalFunction("isDebug", () => Application.isEditor && StoryCoreSettings.UseDebugInInk);
 
             // Load up all the saved variables (story variables should get set in the story too).
             SaveLoadVariables.LoadAll();
@@ -477,10 +476,6 @@ namespace StoryCore {
 
         public bool IsValidChoice(BaseGameEvent gameEvent) {
             return CurrentChoices.Any(c => c.IsValidChoice(ChoiceManager.Choices[gameEvent]));
-        }
-
-        public void SetDebugInScript(bool value) {
-            m_SetDebugInScript = value;
         }
 
         private string ChoiceInfo {
