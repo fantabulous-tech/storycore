@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_NameOverride: 
   m_VoiceSource: {fileID: 2157604978197588744}
+  m_SubtitlePoint: {fileID: 0}
   m_Animator: {fileID: 1865324490135740562}
   m_LipSync: {fileID: 8581925857407041842}
   m_EyeController: {fileID: 3726126447311939244}
