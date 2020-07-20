@@ -102,7 +102,7 @@ namespace StoryCore.HeadGesture {
         }
 
         private void LateUpdate() {
-            if (!Init()) {
+            if (!Init() || !AppTracker.IsPlaying) {
                 return;
             }
 
@@ -116,8 +116,12 @@ namespace StoryCore.HeadGesture {
 
             transform.position = Head.position;
             m_UI.gameObject.SetActive(false);
-            m_YesWatcher.Update();
-            m_NoWatcher.Update();
+            if (m_YesWatcher != null) {
+                m_YesWatcher.Update();
+            }
+            if (m_NoWatcher != null) {
+                m_NoWatcher.Update();
+            }
         }
 
         private void OnYesGesture(DirectionEdge edge) {
