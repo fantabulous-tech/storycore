@@ -28,7 +28,7 @@ namespace StoryCore.Utils {
             }
         }
 
-        protected AppTracker() {
+        protected void Awake() {
             Application.quitting += RaiseOnQuit;
 
 #if UNITY_EDITOR
@@ -43,8 +43,10 @@ namespace StoryCore.Utils {
         }
 
 #if UNITY_EDITOR
-        private static void RaiseOnQuit(UnityEditor.PlayModeStateChange obj) {
-            RaiseOnQuit();
+        private static void RaiseOnQuit(UnityEditor.PlayModeStateChange playModeChange) {
+            if (playModeChange == UnityEditor.PlayModeStateChange.ExitingPlayMode) {
+                RaiseOnQuit();
+            }
         }
 #endif
 
@@ -56,6 +58,11 @@ namespace StoryCore.Utils {
 
         private void OnDestroy() {
             RaiseOnQuit();
+
+            Application.quitting -= RaiseOnQuit;
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.playModeStateChanged -= RaiseOnQuit;
+#endif
         }
     }
 }
