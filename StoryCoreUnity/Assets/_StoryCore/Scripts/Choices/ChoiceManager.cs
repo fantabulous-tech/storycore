@@ -16,7 +16,9 @@ namespace StoryCore {
         }
 
         private void OnDisable() {
-            Choices.ChoiceEvent.Event -= OnChoiceEvent;
+            if (Choices != null && Choices.ChoiceEvent != null) {
+                Choices.ChoiceEvent.Event -= OnChoiceEvent;
+            }
         }
 
         private static void OnChoiceEvent(string choice) {
