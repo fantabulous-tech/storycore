@@ -160,7 +160,7 @@ namespace Ink.UnityIntegration {
             string newGuid = GetGuid(inkFile.inkAsset);
             for (int i = 0; i < list.Count(); i++) {
                 string testGuid = GetGuid(list[i].inkAsset);
-                if (String.Compare(testGuid, newGuid, StringComparison.Ordinal) >= 0) {
+                if (String.Compare(newGuid, testGuid, StringComparison.Ordinal) < 0) {
                     list.Insert(i, inkFile);
                     added = true;
                     break;
@@ -170,28 +170,6 @@ namespace Ink.UnityIntegration {
             if (!added) {
                 list.Add(inkFile);
             }
-        }
-
-        private static bool Different(List<InkFile> l1, List<InkFile> l2) {
-            if (l1 == null && l2 == null) {
-                return true;
-            }
-
-            if (l1 == null || l2 == null) {
-                return false;
-            }
-
-            if (l1.Count != l2.Count) {
-                return false;
-            }
-
-            for (int i = 0; i < l1.Count; i++) {
-                if (l1[i].inkAsset != l2[i].inkAsset) {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         public static string GetGuid(Object obj) {
@@ -238,9 +216,9 @@ namespace Ink.UnityIntegration {
 				newInkLibrary.Add(inkFile);
 			}
 
-            if (inkLibraryChanged || Different(newInkLibrary, Instance.inkLibrary)) {
+            // if (inkLibraryChanged) {
                 Instance.inkLibrary = newInkLibrary.OrderBy(i => GetGuid(i.inkAsset)).ToList();
-            }
+            // }
 
             CreateDictionary();
 
@@ -270,7 +248,7 @@ namespace Ink.UnityIntegration {
 				}
 			}
 
-            Instance.inkLibrary.Sort((i1, i2) => String.Compare(GetGuid(i1.inkAsset), GetGuid(i1.inkAsset), StringComparison.Ordinal));
+            Instance.inkLibrary.Sort((i1, i2) => String.Compare(GetGuid(i1.inkAsset), GetGuid(i2.inkAsset), StringComparison.Ordinal));
             
 			// Now we've updated all the include paths for the ink library we can create master/child references between them.
 			InkMetaLibrary.RebuildInkFileConnections();
@@ -323,8 +301,14 @@ namespace Ink.UnityIntegration {
 		/// <param name="file">File asset.</param>
 		/// <param name="addIfMissing">Adds the file if missing from inkLibrary.</param>
 		public static InkFile GetInkFileWithFile (DefaultAsset file, bool addIfMissing = false) {
-			if(InkLibrary.Instance.inkLibrary == null) return null;
-			foreach(InkFile inkFile in Instance.inkLibrary) {
+            if (!file) {
+                Debug.LogError("Can't add null file.");
+                return null;
+            }
+
+            if(InkLibrary.Instance.inkLibrary == null) return null;
+
+            foreach(InkFile inkFile in Instance.inkLibrary) {
 				if(inkFile.inkAsset == file) {
 					return inkFile;
 				}
