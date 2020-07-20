@@ -1,6 +1,8 @@
 === Debug ===
 
 /log In debug scripts
--> scenario_test
+
+/scene Office.InteriorClose
+-> scenario_test.respond
 
 ->->
