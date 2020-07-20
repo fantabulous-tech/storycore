@@ -293,9 +293,14 @@ namespace IngameDebugConsole
 
 		private void DestroyLogItemsBetweenIndices( int topIndex, int bottomIndex )
 		{
-			for( int i = topIndex; i <= bottomIndex; i++ )
-				debugManager.PoolLogItem( logItemsAtIndices[i] );
-		}
+			for( int i = topIndex; i <= bottomIndex; i++ ) {
+                if (logItemsAtIndices.Count > i) {
+                    debugManager.PoolLogItem( logItemsAtIndices[i] );
+                } else {
+                    break;
+                }
+            }
+        }
 
 		private void UpdateLogItemContentsBetweenIndices( int topIndex, int bottomIndex )
 		{

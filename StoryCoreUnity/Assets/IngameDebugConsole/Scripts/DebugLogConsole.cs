@@ -381,39 +381,44 @@ namespace IngameDebugConsole
 			else
 			{
 				// Check if number of parameter match
-				if( methodInfo.parameterTypes.Length != commandArguments.Count - 1 )
-				{
-					Debug.LogWarning( "Parameter count mismatch: " + methodInfo.parameterTypes.Length + " parameters are needed" );
-					return;
-				}
+				// if( methodInfo.parameterTypes.Length != commandArguments.Count - 1 )
+				// {
+				// 	Debug.LogWarning( "Parameter count mismatch: " + methodInfo.parameterTypes.Length + " parameters are needed" );
+				// 	return;
+				// }
 
 				Debug.Log("Executing command: " + commandArguments.AggregateToString(" "));
 
 				// Parse the parameters into objects
 				object[] parameters = new object[methodInfo.parameterTypes.Length];
-				for( int i = 0; i < methodInfo.parameterTypes.Length; i++ )
-				{
-					string argument = commandArguments[i + 1];
+                
+                // Check if we have 'params string[]' situation and parameters to fill it
+                if (commandArguments.Count > 1 && parameters.Length == 1 && methodInfo.parameterTypes[0].IsArray) {
+                    parameters[0] = commandArguments.Skip(1).ToArray();
+                } else {
+                    for( int i = 0; i < methodInfo.parameterTypes.Length; i++ ) {
+                        string argument = commandArguments.Count < i + 1 ? commandArguments[i + 1] : null;
 
-					Type parameterType = methodInfo.parameterTypes[i];
-					ParseFunction parseFunction;
-					if( !parseFunctions.TryGetValue( parameterType, out parseFunction ) )
-					{
-						Debug.LogError( "Unsupported parameter type: " + parameterType.Name );
-						return;
-					}
+                        Type parameterType = methodInfo.parameterTypes[i];
+                        ParseFunction parseFunction;
+                        if( !parseFunctions.TryGetValue( parameterType, out parseFunction ) )
+                        {
+                            Debug.LogError( "Unsupported parameter type: " + parameterType.Name );
+                            return;
+                        }
 
-					object val;
-					if( !parseFunction( argument, out val ) )
-					{
-						Debug.LogError( "Couldn't parse " + argument + " to " + parameterType.Name );
-						return;
-					}
+                        object val;
+                        if( !parseFunction( argument, out val ) )
+                        {
+                            Debug.LogError( "Couldn't parse " + argument + " to " + parameterType.Name );
+                            return;
+                        }
 
-					parameters[i] = val;
-				}
+                        parameters[i] = val;
+                    }
+                }
 
-				// Execute the method associated with the command
+                // Execute the method associated with the command
 				object result = methodInfo.method.Invoke( methodInfo.instance, parameters );
 				if( methodInfo.method.ReturnType != typeof( void ) )
 				{
@@ -454,11 +459,15 @@ namespace IngameDebugConsole
 			return input.Length > 0;
 		}
 
-		private static bool ParseStringArray( string input, out object output )
-		{
-			output = input.Split(new []{' ', '\t'}, StringSplitOptions.RemoveEmptyEntries);
-			return input.Length > 0;
-		}
+		private static bool ParseStringArray( string input, out object output ) {
+            // Parse nulls into an empty array for 'params' functions.
+            if (input.IsNullOrEmpty()) {
+                output = new string[0];
+            } else {
+                output = input.Split(new[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries);
+            }
+            return true;
+        }
 
 		private static bool ParseBool( string input, out object output )
 		{
