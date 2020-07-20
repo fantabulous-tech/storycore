@@ -80,7 +80,24 @@ namespace VRTK
 
         protected virtual bool NoValidCollision(VRTK_UIPointer pointer, List<RaycastResult> results)
         {
-            return (results.Count == 0 || !CheckTransformTree(results[0].gameObject.transform, pointer.pointerEventData.pointerEnter.transform));
+            // TH - I've changed this as it appears incorrect. Why do we suddenly care about the first raycast result
+            // when we didn't before? I've changed it to check all results.
+            //return (results.Count == 0 || !CheckTransformTree(results[0].gameObject.transform, pointer.pointerEventData.pointerEnter.transform));
+            if (results.Count == 0)
+            {
+                return true;
+            }
+
+            for (int r = 0; r < results.Count; ++r)
+            {
+                if (CheckTransformTree(results[r].gameObject.transform,
+                    pointer.pointerEventData.pointerEnter.transform))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         protected virtual bool IsHovering(VRTK_UIPointer pointer)
@@ -118,7 +135,7 @@ namespace VRTK
 
         protected virtual void Hover(VRTK_UIPointer pointer, List<RaycastResult> results)
         {
-            if (pointer.pointerEventData.pointerEnter != null)
+            if (pointer.pointerEventData.pointerEnter)
             {
                 CheckPointerHoverClick(pointer, results);
                 if (!ValidElement(pointer.pointerEventData.pointerEnter))
@@ -136,30 +153,22 @@ namespace VRTK
             }
             else
             {
-                for (int i = 0; i < results.Count; i++)
+                foreach (var result in results)
                 {
-                    RaycastResult result = results[i];
                     if (!ValidElement(result.gameObject))
                     {
                         continue;
                     }
 
-                    GameObject target = ExecuteEvents.ExecuteHierarchy(result.gameObject, pointer.pointerEventData, ExecuteEvents.pointerEnterHandler);
-                    target = (target == null ? result.gameObject : target);
-
+                    var target = ExecuteEvents.ExecuteHierarchy(result.gameObject, pointer.pointerEventData, ExecuteEvents.pointerEnterHandler);
                     if (target != null)
                     {
-                        Selectable selectable = target.GetComponent<Selectable>();
-                        if (selectable != null)
+                        var selectable = target.GetComponent<Selectable>();
+                        if (selectable)
                         {
-                            Navigation noNavigation = new Navigation();
+                            var noNavigation = new Navigation();
                             noNavigation.mode = Navigation.Mode.None;
                             selectable.navigation = noNavigation;
-                        }
-
-                        if (pointer.hoveringElement != null && pointer.hoveringElement != target)
-                        {
-                            pointer.OnUIPointerElementExit(pointer.SetUIPointerEvent(result, null, pointer.hoveringElement));
                         }
 
                         pointer.OnUIPointerElementEnter(pointer.SetUIPointerEvent(result, target, pointer.hoveringElement));
@@ -169,12 +178,14 @@ namespace VRTK
                         pointer.pointerEventData.hovered.Add(pointer.pointerEventData.pointerEnter);
                         break;
                     }
-
-                    if (result.gameObject != pointer.hoveringElement)
+                    else
                     {
-                        pointer.OnUIPointerElementEnter(pointer.SetUIPointerEvent(result, result.gameObject, pointer.hoveringElement));
+                        if (result.gameObject != pointer.hoveringElement)
+                        {
+                            pointer.OnUIPointerElementEnter(pointer.SetUIPointerEvent(result, result.gameObject, pointer.hoveringElement));
+                        }
+                        pointer.hoveringElement = result.gameObject;
                     }
-                    pointer.hoveringElement = result.gameObject;
                 }
 
                 if (pointer.hoveringElement && results.Count == 0)

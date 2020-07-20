@@ -71,11 +71,11 @@ namespace VRTK
             XRNodeState state = states.FirstOrDefault(s => s.nodeType == nodeType);
 
             if (state.TryGetPosition(out Vector3 pos)) {
-                transform.position = pos;
+                transform.localPosition = pos;
             }
 
             if (state.TryGetRotation(out Quaternion rot)) {
-                transform.rotation = rot;
+                transform.localRotation = rot;
             }
         }
     }

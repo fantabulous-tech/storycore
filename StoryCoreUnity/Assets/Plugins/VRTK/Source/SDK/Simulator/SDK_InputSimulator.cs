@@ -20,7 +20,6 @@ namespace VRTK {
             ///     Mouse movement is always treated as mouse input.
             /// </summary>
             Always,
-
             /// <summary>
             ///     Mouse movement is only treated as movement when a button is pressed.
             /// </summary>
@@ -33,117 +32,91 @@ namespace VRTK {
         [SerializeField] private VRTK_SDKSetup m_SimulatorSetup;
         [SerializeField] public Transform m_Player;
 
-        [Header("General Settings"), Tooltip("Show control information in the upper left corner of the screen.")]
+        [Header("General Settings")]
+        [Tooltip("Show control information in the upper left corner of the screen.")]
         public bool showControlHints = true;
-
         [Tooltip("Hide hands when disabling them.")]
         public bool hideHandsAtSwitch;
-
         [Tooltip("Reset hand position and rotation when enabling them.")]
         public bool resetHandsAtSwitch = true;
-
         [Tooltip("Displays an axis helper to show which axis the hands will be moved through.")]
         public bool showHandAxisHelpers = true;
 
-        [Header("Mouse Cursor Lock Settings"), Tooltip("Lock the mouse cursor to the game window.")]
+        [Header("Mouse Cursor Lock Settings")]
+        [Tooltip("Lock the mouse cursor to the game window.")]
         public bool lockMouseToView = true;
-
         [Tooltip("Whether the mouse movement always acts as input or requires a button press.")]
         public MouseInputMode mouseMovementInput = MouseInputMode.Always;
 
-        [Header("Manual Adjustment Settings"), Tooltip("Adjust hand movement speed.")]
+        [Header("Manual Adjustment Settings")]
+        [Tooltip("Adjust hand movement speed.")]
         public float handMoveMultiplier = 0.002f;
-
         [Tooltip("Adjust hand rotation speed.")]
         public float handRotationMultiplier = 0.5f;
-
         [Tooltip("Adjust player movement speed.")]
         public float playerMoveMultiplier = 5f;
-
         [Tooltip("Adjust player rotation speed.")]
         public float playerRotationMultiplier = 0.5f;
-
         [Tooltip("Adjust player sprint speed.")]
         public float playerSprintMultiplier = 2f;
-
         [Tooltip("Adjust the speed of the cursor movement in locked mode.")]
         public float lockedCursorMultiplier = 5f;
-
         [Tooltip("The Colour of the GameObject representing the left hand.")]
         public Color leftHandColor = Color.red;
-
         [Tooltip("The Colour of the GameObject representing the right hand.")]
         public Color rightHandColor = Color.green;
 
-        [Header("Operation Key Binding Settings"), Tooltip("Key used to enable mouse input if a button press is required.")]
+        [Header("Operation Key Binding Settings")]
+        [Tooltip("Key used to enable mouse input if a button press is required.")]
         public KeyCode mouseMovementKey = KeyCode.Mouse1;
-
         [Tooltip("Key used to toggle control hints on/off.")]
         public KeyCode toggleControlHints = KeyCode.F1;
-
         [Tooltip("Key used to toggle control hints on/off.")]
         public KeyCode toggleMouseLock = KeyCode.F4;
-
         [Tooltip("Key used to switch between left and righ hand.")]
         public KeyCode changeHands = KeyCode.Tab;
-
         [Tooltip("Key used to switch hands On/Off.")]
         public KeyCode handsOnOff = KeyCode.LeftAlt;
-
         [Tooltip("Key used to switch between positional and rotational movement.")]
         public KeyCode rotationPosition = KeyCode.LeftShift;
-
         [Tooltip("Key used to switch between X/Y and X/Z axis.")]
         public KeyCode changeAxis = KeyCode.LeftControl;
-
         [Tooltip("Key used to distance pickup with left hand.")]
         public KeyCode distancePickupLeft = KeyCode.Mouse0;
-
         [Tooltip("Key used to distance pickup with right hand.")]
         public KeyCode distancePickupRight = KeyCode.Mouse1;
-
         [Tooltip("Key used to enable distance pickup.")]
         public KeyCode distancePickupModifier = KeyCode.LeftControl;
 
-        [Header("Movement Key Binding Settings"), Tooltip("Key used to move forward.")]
+        [Header("Movement Key Binding Settings")]
+        [Tooltip("Key used to move forward.")]
         public KeyCode moveForward = KeyCode.W;
-
         [Tooltip("Key used to move to the left.")]
         public KeyCode moveLeft = KeyCode.A;
-
         [Tooltip("Key used to move backwards.")]
         public KeyCode moveBackward = KeyCode.S;
-
         [Tooltip("Key used to move to the right.")]
         public KeyCode moveRight = KeyCode.D;
-
         [Tooltip("Key used to move up")]
         public KeyCode up = KeyCode.Space;
-
         [Tooltip("Key used to move down")]
         public KeyCode down = KeyCode.LeftShift;
 
-        [Header("Controller Key Binding Settings"), Tooltip("Key used to simulate trigger button.")]
+        [Header("Controller Key Binding Settings")]
+        [Tooltip("Key used to simulate trigger button.")]
         public KeyCode triggerAlias = KeyCode.Mouse1;
-
         [Tooltip("Key used to simulate grip button.")]
         public KeyCode gripAlias = KeyCode.Mouse0;
-
         [Tooltip("Key used to simulate touchpad button.")]
         public KeyCode touchpadAlias = KeyCode.Q;
-
         [Tooltip("Key used to simulate button one.")]
         public KeyCode buttonOneAlias = KeyCode.E;
-
         [Tooltip("Key used to simulate button two.")]
         public KeyCode buttonTwoAlias = KeyCode.R;
-
         [Tooltip("Key used to simulate start menu button.")]
         public KeyCode startMenuAlias = KeyCode.F;
-
         [Tooltip("Key used to switch between button touch and button press mode.")]
         public KeyCode touchModifier = KeyCode.T;
-
         [Tooltip("Key used to switch between hair touch mode.")]
         public KeyCode hairTouchModifier = KeyCode.H;
 
@@ -166,6 +139,8 @@ namespace VRTK {
 
         private static SDK_InputSimulator m_Instance;
         private static bool m_Destroyed;
+
+        private bool m_HasCanvas;
 
         #endregion
 
@@ -211,10 +186,19 @@ namespace VRTK {
         }
 
         protected virtual void OnEnable() {
-            m_HintCanvas = transform.Find("Canvas/Control Hints").gameObject;
-            m_CrossHairPanel = transform.Find("Canvas/CrosshairPanel").gameObject;
-            m_HintText = m_HintCanvas.GetComponentInChildren<Text>();
-            m_HintCanvas.SetActive(showControlHints);
+            Transform hintCanvasTForm = transform.Find("Canvas/Control Hints");
+            if (hintCanvasTForm) {
+                m_HasCanvas = true;
+                m_HintCanvas = hintCanvasTForm.gameObject;
+                m_CrossHairPanel = transform.Find("Canvas/CrosshairPanel")?.gameObject;
+                m_HintText = m_HintCanvas.GetComponentInChildren<Text>();
+                m_HintCanvas.SetActive(showControlHints);
+                if (m_CrossHairPanel != null) {
+                    m_CrossHairPanel.SetActive(false);
+                }
+            } else {
+                m_HasCanvas = false;
+            }
             RightHand.gameObject.SetActive(false);
             LeftHand.gameObject.SetActive(false);
             m_LeftHandHorizontalAxisGuide = LeftHand.Find("Guides/HorizontalPlane");
@@ -258,7 +242,9 @@ namespace VRTK {
         protected virtual void Update() {
             if (Input.GetKeyDown(toggleControlHints)) {
                 showControlHints = !showControlHints;
-                m_HintCanvas.SetActive(showControlHints);
+                if (m_HasCanvas) {
+                    m_HintCanvas.SetActive(showControlHints);
+                }
             }
 
             if (Input.GetKeyDown(toggleMouseLock)) {
@@ -305,11 +291,12 @@ namespace VRTK {
                 } else if (Input.GetKeyDown(distancePickupLeft) && Input.GetKey(distancePickupModifier)) {
                     TryPickup(false);
                 }
-
-                if (Input.GetKeyDown(distancePickupModifier)) {
-                    m_CrossHairPanel.SetActive(true);
-                } else if (Input.GetKeyUp(distancePickupModifier)) {
-                    m_CrossHairPanel.SetActive(false);
+                if (m_HasCanvas) {
+                    if (Input.GetKeyDown(distancePickupModifier)) {
+                        m_CrossHairPanel.SetActive(true);
+                    } else if (Input.GetKeyUp(distancePickupModifier)) {
+                        m_CrossHairPanel.SetActive(false);
+                    }
                 }
             }
 
@@ -355,7 +342,7 @@ namespace VRTK {
             Vector3 mouseDiff = GetMouseDelta();
 
             if (IsAcceptingMouseInput()) {
-                if (!Input.GetKey(changeAxis)) {
+                if (Input.GetKey(changeAxis)) {
                     ToggleGuidePlanes(false, true);
                     if (Input.GetKey(rotationPosition)) {
                         Vector3 rot = Vector3.zero;
@@ -500,7 +487,9 @@ namespace VRTK {
                 hints += $"Distance Pickup Right Hand: ({Key(distancePickupRight)})\n";
             }
 
-            m_HintText.text = hints.TrimEnd();
+            if (m_HasCanvas) {
+                m_HintText.text = hints.TrimEnd();
+            }
         }
 
         private static bool InMiddle(float value, float range) {

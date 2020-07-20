@@ -1,4 +1,6 @@
-﻿namespace VRTK
+﻿using UnityEngine.Rendering;
+
+namespace VRTK
 {
     using UnityEngine;
 
