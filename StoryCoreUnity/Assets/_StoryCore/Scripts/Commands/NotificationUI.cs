@@ -9,7 +9,7 @@ namespace StoryCore.Commands {
         [SerializeField] private TextMeshProUGUI m_Title;
         [SerializeField] private TextMeshProUGUI m_Text;
         [SerializeField] private TextReplacementConfig m_Replacement;
-        [SerializeField] private StoryTellerLocator m_StoryTellerLocator;
+        [SerializeField, AutoFillAsset] private StoryTellerLocator m_StoryTellerLocator;
 
         public void Show(ScriptCommandInfo info) {
             m_Title.text = info.NamedParams.ContainsKey("title") ? info.NamedParams["title"] : "";

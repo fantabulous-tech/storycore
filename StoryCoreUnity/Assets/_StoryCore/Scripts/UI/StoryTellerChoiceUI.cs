@@ -9,7 +9,7 @@ namespace StoryCore {
     public class StoryTellerChoiceUI : MonoBehaviour {
         [SerializeField] private Transform m_ChoiceContainer;
         [SerializeField] private ChoiceButtonUI m_ChoicePrefab;
-        [SerializeField] private StoryTellerLocator m_StoryTellerLocator;
+        [SerializeField, AutoFillAsset] private StoryTellerLocator m_StoryTellerLocator;
 
         private StoryTeller StoryTeller => m_StoryTellerLocator.Value;
 

@@ -10,7 +10,7 @@ namespace StoryCore.GameEvents {
         [SerializeField] private AudioSource m_AudioSource;
         [SerializeField] private float m_PitchMin = 0.97f;
         [SerializeField] private float m_PitchMax = 1.03f;
-        [SerializeField] private VOBucket m_VOBucket;
+        [SerializeField, AutoFillAsset] private VOBucket m_VOBucket;
 
         private void OnEnable() {
             m_Event.GenericEvent += Play;

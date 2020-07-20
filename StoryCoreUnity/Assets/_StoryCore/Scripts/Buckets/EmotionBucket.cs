@@ -7,7 +7,7 @@ using UnityEngine;
 namespace StoryCore.AssetBuckets {
     [CreateAssetMenu(fileName = "Emotion Bucket", menuName = "Buckets/Emotion Bucket")]
     public class EmotionBucket : BaseBucket {
-        [SerializeField] private LipSyncProject m_LipSyncProject;
+        [SerializeField, AutoFillAsset] private LipSyncProject m_LipSyncProject;
 
         private string[] m_Emotions;
 

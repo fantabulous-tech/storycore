@@ -5,7 +5,7 @@ using UnityEngine;
 namespace StoryCore.Commands {
     [CreateAssetMenu(menuName = "Commands/Command Emotion")]
     public class CommandEmotionHandler : CommandHandler {
-        [SerializeField] private GameVariableString m_FocusedCharacter;
+        [SerializeField, AutoFillAsset] private GameVariableString m_FocusedCharacter;
 
         private BaseCharacter FocusedCharacter => m_FocusedCharacter ? Buckets.Characters.Get(m_FocusedCharacter.Value)?.GetComponent<BaseCharacter>() : null;
 

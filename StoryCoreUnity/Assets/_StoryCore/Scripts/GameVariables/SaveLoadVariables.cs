@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace StoryCore.GameVariables {
     public class SaveLoadVariables : Singleton<SaveLoadVariables> {
-        [SerializeField] private GameVariableBucket m_GameVariablesToSave;
-        [SerializeField] private GameVariableBucket m_ProgressVariablesToReset;
-        [SerializeField] private CommandHandler m_ResetProgressEvent;
-        [SerializeField] private StoryTellerLocator m_StoryTellerLocator;
+        [SerializeField, AutoFillAsset] private GameVariableBucket m_GameVariablesToSave;
+        [SerializeField, AutoFillAsset] private GameVariableBucket m_ProgressVariablesToReset;
+        [SerializeField, AutoFillAsset] private CommandHandler m_ResetProgressEvent;
+        [SerializeField, AutoFillAsset] private StoryTellerLocator m_StoryTellerLocator;
 
         private StoryTeller StoryTeller => m_StoryTellerLocator.Value;
 

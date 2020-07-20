@@ -18,8 +18,8 @@ namespace StoryCore.Commands {
         [SerializeField] private AudioMixer m_Audio;
         [SerializeField] private AudioMixerSnapshot m_Normal;
         [SerializeField] private AudioMixerSnapshot m_Faded;
-        [SerializeField] private StoryTellerLocator m_StoryTellerLocator;
-        [SerializeField] private SceneBucket m_SceneBucket;
+        [SerializeField, AutoFillAsset] private StoryTellerLocator m_StoryTellerLocator;
+        [SerializeField, AutoFillAsset] private SceneBucket m_SceneBucket;
 
         private readonly List<SceneActionInfo> m_LoadOperations = new List<SceneActionInfo>();
         private readonly List<SceneActionInfo> m_UnloadOperations = new List<SceneActionInfo>();

@@ -4,7 +4,8 @@ using StoryCore.Utils;
 using UnityEngine;
 
 public class InitGameVariables : MonoBehaviour {
-    [SerializeField] private GameVariableBucket m_GameVariableBucket;
+    [SerializeField, AutoFillAsset(DefaultName = "Game Variable Bucket")]
+    private GameVariableBucket m_GameVariableBucket;
 
     private void Awake() {
         foreach (BaseGameVariable gameVariable in m_GameVariableBucket.Items) {

@@ -18,14 +18,14 @@ namespace StoryCore {
     public class StoryTeller : MonoBehaviour {
         [SerializeField] private TextAsset m_InkJson;
         [SerializeField] private SubtitleUI m_PromptUI;
-        [SerializeField] private GameVariableBool m_OptionSubtitles;
-        [SerializeField] private GameEvent m_RestartEvent;
+        [SerializeField, AutoFillAsset] private GameVariableBool m_OptionSubtitles;
+        [SerializeField, AutoFillAsset(DefaultName = "Restart")] private GameEvent m_RestartEvent;
         [SerializeField] private string m_RestartStoryPath = "game_start";
-        [SerializeField] private GameVariableChoice m_CurrentChoice;
-        [SerializeField] private GameVariableString m_FocusedCharacterName;
-        [SerializeField] private CharacterBucket m_CharacterBucket;
-        [SerializeField] private TextReplacementConfig m_TextReplacement;
-        [SerializeField] private StoryTellerLocator m_StoryTellerLocator;
+        [SerializeField, AutoFillAsset] private GameVariableChoice m_CurrentChoice;
+        [SerializeField, AutoFillAsset] private GameVariableString m_FocusedCharacterName;
+        [SerializeField, AutoFillAsset] private CharacterBucket m_CharacterBucket;
+        [SerializeField, AutoFillAsset] private TextReplacementConfig m_TextReplacement;
+        [SerializeField, AutoFillAsset] private StoryTellerLocator m_StoryTellerLocator;
         [SerializeField] private AbstractLineSequenceProvider m_CustomDialogLineProvider;
 
         private readonly Queue<ISequence> m_SequenceQueue = new Queue<ISequence>();

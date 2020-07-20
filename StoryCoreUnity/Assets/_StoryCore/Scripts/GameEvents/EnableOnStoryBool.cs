@@ -4,7 +4,7 @@ using UnityEngine;
 namespace StoryCore.GameVariables {
     public class EnableOnStoryBool : MonoBehaviour {
         [SerializeField] private GameObject m_Target;
-        [SerializeField] private GameVariableStoryBool m_Bool;
+        [SerializeField, AutoFillAsset] private GameVariableStoryBool m_Bool;
         [SerializeField] private bool m_EnableWhenFalse;
 
         private void Reset() {
