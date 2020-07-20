@@ -15,6 +15,7 @@ using Object = UnityEngine.Object;
 namespace StoryCore.Commands {
     public class Character : BaseCharacter, IPerformAnim, IPerformLipSync, IPerformPlayable, IPerformAudio {
         [SerializeField] private AudioSource m_VoiceSource;
+        [SerializeField] private Transform m_SubtitlePoint;
         [SerializeField] private Animator m_Animator;
         [SerializeField] private LipSync m_LipSync;
         [SerializeField] private EyeController m_EyeController;
@@ -45,6 +46,7 @@ namespace StoryCore.Commands {
         }
 
         public override Transform AttentionPoint => m_EyeController && m_EyeController.LeftEyeLookAtBone ? m_EyeController.LeftEyeLookAtBone : m_VoiceSource ? m_VoiceSource.transform : transform;
+        public override Transform SubtitlePoint => m_SubtitlePoint ? m_SubtitlePoint : m_VoiceSource ? m_VoiceSource.transform : AttentionPoint;
 
         public AnimationClip CurrentAnim => m_LastAnim.IsValid() ? m_LastAnim.GetAnimationClip() : null;
         public bool IsTalking => m_LipSync.IsPlaying;

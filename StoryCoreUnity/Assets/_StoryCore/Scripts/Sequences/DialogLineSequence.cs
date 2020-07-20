@@ -47,7 +47,7 @@ namespace StoryCore {
                 m_Subtitle = SubtitleDirector.ShowNow(
                     m_Text,
                     template: HasChoice ? m_StoryTeller.PromptUI : null,
-                    speaker: m_StoryTeller.AttentionPoint,
+                    speaker: m_StoryTeller.SubtitlePoint,
                     duration: HasChoice ? float.MaxValue : duration
                 );
             }

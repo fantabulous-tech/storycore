@@ -79,6 +79,7 @@ namespace StoryCore {
         }
 
         public Transform AttentionPoint => FocusedCharacter ? FocusedCharacter.AttentionPoint : null;
+        public Transform SubtitlePoint => FocusedCharacter ? FocusedCharacter.SubtitlePoint : null;
 
         public Story Story {
             get => m_Story;

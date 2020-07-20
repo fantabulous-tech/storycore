@@ -9,6 +9,7 @@ namespace StoryCore.Commands {
         public string Name => m_NameOverride.IsNullOrEmpty() ? name : m_NameOverride;
 
         public abstract Transform AttentionPoint { get; }
+        public virtual Transform SubtitlePoint => AttentionPoint;
 
         public abstract DelaySequence Perform(ScriptCommandInfo command);
 
