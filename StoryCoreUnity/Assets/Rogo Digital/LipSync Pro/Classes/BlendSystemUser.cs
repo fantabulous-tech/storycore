@@ -7,7 +7,7 @@ namespace RogoDigital.Lipsync {
 		/// </summary>
 		public BlendSystem blendSystem;
 
-		protected void OnDestroy () {
+		protected virtual void OnDestroy () {
 			blendSystem.Unregister(this);
 		}
 
