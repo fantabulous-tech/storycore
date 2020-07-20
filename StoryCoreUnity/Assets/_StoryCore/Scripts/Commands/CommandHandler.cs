@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using StoryCore.GameEvents;
 using StoryCore.Utils;
 using UnityEngine;
@@ -24,7 +25,12 @@ namespace StoryCore.Commands {
         }
 
         public virtual DelaySequence Run(ScriptCommandInfo info) {
-            info.Params.ForEach(Raise);
+            if (info.Params.Any()) {
+                info.Params.ForEach(Raise);
+            } else {
+                RaiseGeneric();
+            }
+
             return DelaySequence.Empty;
         }
 

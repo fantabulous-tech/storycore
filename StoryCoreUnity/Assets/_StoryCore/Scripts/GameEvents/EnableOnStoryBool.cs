@@ -1,7 +1,7 @@
 using StoryCore.Utils;
 using UnityEngine;
 
-namespace StoryCore.GameEvents {
+namespace StoryCore.GameVariables {
     public class EnableOnStoryBool : MonoBehaviour {
         [SerializeField] private GameObject m_Target;
         [SerializeField] private GameVariableStoryBool m_Bool;

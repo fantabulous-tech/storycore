@@ -13,6 +13,8 @@ using VRSubtitles;
 namespace StoryCore.Commands {
     [CreateAssetMenu(menuName = "Commands/Command Scene")]
     public class CommandSceneHandler : CommandHandler {
+        private static CommandSceneHandler m_Instance;
+        
         [SerializeField] private AudioMixer m_Audio;
         [SerializeField] private AudioMixerSnapshot m_Normal;
         [SerializeField] private AudioMixerSnapshot m_Faded;
@@ -22,25 +24,39 @@ namespace StoryCore.Commands {
         private readonly List<SceneActionInfo> m_LoadOperations = new List<SceneActionInfo>();
         private readonly List<SceneActionInfo> m_UnloadOperations = new List<SceneActionInfo>();
         private string[] m_NextSceneList;
-        private bool m_Loading = false;
+
+        protected void OnEnable() {
+            if (!m_Instance) {
+                m_Instance = this;
+            } else {
+                Debug.LogWarning("Duplicate CommandSceneHandler found.", this);
+            }
+        }
 
         public override DelaySequence Run(ScriptCommandInfo info) {
             // TODO: Cancel a scene load currently in progress?
+            return LoadSceneInternal(info.Params[0]);
+        }
 
+        private DelaySequence LoadSceneInternal(string sceneName) {
             m_LoadOperations.Clear();
             m_UnloadOperations.Clear();
-            string sceneName = info.Params[0];
-
             StoryDebug.Log("Load scene " + sceneName + ": START");
             m_NextSceneList = GetSceneList(sceneName);
-            if (!m_Loading && info.Params.Length == 1 || info.Params.Length > 1 && info.Params[1] != "false") {
-                Save(sceneName);
-            }
 
             if (Time.time.Approximately(0)) {
                 return Delay.Until(UnloadedOldScene, this).ThenWaitUntil(LoadedNewScene).Then(FadeIn);
             }
             return Delay.WaitFor(FadeOut, this).ThenWaitUntil(UnloadedOldScene).ThenWaitUntil(LoadedNewScene).Then(FadeIn);
+        }
+
+        public static DelaySequence LoadScene(string sceneName) {
+            if (!m_Instance) {
+                Debug.LogError($"Couldn't find CommandSceneHandler. Can't load {sceneName}");
+                return DelaySequence.Empty;
+            }
+
+            return m_Instance.LoadSceneInternal(sceneName);
         }
 
         private DelaySequence FadeOut() {

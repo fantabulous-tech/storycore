@@ -217,7 +217,7 @@ namespace StoryCore {
             SaveLoadVariables.SubscribeAll();
         }
 
-        private void RestartStory() {
+        public void RestartStory() {
             RestartStory(m_RestartStoryPath);
         }
 
@@ -238,7 +238,9 @@ namespace StoryCore {
 
             m_Story.variablesState["hasRestarted"] = true;
             m_Story.ChoosePathString(storyPath);
-            GetNextQueue("Restarting story.");
+            
+            // Add loading an empty scene as the first command.
+            CommandSceneHandler.LoadScene("none").Then(() => GetNextQueue("Restarting story."));
         }
 
         private string m_LastSection;

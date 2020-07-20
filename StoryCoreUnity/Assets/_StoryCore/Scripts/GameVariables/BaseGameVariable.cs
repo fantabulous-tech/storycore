@@ -5,6 +5,7 @@ using UnityEngine;
 namespace StoryCore.GameVariables {
     public abstract class BaseGameVariable : BaseGameEvent {
         public abstract string ValueString { get; set; }
+        public abstract void ResetValue();
     }
 
     public abstract class BaseGameVariable<thisT, T> : BaseGameVariable where thisT : BaseGameVariable<thisT, T> {
@@ -43,6 +44,10 @@ namespace StoryCore.GameVariables {
         }
 
         protected abstract T Parse(string stringValue);
+
+        public override void ResetValue() {
+            SetValue(m_InitialValue);
+        }
 
         protected virtual bool Equals(T a, T b) {
             return object.Equals(a, b);

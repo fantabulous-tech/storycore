@@ -1,4 +1,4 @@
-﻿using StoryCore.GameEvents;
+﻿using StoryCore.GameVariables;
 using StoryCore.Utils;
 using UnityEngine;
 
