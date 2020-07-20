@@ -3360,6 +3360,7 @@ MonoBehaviour:
   m_StoryTeller: {fileID: 1590457926}
   m_IsJournalOpen: {fileID: 11400000, guid: 398e91aadb7a2ef44aa506e9fbeb7a00, type: 2}
   m_VO: {fileID: 11400000, guid: f6f62ea56bb9d8940a4e822feb9a18ab, type: 2}
+  m_TextReplacementConfig: {fileID: 0}
 --- !u!114 &766679924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4548,6 +4549,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_GameVariablesToSave: {fileID: 11400000, guid: d32673e48a90a964ca03b3af06c2b528,
+    type: 2}
+  m_ProgressVariablesToReset: {fileID: 11400000, guid: c834acfbdfb6ac4458aa482e2982f342,
+    type: 2}
+  m_ResetProgressEvent: {fileID: 11400000, guid: c58795ade33fb65488f508441df9ed75,
+    type: 2}
+  m_StoryTellerLocator: {fileID: 11400000, guid: 85a4a29d31b08ac4483a67cbd6781dae,
     type: 2}
 --- !u!1 &1126410280
 GameObject:

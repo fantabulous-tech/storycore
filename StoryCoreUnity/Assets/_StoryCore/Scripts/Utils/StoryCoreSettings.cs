@@ -93,6 +93,8 @@ namespace StoryCore {
                 return;
             }
             Manager.forceSimulatorInEditor = true;
+        }
+
         private void Reset() {
             Manager = FindObjectOfType<VRTK_SDKManager>();
         }
