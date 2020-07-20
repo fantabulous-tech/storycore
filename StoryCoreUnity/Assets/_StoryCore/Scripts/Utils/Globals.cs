@@ -16,7 +16,8 @@ namespace StoryCore {
         [SerializeField] private GameVariableSpawnPoint m_CurrentSpawnPoint;
         [SerializeField] private StoryTeller m_StoryTeller;
         [SerializeField] private GameVariableBool m_IsJournalOpen;
-        [SerializeField] private VOBucket m_VO;
+        [SerializeField, AutoFillAsset] private VOBucket m_VO;
+        [SerializeField, AutoFillAsset] private TextReplacementConfig m_TextReplacementConfig; 
 
         public static bool IsActive => s_Instance;
         public static CommandHandler CommandRecenter => s_Instance ? s_Instance.m_CommandRecenter : null;
@@ -25,6 +26,7 @@ namespace StoryCore {
         public static StoryTeller StoryTeller => s_Instance ? s_Instance.m_StoryTeller : null;
         public static GameVariableBool IsJournalOpen => s_Instance ? s_Instance.m_IsJournalOpen : null;
         public static VOBucket VO => s_Instance ? s_Instance.m_VO : null;
+        public static TextReplacementConfig TextReplacementConfig => s_Instance ? s_Instance.m_TextReplacementConfig : null;
 
         private void Awake() {
             s_Instance = this;
