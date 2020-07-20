@@ -80,7 +80,7 @@ namespace StoryCore.HeadGesture {
         }
 
         public override void Ready(StoryChoice choice) {
-            TryInit();
+            base.Ready(choice);
             EdgeContainer.SetActive(true);
         }
 
