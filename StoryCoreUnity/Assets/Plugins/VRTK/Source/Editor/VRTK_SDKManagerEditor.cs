@@ -371,6 +371,11 @@
                     VRTK_EditorUtilities.BuildGUIContent<VRTK_SDKManager>("autoLoadSetup", "Auto Load")
                 );
 
+                EditorGUILayout.PropertyField(
+                    serializedObject.FindProperty("forceSimulatorInEditor"),
+                    VRTK_EditorUtilities.BuildGUIContent<VRTK_SDKManager>("forceSimulatorInEditor", "Force Simulator in Editor")
+                );
+
                 setupsList.DoLayoutList();
 
                 GUIContent autoPopulateGUIContent = new GUIContent("Auto Populate", "Automatically populates the list of SDK Setups with Setups in the scene.");

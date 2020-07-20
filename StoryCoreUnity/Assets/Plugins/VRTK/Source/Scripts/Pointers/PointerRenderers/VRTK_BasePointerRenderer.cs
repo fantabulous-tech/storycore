@@ -397,8 +397,10 @@ namespace VRTK
             }
         }
 
-        protected Transform GetOrigin(bool smoothed = true) {
-            if (smoothed && pointerOriginTransformFollow.gameObjectToChange) {
+        protected Transform GetOrigin(bool smoothed = true)
+        {
+            if (smoothed && pointerOriginTransformFollow.gameObjectToChange)
+            {
                 return pointerOriginTransformFollow.gameObjectToChange.transform;
             }
 
@@ -580,7 +582,7 @@ namespace VRTK
             objectInteractor.layer = LayerMask.NameToLayer("Ignore Raycast");
             VRTK_PlayerObject.SetPlayerObject(objectInteractor, VRTK_PlayerObject.ObjectTypes.Pointer);
 
-            Debug.Log("Creating pointer.", this);
+            //Debug.Log("Creating pointer.", this);
 
             GameObject objectInteractorCollider = new GameObject(VRTK_SharedMethods.GenerateVRTKObjectName(true, gameObject.name, "BasePointerRenderer_ObjectInteractor_Collider"));
             objectInteractorCollider.transform.SetParent(objectInteractor.transform);
@@ -599,12 +601,15 @@ namespace VRTK
                 Rigidbody objectInteratorRigidBody = objectInteractorAttachPoint.AddComponent<Rigidbody>();
                 objectInteratorRigidBody.isKinematic = true;
                 objectInteratorRigidBody.freezeRotation = true;
+#if UNITY_2018_3_OR_NEWER
+                objectInteratorRigidBody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+#else
                 objectInteratorRigidBody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+#endif
                 VRTK_PlayerObject.SetPlayerObject(objectInteractorAttachPoint, VRTK_PlayerObject.ObjectTypes.Pointer);
             }
 
             ScaleObjectInteractor(Vector3.one);
-            // objectInteractor.SetActive(false);
         }
 
         protected virtual void ScaleObjectInteractor(Vector3 scaleAmount)
@@ -620,7 +625,7 @@ namespace VRTK
             pointerOriginTransformFollowGameObject = new GameObject(VRTK_SharedMethods.GenerateVRTKObjectName(true, gameObject.name, "BasePointerRenderer_Origin_Smoothed"));
             pointerOriginTransformFollow = pointerOriginTransformFollowGameObject.AddComponent<VRTK_TransformFollow>();
             pointerOriginTransformFollow.enabled = false;
-            pointerOriginTransformFollow.moment = VRTK_TransformFollow.FollowMoment.OnLateUpdate; //.OnFixedUpdate;
+            pointerOriginTransformFollow.moment = VRTK_TransformFollow.FollowMoment.OnLateUpdate;
             pointerOriginTransformFollow.followsScale = false;
         }
 

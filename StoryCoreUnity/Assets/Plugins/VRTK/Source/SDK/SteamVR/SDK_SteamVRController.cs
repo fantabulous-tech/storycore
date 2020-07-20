@@ -858,6 +858,8 @@ namespace VRTK
                     return ControllerType.SteamVR_ValveKnuckles;
                 case "oculus rift cv1 (right controller)":
                 case "oculus rift cv1 (left controller)":
+                case "oculus quest (right controller)":
+                case "oculus quest (left controller)":
                     return ControllerType.SteamVR_OculusTouch;
                 case "windowsmr: 0x045e/0x065b/0/2":
                     return ControllerType.SteamVR_WindowsMRController;
@@ -876,7 +878,7 @@ namespace VRTK
             {
                 return ControllerType.SteamVR_ViveWand;
             }
-            else if (controllerModelNumber.Contains("oculus rift"))
+            else if (controllerModelNumber.Contains("oculus"))
             {
                 return ControllerType.SteamVR_OculusTouch;
             }

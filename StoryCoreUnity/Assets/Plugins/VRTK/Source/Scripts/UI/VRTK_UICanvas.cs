@@ -80,6 +80,7 @@ namespace VRTK
             }
 
             RectTransform canvasRectTransform = canvas.GetComponent<RectTransform>();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(canvasRectTransform);
             Vector2 canvasSize = canvasRectTransform.sizeDelta;
             //copy public params then disable existing graphic raycaster
             GraphicRaycaster defaultRaycaster = canvas.gameObject.GetComponent<GraphicRaycaster>();
