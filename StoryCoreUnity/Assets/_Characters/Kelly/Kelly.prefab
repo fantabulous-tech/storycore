@@ -20,6 +20,7 @@ MonoBehaviour:
   m_EyeController: {fileID: 3726126447311939244}
   m_LookAtIK: {fileID: 3355345942095783082}
   m_IdleAnim: {fileID: 7400000, guid: 4a4308e5b828d7046aab7968138ff2e9, type: 2}
+  m_LocomotionController: {fileID: 0}
 --- !u!114 &3355345942095783082
 MonoBehaviour:
   m_ObjectHideFlags: 0
