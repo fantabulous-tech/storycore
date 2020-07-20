@@ -2,7 +2,7 @@ using StoryCore.Utils;
 using UnityEditor;
 using UnityEngine;
 
-namespace StoryCore.Commands {
+namespace StoryCore.Characters {
     [CustomEditor(typeof(CustomPerformance))]
     public class CustomPerformanceEditor : Editor<CustomPerformance> {
         [SerializeField] private Character m_TestTarget;

@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: CommandPlayMusic
   m_EditorClassIdentifier: 
   m_EventName: 
-  m_EventDescription: "/music <track>\r\nSets the music audio loop. Options are found
-    in the Audio Music Bucket. For a complete list: /list music"
-  m_DebugLog: 1
+  m_EventDescription: '/music <track>
+
+    Sets the music audio loop. Options are
+    found in the Audio Music Bucket. For a complete list: /list music'
+  m_DebugLog: 0
+  m_AllowChoices: 1
+  m_ID: 1341626147

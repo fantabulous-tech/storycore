@@ -1,7 +1,7 @@
 # title: StoryCore Demo Scripts
 
 INCLUDE debug
-INCLUDE scenarios/test
+INCLUDE scenario/test
 
 EXTERNAL isDebug()
 

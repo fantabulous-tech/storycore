@@ -16,36 +16,55 @@ MonoBehaviour:
   m_Sources:
   - {fileID: 102900000, guid: aaf7feadce2c8c34c8063c68dcd4e5fb, type: 3}
   m_AssetRefs:
+  - Name: location bucket
+    Guid: 05f8e604985b9004caa672c4662df705
+    Asset: {fileID: 11400000, guid: 05f8e604985b9004caa672c4662df705, type: 2}
   - Name: performance tool bucket
+    Guid: 10cbe4ee809d4a74abc23273b8795b2c
     Asset: {fileID: 11400000, guid: 10cbe4ee809d4a74abc23273b8795b2c, type: 2}
   - Name: audio ambient bucket
+    Guid: 149d68a076a4d6f41bcdf984d07d01f7
     Asset: {fileID: 11400000, guid: 149d68a076a4d6f41bcdf984d07d01f7, type: 2}
   - Name: scenario bucket
+    Guid: 19b0c84255b94f44397e3a4b1dba142e
     Asset: {fileID: 11400000, guid: 19b0c84255b94f44397e3a4b1dba142e, type: 2}
   - Name: performance bucket
+    Guid: 2f3310cf6841a2f41a4de3155ef81ecb
     Asset: {fileID: 11400000, guid: 2f3310cf6841a2f41a4de3155ef81ecb, type: 2}
   - Name: command bucket
+    Guid: 4c5dbad53e5169447ab461d3e38969b3
     Asset: {fileID: 11400000, guid: 4c5dbad53e5169447ab461d3e38969b3, type: 2}
   - Name: scene bucket
+    Guid: 62a253973a22d09488c16b0dbad723cf
     Asset: {fileID: 11400000, guid: 62a253973a22d09488c16b0dbad723cf, type: 2}
   - Name: audio sound bucket
+    Guid: 95c15ddb43c956a42933542d5fb9cd6f
     Asset: {fileID: 11400000, guid: 95c15ddb43c956a42933542d5fb9cd6f, type: 2}
   - Name: emotion bucket
+    Guid: a5660a945a0f79c4daaa512c830ffebc
     Asset: {fileID: 11400000, guid: a5660a945a0f79c4daaa512c830ffebc, type: 2}
   - Name: character bucket
+    Guid: a79bc9320dbf273409548a8a0740c55d
     Asset: {fileID: 11400000, guid: a79bc9320dbf273409548a8a0740c55d, type: 2}
   - Name: action bucket
+    Guid: a8f06b58613585a47aa19a0dc590eae6
     Asset: {fileID: 11400000, guid: a8f06b58613585a47aa19a0dc590eae6, type: 2}
   - Name: bucket bucket
+    Guid: ba6bd1f32c85265498198e1dda114a37
     Asset: {fileID: 11400000}
   - Name: game variable bucket
+    Guid: c834acfbdfb6ac4458aa482e2982f342
     Asset: {fileID: 11400000, guid: c834acfbdfb6ac4458aa482e2982f342, type: 2}
   - Name: options bucket
+    Guid: d32673e48a90a964ca03b3af06c2b528
     Asset: {fileID: 11400000, guid: d32673e48a90a964ca03b3af06c2b528, type: 2}
   - Name: vo bucket
+    Guid: f6f62ea56bb9d8940a4e822feb9a18ab
     Asset: {fileID: 11400000, guid: f6f62ea56bb9d8940a4e822feb9a18ab, type: 2}
   - Name: audio music bucket
+    Guid: fb28201a534feec42925bfb2d9d7f855
     Asset: {fileID: 11400000, guid: fb28201a534feec42925bfb2d9d7f855, type: 2}
   - Name: choice bucket
+    Guid: feadd879ef741db49804b624d617d9a4
     Asset: {fileID: 11400000, guid: feadd879ef741db49804b624d617d9a4, type: 2}
   m_ManualUpdate: 0

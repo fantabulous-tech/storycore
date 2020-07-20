@@ -7,7 +7,8 @@ namespace StoryCore.GameEvents {
         public enum ParamType {
             Bool,
             Int,
-            Float
+            Float,
+            Trigger
         }
 
         [SerializeField] private BaseGameEvent m_GameEvent;
@@ -53,6 +54,9 @@ namespace StoryCore.GameEvents {
                     break;
                 case ParamType.Float:
                     m_Animator.SetFloat(m_ParameterName, m_FloatValue);
+                    break;
+                case ParamType.Trigger:
+                    m_Animator.SetTrigger(m_ParameterName);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

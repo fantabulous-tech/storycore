@@ -1,6 +1,6 @@
 using System;
 using RogoDigital.Lipsync;
-using StoryCore.Commands;
+using StoryCore.Characters;
 using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;

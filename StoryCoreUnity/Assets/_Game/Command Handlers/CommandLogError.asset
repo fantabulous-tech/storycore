@@ -16,4 +16,6 @@ MonoBehaviour:
   m_EventDescription: "/logError <message>\r\nDisplays <message> in the console as
     an error.\r"
   m_DebugLog: 0
+  m_AllowChoices: 1
+  m_ID: 130621251
   m_Type: 2

@@ -10,6 +10,8 @@ using Object = UnityEngine.Object;
 namespace StoryCore.AssetBuckets {
     [CustomEditor(typeof(BaseAssetBucket), true)]
     public class AssetBucketEditor : Editor<BaseAssetBucket> {
+        private const int kIdWidth = 100;
+
         protected float m_ObjectColumnWidth;
         private readonly List<AssetListItem> m_Duplicates = new List<AssetListItem>();
         private AssetListItem[] m_SourceItems = { };
@@ -75,6 +77,7 @@ namespace StoryCore.AssetBuckets {
             if (m_Duplicates.Any()) {
                 EditorGUILayout.HelpBox("Asset name collision found. Assets are loaded from buckets by name, so all names should be unique.", MessageType.Warning);
                 GUILayout.BeginHorizontal();
+                GUILayout.Label("ID", EditorStyles.boldLabel, GUILayout.Width(kIdWidth));
                 GUILayout.Label("Name Collision Asset", EditorStyles.boldLabel, GUILayout.Width(ObjectColumnWidth));
                 GUILayout.Label("Location", EditorStyles.boldLabel);
                 GUILayout.EndHorizontal();
@@ -85,6 +88,7 @@ namespace StoryCore.AssetBuckets {
             EditorGUILayout.Space();
 
             GUILayout.BeginHorizontal();
+            GUILayout.Label("ID", EditorStyles.boldLabel, GUILayout.Width(kIdWidth));
             GUILayout.Label("Asset", EditorStyles.boldLabel, GUILayout.Width(ObjectColumnWidth));
             GUILayout.Label("Location", EditorStyles.boldLabel);
             GUILayout.EndHorizontal();
@@ -126,6 +130,7 @@ namespace StoryCore.AssetBuckets {
         }
 
         private void OnSourceItemsUpdated() {
+            Target.EDITOR_SourcesUpdated();
             EditorUtility.SetDirty(Target);
             RefreshSourceItemList();
             OnBucketUpdated();
@@ -193,6 +198,7 @@ namespace StoryCore.AssetBuckets {
 
             public void OnAssetGUI(float objectFieldWidth) {
                 GUILayout.BeginHorizontal();
+                GUILayout.Label(m_Name, GUILayout.Width(kIdWidth));
                 EditorGUILayout.ObjectField(m_Item, m_Type, false, GUILayout.Width(objectFieldWidth));
                 GUILayout.Label(DisplayPath);
                 GUILayout.EndHorizontal();

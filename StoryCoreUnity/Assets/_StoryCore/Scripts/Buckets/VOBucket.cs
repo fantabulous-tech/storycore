@@ -52,7 +52,7 @@ namespace StoryCore.AssetBuckets {
             string number = Path.GetFileNameWithoutExtension(path);
             string relativePath = path.Substring(BaseFolderPath.Length);
             string directory = Path.GetDirectoryName(relativePath);
-            string prefix = directory.Trim('\\').Replace('\\', '.');
+            string prefix = directory.Replace('\\', '/').Trim('/').Replace('/', '.');
             return $"{prefix}.{number}";
         }
 #endif

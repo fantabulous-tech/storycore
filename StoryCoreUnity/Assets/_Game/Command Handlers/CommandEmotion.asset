@@ -15,9 +15,12 @@ MonoBehaviour:
   m_EventName: 
   m_EventDescription: '/emotion <emotion_name> [<intensity>]
 
-    Selects a character to focus on and optionally set their current performance.
-    For a complete list: /list characters
+    Selects a character
+    to focus on and optionally set their current performance. For a complete list:
+    /list characters
 
     Can also have ''perform'' option after it.'
   m_DebugLog: 0
+  m_AllowChoices: 1
+  m_ID: 2046055170
   m_FocusedCharacter: {fileID: 11400000, guid: 7c9ef05b0b934a74d992fe9a0d93c2fd, type: 2}

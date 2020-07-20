@@ -19,6 +19,8 @@ MonoBehaviour:
     of the staged scene that contains the layout of elements in the room like the
     player\u2019s spawn location, move location, and starting scene characters."
   m_DebugLog: 0
+  m_AllowChoices: 0
+  m_ID: -610847646
   m_Audio: {fileID: 24100000, guid: d5aca515a3f318a4fb876ea1c62a3784, type: 2}
   m_Normal: {fileID: 24500006, guid: d5aca515a3f318a4fb876ea1c62a3784, type: 2}
   m_Faded: {fileID: 245443401883140606, guid: d5aca515a3f318a4fb876ea1c62a3784, type: 2}

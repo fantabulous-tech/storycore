@@ -21,6 +21,11 @@ namespace StoryCore.HeadGesture {
         private bool m_Init;
         private float m_FadeStart;
 
+        // Angle 'x' is the 'correct' angle of the nod while 'y' is the 'wrong' angle of the nod.
+        private Vector2 m_AngleOffsets;
+        private Vector3 m_GlobalAxis;
+        private Vector3 m_GlobalOffAxis;
+
         [SerializeField] private bool m_AtLimit;
 
         public event Action<DirectionEdge> LimitReached;
@@ -28,27 +33,12 @@ namespace StoryCore.HeadGesture {
 
         public bool AtLimit => m_AtLimit;
 
-        private Vector3 GlobalAxis => Head.TransformDirection(m_Axis);
-        private Vector3 GlobalOffAxis => Head.TransformDirection(m_OffAxis);
         private Transform Head => UnityUtils.CameraTransform;
         private Vector3 Offset => m_ChoiceHandler.Offset;
 
-        // TODO: Optimize Angle/OffAngle into a head-space euler angle Vector2 calculated once per frame.
+        private float Angle => m_AngleOffsets.x;
 
-        private float Angle {
-            get {
-                Vector3 direction = Vector3.ProjectOnPlane(transform.position - Head.position, GlobalAxis);
-                return -Vector3.SignedAngle(Head.forward, direction, GlobalAxis);
-            }
-        }
-
-        private float OffAngle {
-            get {
-                Vector3 direction = Vector3.ProjectOnPlane(transform.position - Head.position, GlobalOffAxis);
-                Vector3 centerDirection = Vector3.ProjectOnPlane(m_CenterDirection, GlobalOffAxis);
-                return Vector3.Angle(centerDirection, direction);
-            }
-        }
+        private float OffAngle => m_AngleOffsets.y;
 
         public DirectionEdge Init(HeadGestureChoiceHandler choiceHandler, Direction direction) {
             name = direction + " Edge";
@@ -94,10 +84,14 @@ namespace StoryCore.HeadGesture {
                 return;
             }
 
+            m_GlobalAxis = Head.TransformDirection(m_Axis);
+            m_GlobalOffAxis = Head.TransformDirection(m_OffAxis);
+
+            UpdateAngleOffsets();
             m_Fader.alpha = 1 - Mathf.Clamp01((Time.unscaledTime - m_FadeStart)/m_ChoiceHandler.MaxDuration);
 
             // Check to see if angle is too far off.
-            if (OffAngle > m_ChoiceHandler.OffAngleMax) {
+            if (Mathf.Abs(OffAngle) > m_ChoiceHandler.OffAngleMax) {
                 OffCenter();
             }
 
@@ -114,8 +108,23 @@ namespace StoryCore.HeadGesture {
                 //Debug.LogFormat(this, "{0} NOT at limit anymore.", name);
             }
 
+            // Update angles now that things have moved.
+            UpdateAngleOffsets();
+
             // Finally, update to the new position.
             UpdatePosition();
+        }
+
+        private void UpdateAngleOffsets() {
+            Vector3 edgeDirection = transform.position - Head.position;
+            Vector3 goodDirection = Vector3.ProjectOnPlane(edgeDirection, m_GlobalAxis);
+            Vector3 badDirection = Vector3.ProjectOnPlane(edgeDirection, m_GlobalOffAxis);
+            Vector3 forward = Head.forward;
+
+            float x = -Vector3.SignedAngle(forward, goodDirection, m_GlobalAxis);
+            float y = -Vector3.SignedAngle(forward, badDirection, m_GlobalOffAxis);
+
+            m_AngleOffsets = new Vector2(x, y);
         }
 
         private void OffCenter() {
@@ -153,12 +162,14 @@ namespace StoryCore.HeadGesture {
         }
 
 #if UNITY_EDITOR
-        public void OnDrawEdgeGizmo() {
-            if (Application.isPlaying) {
-                Vector3 position = transform.position;
-                Handles.Label(position + GlobalAxis*0.25f, $"Degrees: {Angle:N0}\nOff Degrees: {OffAngle:N0}");
-                Handles.DoPositionHandle(position + GlobalAxis*0.25f, Head.rotation);
+        public void OnDrawGizmos() {
+            if (!Application.isPlaying) {
+                return;
             }
+
+            Vector3 position = transform.position;
+            Handles.Label(position + m_GlobalAxis*0.25f, $"Degrees: {Angle:N0}\nOff Degrees: {OffAngle:N0}");
+            Handles.DoPositionHandle(position + m_GlobalAxis*0.25f, Head.rotation);
         }
 #endif
 
@@ -167,10 +178,4 @@ namespace StoryCore.HeadGesture {
         }
     }
 
-    public enum Direction {
-        Up,
-        Down,
-        Left,
-        Right
-    }
 }

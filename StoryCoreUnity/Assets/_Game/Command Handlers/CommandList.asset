@@ -17,4 +17,6 @@ MonoBehaviour:
     assets. Bucket names: actions\r, ambient\r, characters\r, choices\r, commands\r\r,
     music, performances\r, poses\r, scenes\r, vo\r"
   m_DebugLog: 0
+  m_AllowChoices: 1
+  m_ID: 1376137251
   m_Buckets: {fileID: 11400000, guid: ba6bd1f32c85265498198e1dda114a37, type: 2}

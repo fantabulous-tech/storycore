@@ -45,17 +45,21 @@ namespace VRSubtitles.Utils {
 
         private Vector3 TargetPosition {
             get {
-                if (m_RoostCentered) {
-                    return m_Roost.position + m_Player.TransformDirection(m_RoostOffset);
+                Transform t = m_Player ? m_Player : VRTK_DeviceFinder.HeadsetCamera();
+                if (t == null) {
+                    t = UnityUtils.CameraTransform;
                 }
-                Transform t = m_Player ? m_Player : UnityUtils.CameraTransform;
+                if (m_RoostCentered && m_Roost) {
+                    return m_Roost.position + t.TransformDirection(m_RoostOffset);
+                }
                 return m_LastTargetPosition = !t ? Vector3.zero : t.position + t.forward.ZeroY().normalized*Distance + Vector3.up*m_VerticalOffset;
             }
         }
 
         private void Update() {
-            if (m_Player != VRTK_DeviceFinder.HeadsetCamera()) {
-                m_Player = VRTK_DeviceFinder.HeadsetCamera();
+            Transform headsetCamera = VRTK_DeviceFinder.HeadsetCamera();
+            if (m_Player != headsetCamera) {
+                m_Player = headsetCamera;
 
                 if (m_Player) {
                     SnapToTargetPosition();
@@ -73,18 +77,18 @@ namespace VRSubtitles.Utils {
                 return;
             }
 
-            UpdateFovState(m_Roost, ref m_RoostCentered);
+            UpdateFovState(m_Roost, m_Player, ref m_RoostCentered);
             //UpdateFovState(transform, ref m_SubtitleCentered);
             transform.position = TargetPosition;
         }
 
-        private void UpdateFovState(Transform target, ref bool wasCentered) {
+        private void UpdateFovState(Transform target, Transform player, ref bool wasCentered) {
             if (!target) {
                 wasCentered = false;
                 return;
             }
 
-            float angle = Vector3.Angle(target.position - m_Player.position, m_Player.forward);
+            float angle = Vector3.Angle(target.position - player.position, player.forward);
             if (!InCenter(angle) && wasCentered) {
                 wasCentered = false;
             } else if (InCenter(angle, 0.5f) && !wasCentered) {

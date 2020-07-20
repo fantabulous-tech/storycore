@@ -15,3 +15,5 @@ MonoBehaviour:
   m_EventName: 
   m_EventDescription: Immediately quits the game.
   m_DebugLog: 0
+  m_AllowChoices: 0
+  m_ID: 1517862322

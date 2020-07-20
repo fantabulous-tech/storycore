@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: CommandOpenLink
   m_EditorClassIdentifier: 
   m_EventName: 
-  m_EventDescription: "/open_link <url>\r\nThis opens a web page to the specified
+  m_EventDescription: '/open_link <url>
+
+    This opens a web page to the specified
     <url>. This is currently used to open the page with the access code when trying
-    to enter an early access area."
+    to enter an early access area.'
   m_DebugLog: 0
+  m_ID: 2047569623

@@ -60,13 +60,13 @@ namespace StoryCore.AssetBuckets {
             // Skip is no source paths are in the changed directories.
             string[] sourcePaths = bucket.EDITOR_Sources.Where(o => o).Select(AssetDatabase.GetAssetPath).ToArray();
 
-            if (changedDirectories != null && !sourcePaths.Any(changedDirectories.Contains)) {
+            if (changedDirectories != null && !changedDirectories.Any(bucket.EDITOR_IsValidDirectory)) {
                 return;
             }
 
             // Skip if all imported files already exist in the bucket or can't be added to the bucket.
             if (changes.MovedFrom.Length == 0 && changes.MovedTo.Length == 0 && changes.Deleted.Length == 0 && changes.Imported.Length < 50) {
-                if (changes.Imported.All(bucket.EDITOR_HasPathOrCantAdd)) {
+                if (!changes.Imported.Any(bucket.EDITOR_IsMissing)) {
                     return;
                 }
             }

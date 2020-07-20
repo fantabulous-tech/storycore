@@ -4,7 +4,7 @@ using StoryCore.GameEvents;
 using StoryCore.Utils;
 using UnityEngine;
 
-namespace StoryCore.Commands {
+namespace StoryCore.Characters {
     [CreateAssetMenu]
     public class CustomPerformance : ScriptableObject {
         [SerializeField] private AnimationClip[] m_AnimationClips;

@@ -21,6 +21,8 @@ MonoBehaviour:
     CommandHandler: {fileID: 11400000, guid: 7ac57fafaf40e914a9b634ee0ecd15d0, type: 2}
   - CommandName: emotion
     CommandHandler: {fileID: 11400000, guid: f9f4530172f288346bf7f9f7234ac0b2, type: 2}
+  - CommandName: follow
+    CommandHandler: {fileID: 11400000, guid: 9bf3addd4b98d414cb7ae77b4c971c35, type: 2}
   - CommandName: list
     CommandHandler: {fileID: 11400000, guid: d2063022ced32c043ae198c6e7b1bb74, type: 2}
   - CommandName: log
@@ -31,18 +33,22 @@ MonoBehaviour:
     CommandHandler: {fileID: 11400000, guid: 87c91f4298ce62c4e822b613bf9e2c4c, type: 2}
   - CommandName: lookat
     CommandHandler: {fileID: 11400000, guid: a36b6be8a9b30cc43af88cd153e63042, type: 2}
-  - CommandName: ambient
-    CommandHandler: {fileID: 11400000, guid: adcedecf72bf7a840a8cfe67fd6ef06d, type: 2}
-  - CommandName: music
-    CommandHandler: {fileID: 11400000, guid: cff797222eef1ef42a434fa121ecd2b1, type: 2}
-  - CommandName: sound
-    CommandHandler: {fileID: 11400000, guid: 9ecbc191d1c04154a83ddad6d1480986, type: 2}
+  - CommandName: moveto
+    CommandHandler: {fileID: 11400000, guid: 3bd7746b92e57ea409532b1051c7bd40, type: 2}
+  - CommandName: moveto-wait
+    CommandHandler: {fileID: 11400000, guid: c90148eab3380c94a907f9c2ed9df20f, type: 2}
   - CommandName: notify
     CommandHandler: {fileID: 11400000, guid: 249af3c3180b81c4bbf9ac7d17679d7a, type: 2}
   - CommandName: open_link
     CommandHandler: {fileID: 11400000, guid: fa0b6ed63e4a47549866c17c46a99257, type: 2}
   - CommandName: perform
     CommandHandler: {fileID: 11400000, guid: c7c4af09f14602e4484a0f2a58b75416, type: 2}
+  - CommandName: ambient
+    CommandHandler: {fileID: 11400000, guid: adcedecf72bf7a840a8cfe67fd6ef06d, type: 2}
+  - CommandName: music
+    CommandHandler: {fileID: 11400000, guid: cff797222eef1ef42a434fa121ecd2b1, type: 2}
+  - CommandName: sound
+    CommandHandler: {fileID: 11400000, guid: 9ecbc191d1c04154a83ddad6d1480986, type: 2}
   - CommandName: quit
     CommandHandler: {fileID: 11400000, guid: da78bdb13077287478d2d35130afe18c, type: 2}
   - CommandName: recenter

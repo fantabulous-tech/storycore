@@ -6,13 +6,18 @@ namespace VRSubtitles.Utils {
     public class AlwaysOnTop : MonoBehaviour {
         public bool IncludeChildren = true;
         private static readonly int s_UnityGuizTestMode = Shader.PropertyToID("unity_GUIZTestMode");
+        private DelaySequence m_UpdateRenderingModeDelay;
 
         private void OnEnable() {
-            Delay.ForFrameCount(5, this).Then(UpdateRenderingMode);
+            m_UpdateRenderingModeDelay = Delay.ForFrameCount(5, this).Then(UpdateRenderingMode);
         }
 
         private void OnDisable() {
             UpdateRenderingMode();
+        }
+
+        private void OnDestroy() {
+            m_UpdateRenderingModeDelay?.Cancel("Object is being destroyed", this);
         }
 
         private void UpdateRenderingMode() {

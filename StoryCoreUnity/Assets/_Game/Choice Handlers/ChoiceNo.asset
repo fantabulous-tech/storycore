@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1050402713e940e8942c5ec75f56f869, type: 3}
-  m_Name: OnNo
+  m_Name: ChoiceNo
   m_EditorClassIdentifier: 
   OnChosen:
     m_PersistentCalls:
@@ -30,7 +30,7 @@ MonoBehaviour:
   m_ShowFeedback: {fileID: 11400000, guid: d7b1c587b7fb4b443986cb007cdbd08a, type: 2}
   m_DirectionEdgePrefab: {fileID: 114942853247097284, guid: 5e1b3013c145eaf458233632e6b68e08,
     type: 3}
-  m_OnSuccessUIPrefab: {fileID: 6101915212816782761, guid: 7f5df1701afd5dd40b88cb7330429c2f,
+  m_OnSuccessUIPrefab: {fileID: 6320228291354258929, guid: 7f5df1701afd5dd40b88cb7330429c2f,
     type: 3}
   m_Offset: {x: 0, y: 0, z: 1}
   m_RequiredNodCount: 2

@@ -31,7 +31,7 @@ namespace StoryCore.Utils {
 
         [SettingsProvider, UsedImplicitly]
         private static SettingsProvider GetSettingsProvider() {
-            return new SettingsProvider("StoryCore/Scriptable Object Expander", SettingsScope.User) {
+            return new SettingsProvider("Preferences/Scriptable Object Expander", SettingsScope.User) {
                 guiHandler = searchContext => {
                     bool enabled = EditorGUILayout.Toggle("Enabled", s_Enabled);
 

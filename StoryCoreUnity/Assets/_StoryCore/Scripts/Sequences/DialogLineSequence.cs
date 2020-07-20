@@ -1,3 +1,4 @@
+using StoryCore.Commands;
 using StoryCore.Utils;
 using UnityEngine;
 using VRSubtitles;
@@ -5,15 +6,23 @@ using Object = UnityEngine.Object;
 
 namespace StoryCore {
     public class DialogLineSequence : ISequence {
+
+        public delegate void DialogLineEventHandler(string character, string line);
+        public static event DialogLineEventHandler onDialogLine;  
+        public static event DialogLineEventHandler onDialogLineComplete;  
+        
         protected readonly StoryTeller m_StoryTeller;
         protected string m_Text;
         protected readonly string m_Section;
 
         private DelaySequence m_Delay;
         private Subtitle m_Subtitle;
+        private bool m_Interrupted;
 
         public bool IsComplete { get; protected set; }
-        public bool HasChoice { private get; set; }
+        public bool AllowsChoices => true;
+
+        public bool DisplayChoicePrompt { private get; set; }
 
         protected virtual bool UseSubtitles => !m_Text.IsNullOrEmpty();
 
@@ -23,20 +32,12 @@ namespace StoryCore {
             m_Section = section;
         }
 
-        public void OnQueue() {
-            // Do nothing when queued. Should happen on Start().
-        }
-
         public virtual void Start() {
-            // Enable all choices when starting the last story line.
-            if (HasChoice) {
-                m_StoryTeller.EnableAllChoices();
-            }
 
             // If there is no text, then we were just here to play the audio.
             // Let's set ourselves as done and bail.
 
-            if (m_Text.IsNullOrEmpty()) {
+            if (m_Text.IsNullOrEmpty() || m_Interrupted) {
                 IsComplete = true;
                 return;
             }
@@ -46,12 +47,14 @@ namespace StoryCore {
             if (UseSubtitles) {
                 m_Subtitle = SubtitleDirector.ShowNow(
                     m_Text,
-                    template: HasChoice ? m_StoryTeller.PromptUI : null,
+                    template: DisplayChoicePrompt ? m_StoryTeller.PromptUI : null,
                     speaker: m_StoryTeller.SubtitlePoint,
-                    duration: HasChoice ? float.MaxValue : duration
+                    duration: DisplayChoicePrompt ? float.MaxValue : duration
                 );
             }
-
+            
+            onDialogLine?.Invoke( m_StoryTeller.FocusedCharacter == null ? "Dispatch" : m_StoryTeller.FocusedCharacter.Name, m_Text );
+            
             m_Delay = Delay.For(duration, m_StoryTeller).Then(OnComplete);
         }
 
@@ -67,17 +70,25 @@ namespace StoryCore {
 
         protected virtual void OnComplete() {
             // Log("Subtitles completed: '" + m_Text + "'");
+            onDialogLineComplete?.Invoke(m_StoryTeller.FocusedCharacter.Name, m_Text);
             IsComplete = true;
         }
 
+        public virtual void Interrupt() {
+            m_Interrupted = true;
+            m_Delay?.Complete();
+        }
+
         public void Cancel() {
-            if (m_Delay != null) {
-                m_Delay.Cancel("Script line cancelled.", m_StoryTeller);
-            }
+            m_Delay?.Cancel("Dialog line cancelled.", m_StoryTeller);
         }
 
         protected void Log(string log, Object context = null) {
             StoryDebug.Log(log, context);
+        }
+
+        public override string ToString() {
+            return $"{base.ToString()}: {m_Text}";
         }
     }
 }

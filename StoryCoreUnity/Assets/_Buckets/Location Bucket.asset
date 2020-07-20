@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 852b9a7612cc4e8a98da5ee5b6491859, type: 3}
+  m_Name: Location Bucket
+  m_EditorClassIdentifier: 
+  m_BucketName: Locators
+  m_Sources:
+  - {fileID: 102900000, guid: a0ea983eeaffec64bb8e98673e3d4eab, type: 3}
+  m_AssetRefs:
+  - Name: center
+    Guid: b8cd12ffb9627ad4bba518134b01908d
+    Asset: {fileID: 1998512188028716489, guid: b8cd12ffb9627ad4bba518134b01908d, type: 3}
+  - Name: door
+    Guid: dc058b96bcf42b34e949ef968ca2a9cc
+    Asset: {fileID: 1998512188028716489, guid: dc058b96bcf42b34e949ef968ca2a9cc, type: 3}
+  - Name: player
+    Guid: faa618e73ecbad145b248e43cd895920
+    Asset: {fileID: 424313628625269112, guid: faa618e73ecbad145b248e43cd895920, type: 3}
+  m_ManualUpdate: 0

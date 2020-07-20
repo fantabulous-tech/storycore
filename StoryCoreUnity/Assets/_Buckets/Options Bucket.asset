@@ -17,21 +17,30 @@ MonoBehaviour:
   - {fileID: 102900000, guid: 74cedd49cefabc7488c282b865c3278a, type: 3}
   m_AssetRefs:
   - Name: options-subtitles
+    Guid: 07d7491b8e882344b8b0f5db0ee6c1a4
     Asset: {fileID: 11400000, guid: 07d7491b8e882344b8b0f5db0ee6c1a4, type: 2}
   - Name: options-debuglog
+    Guid: 37e84065aa645eb4693cb5b3cccd88a3
     Asset: {fileID: 11400000, guid: 37e84065aa645eb4693cb5b3cccd88a3, type: 2}
   - Name: options-antialiasing
+    Guid: 5d4fbdd307556ed4ebd7752404aa7c92
     Asset: {fileID: 11400000, guid: 5d4fbdd307556ed4ebd7752404aa7c92, type: 2}
   - Name: options-qualitylevel
+    Guid: 736c15a7610881844a136a688b7fa218
     Asset: {fileID: 11400000, guid: 736c15a7610881844a136a688b7fa218, type: 2}
   - Name: options-snaprotate
+    Guid: 7dae737f4f71c5d4b9c476e40a9b3a9d
     Asset: {fileID: 11400000, guid: 7dae737f4f71c5d4b9c476e40a9b3a9d, type: 2}
   - Name: options-music
+    Guid: 8ea99fccfb6ec26429431f030fe2e767
     Asset: {fileID: 11400000, guid: 8ea99fccfb6ec26429431f030fe2e767, type: 2}
   - Name: options-headgesture
+    Guid: 976ddcc6826fd7747a5d843ff5a17157
     Asset: {fileID: 11400000, guid: 976ddcc6826fd7747a5d843ff5a17157, type: 2}
   - Name: options-headgesturefeedback
+    Guid: d7b1c587b7fb4b443986cb007cdbd08a
     Asset: {fileID: 11400000, guid: d7b1c587b7fb4b443986cb007cdbd08a, type: 2}
   - Name: options-postprocess
+    Guid: fb3adee4600fb884490853832b208085
     Asset: {fileID: 11400000, guid: fb3adee4600fb884490853832b208085, type: 2}
   m_ManualUpdate: 0

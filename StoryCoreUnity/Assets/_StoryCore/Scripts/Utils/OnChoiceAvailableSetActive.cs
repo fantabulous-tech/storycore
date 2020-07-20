@@ -19,7 +19,7 @@ namespace StoryCore.Choices {
         }
 
         private void OnChoicesReady() {
-            gameObject.SetActive(m_ChoiceHandlers.Any(c => m_StoryTeller.IsValidChoice(c)));
+            gameObject.SetActive(m_ChoiceHandlers.Any(ChoiceManager.IsValidChoice));
         }
     }
 }

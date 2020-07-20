@@ -3,13 +3,13 @@ using StoryCore.Utils;
 using UnityEngine;
 
 namespace StoryCore.UI {
-    public class CrosshairTarget : Singleton<CrosshairTarget> {
+    public class CrosshairTarget : MonoBehaviour {
         [SerializeField] private List<Collider> m_IgnoredColliders;
         [SerializeField] private LayerMask m_LayerMask;
 
-        public static GameObject Target { get; private set; }
-        public static float Distance { get; private set; }
-        public static Vector3 Point { get; private set; }
+        public GameObject Target { get; private set; }
+        public float Distance { get; private set; }
+        public Vector3 Point { get; private set; }
 
         private void Update() {
             RaycastHit[] hits = new RaycastHit[10];

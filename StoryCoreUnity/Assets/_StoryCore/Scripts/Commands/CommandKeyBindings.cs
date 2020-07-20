@@ -21,6 +21,10 @@ namespace StoryCore.Commands {
 
         public override string[] ItemNames => m_CommandBindings.Select(i => i.CommandName).ToArray();
 
+        public CommandBinding[] GetCommandBindings() {
+            return CommandBindings;
+        }
+
         public void Init() {
             if (!AppTracker.IsPlaying) {
                 return;
@@ -35,9 +39,10 @@ namespace StoryCore.Commands {
             RunCommand(commandInfo);
         }
 
-        public void RunCommand(string commandText, List<string> tags, Action callback = null, Action failCallback = null) {
+        public ScriptCommandInfo RunCommand(string commandText, List<string> tags, Action callback = null, Action failCallback = null) {
             ScriptCommandInfo commandInfo = new ScriptCommandInfo(commandText, tags);
             RunCommand(commandInfo, callback, failCallback);
+            return commandInfo;
         }
 
         public CommandHandler this[string command] {
@@ -45,7 +50,7 @@ namespace StoryCore.Commands {
             set => CommandLookup[command].CommandHandler = value;
         }
 
-        public void QueueCommand(string commandText) {
+        public ScriptCommandInfo QueueCommand(string commandText) {
             ScriptCommandInfo commandInfo = new ScriptCommandInfo(commandText);
 
             try {
@@ -59,6 +64,8 @@ namespace StoryCore.Commands {
                 Debug.LogException(e);
                 Debug.LogErrorFormat(this, "Command {0} failed to queue because {1}", commandInfo, e.Message);
             }
+
+            return commandInfo;
         }
 
         private void RunCommand(ScriptCommandInfo commandInfo, Action callback = null, Action failCallback = null) {

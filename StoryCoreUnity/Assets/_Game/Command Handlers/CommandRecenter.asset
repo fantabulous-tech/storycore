@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: CommandRecenter
   m_EditorClassIdentifier: 
   m_EventName: Recenter
-  m_EventDescription: "/recenter\r\nRecenters the player or the last used [move] or
-    starting spawn point."
-  m_DebugLog: 1
+  m_EventDescription: '/recenter
+
+    Recenters the player or the last used [move]
+    or starting spawn point.'
+  m_DebugLog: 0
+  m_AllowChoices: 0
+  m_ID: -1055462189

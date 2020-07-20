@@ -1,7 +1,8 @@
+using StoryCore.Commands;
 using StoryCore.Utils;
 using UnityEngine;
 
-namespace StoryCore.Commands {
+namespace StoryCore.Characters {
     public abstract class BaseCharacter : MonoBehaviour {
         [SerializeField] private string m_NameOverride;
 
@@ -16,6 +17,8 @@ namespace StoryCore.Commands {
 
         public abstract DelaySequence MoveTo(ScriptCommandInfo command);
 
+        public abstract DelaySequence Follow(ScriptCommandInfo command);
+        
         protected virtual void Awake() {
             Buckets.Characters.Add(this);
         }
@@ -27,5 +30,7 @@ namespace StoryCore.Commands {
         }
 
         public abstract void LookAt(Transform target);
+        public abstract void PauseLookAt();
+        public abstract void ResumeLookAt();
     }
 }

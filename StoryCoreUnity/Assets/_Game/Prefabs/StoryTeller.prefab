@@ -24,7 +24,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1029118808188772}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 4.697018, y: -0.91272753, z: 20.588934}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -44,16 +44,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7441ca633b8e4f4490cccd0d56dbc9c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AccessCode: 11111
-  m_AccessCodePostId: 23573299
-  m_DebugLog: 1
   m_InkJson: {fileID: 4900000, guid: 01c0166a6797c8a42a157ea3cb3e4068, type: 3}
   m_PromptUI: {fileID: 114715021478190300, guid: edfd19c762a95eb43906b024d0ae3034,
     type: 3}
   m_OptionSubtitles: {fileID: 11400000, guid: 07d7491b8e882344b8b0f5db0ee6c1a4, type: 2}
-  m_HasEarlyAccess: {fileID: 11400000, guid: e403d0975ad785f469e0005b5b20504b, type: 2}
-  m_CherryPopped: {fileID: 11400000, guid: d29346034754e0f4283dc278c2d1e1bd, type: 2}
-  m_RestartEvent: {fileID: 11400000, guid: aa4d47a11c283774281e75ede6c5fbc0, type: 2}
+  m_RestartEvent: {fileID: 11400000, guid: a8d8d55dfb64f804fbe28277297bb961, type: 2}
+  m_RestartStoryPath: game_start
   m_CurrentChoice: {fileID: 11400000, guid: c4e27a967c96f824a8ba9332191bedd0, type: 2}
   m_FocusedCharacterName: {fileID: 11400000, guid: 7c9ef05b0b934a74d992fe9a0d93c2fd,
     type: 2}
@@ -63,8 +59,7 @@ MonoBehaviour:
     type: 2}
   m_CustomDialogLineProvider: {fileID: 11400000, guid: 63652a9fb4c7a814bac62031831675e6,
     type: 2}
-  m_GameVariablesToSave: {fileID: 11400000, guid: c834acfbdfb6ac4458aa482e2982f342,
-    type: 2}
+  m_StartStoryOnEnable: 1
 --- !u!1 &1493430166998830
 GameObject:
   m_ObjectHideFlags: 0
@@ -126,6 +121,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []

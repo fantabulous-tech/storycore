@@ -125,6 +125,12 @@ namespace StoryCore.Utils {
             DefaultAudioSource.PlayOneShot(clip, volume);
         }
 
+        public static void StopOneShot(this AudioClip clip) {
+            if (s_DefaultAudioSource && s_DefaultAudioSource.clip == clip) {
+                s_DefaultAudioSource.Stop();
+            }
+        }
+
         private static AudioSource s_DefaultAudioSource;
         private static AudioSource DefaultAudioSource => UnityUtils.GetOrSet(ref s_DefaultAudioSource, CreateDefaultAudioSource);
 

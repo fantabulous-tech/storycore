@@ -9,10 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa2aaffcc71043adbc6c79b4f998d1e0, type: 3}
-  m_Name: OnTimeout
+  m_Script: {fileID: 11500000, guid: 2caf7028a2a44524934bfa4626c68b9a, type: 3}
+  m_Name: ChoiceRestart
   m_EditorClassIdentifier: 
-  m_EventName: Timeout
-  m_EventDescription: 
-  m_DebugLog: 0
-  m_DefaultDuration: 7
+  m_InterruptsOnEvaluation: 0
+  m_InterruptsOnChosen: 1
+  OnChosen:
+    m_PersistentCalls:
+      m_Calls: []
+  m_GameEvent: {fileID: 11400000, guid: a8d8d55dfb64f804fbe28277297bb961, type: 2}

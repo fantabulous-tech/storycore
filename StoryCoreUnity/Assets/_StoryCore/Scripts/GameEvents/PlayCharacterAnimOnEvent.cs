@@ -1,4 +1,4 @@
-using StoryCore.Commands;
+using StoryCore.Characters;
 using UnityEngine;
 
 namespace StoryCore.GameEvents {

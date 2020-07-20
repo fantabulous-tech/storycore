@@ -1,4 +1,5 @@
 using System.Linq;
+using StoryCore.Characters;
 using StoryCore.GameVariables;
 using StoryCore.Utils;
 using UnityEngine;
@@ -7,10 +8,12 @@ namespace StoryCore.Commands {
     [CreateAssetMenu(menuName = "Commands/Command MoveTo")]
     public class CommandMoveToHandler : CommandHandler {
         [SerializeField] private GameVariableString m_FocusedCharacter;
+        [SerializeField] private bool m_WaitForMove;
 
-        public BaseCharacter FocusedCharacter => m_FocusedCharacter ? Buckets.Characters.Get(m_FocusedCharacter.Value)?.GetComponent<BaseCharacter>() : null;
+        public BaseCharacter FocusedCharacter => m_FocusedCharacter ? Buckets.Characters.Get(m_FocusedCharacter.Value) : null;
 
         public override DelaySequence Run(ScriptCommandInfo info) {
+
             // Find the performer.
             BaseCharacter performer = FocusedCharacter;
 
@@ -19,7 +22,8 @@ namespace StoryCore.Commands {
                 return DelaySequence.Empty;
             }
 
-            return performer.MoveTo(info);
+            DelaySequence moveDelay = performer.MoveTo(info);
+            return m_WaitForMove ? moveDelay : DelaySequence.Empty;
         }
     }
 }

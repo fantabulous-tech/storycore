@@ -35,10 +35,10 @@ namespace StoryCore.Commands {
 
         public override DelaySequence Run(ScriptCommandInfo info) {
             // TODO: Cancel a scene load currently in progress?
-            return LoadSceneInternal(info.Params[0]);
+            return LoadSceneInternal(info.Params[0], false);
         }
 
-        private DelaySequence LoadSceneInternal(string sceneName) {
+        private DelaySequence LoadSceneInternal(string sceneName, bool noFade) {
             m_LoadOperations.Clear();
             m_UnloadOperations.Clear();
             StoryDebug.Log("Load scene " + sceneName + ": START");
@@ -47,16 +47,21 @@ namespace StoryCore.Commands {
             if (Time.time.Approximately(0)) {
                 return Delay.Until(UnloadedOldScene, this).ThenWaitUntil(LoadedNewScene).Then(FadeIn);
             }
-            return Delay.WaitFor(FadeOut, this).ThenWaitUntil(UnloadedOldScene).ThenWaitUntil(LoadedNewScene).Then(FadeIn);
+
+            if (noFade) {
+                return Delay.Until(UnloadedOldScene, this).ThenWaitUntil(LoadedNewScene);
+            } else {
+                return Delay.WaitFor(FadeOut, this).ThenWaitUntil(UnloadedOldScene).ThenWaitUntil(LoadedNewScene).Then(FadeIn);
+            }
         }
 
-        public static DelaySequence LoadScene(string sceneName) {
+        public static DelaySequence LoadScene(string sceneName, bool noFade=false) {
             if (!m_Instance) {
                 Debug.LogError($"Couldn't find CommandSceneHandler. Can't load {sceneName}");
                 return DelaySequence.Empty;
             }
 
-            return m_Instance.LoadSceneInternal(sceneName);
+            return m_Instance.LoadSceneInternal(sceneName, noFade);
         }
 
         private DelaySequence FadeOut() {
@@ -174,6 +179,9 @@ namespace StoryCore.Commands {
 
                         if (firstScene.isLoaded) {
                             SceneManager.SetActiveScene(firstScene);
+                            LightProbes.TetrahedralizeAsync();
+
+
                         } else {
                             Debug.LogError($"No first scene found for {firstSceneName}", this);
                         }

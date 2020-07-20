@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using StoryCore.Characters;
 using StoryCore.Commands;
 using StoryCore.Utils;
 using UnityEditor;

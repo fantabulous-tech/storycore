@@ -1,12 +1,10 @@
 ﻿using System.Linq;
 using StoryCore.AssetBuckets;
-using StoryCore.Commands;
 using StoryCore.Utils;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
-namespace StoryCore {
+namespace StoryCore.Characters {
     public class PerformanceTester : MonoBehaviour {
         [SerializeField, AutoFillAsset] private PerformanceBucket m_AnimBucket;
         [SerializeField] private bool m_Loop;

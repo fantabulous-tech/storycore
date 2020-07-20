@@ -15,6 +15,9 @@ MonoBehaviour:
   m_EventName: 
   m_EventDescription: '/action <action_name>
 
-    Triggers custom GameEvents that specific scenes or systems know about.'
+    Triggers custom GameEvents that
+    specific scenes or systems know about.'
   m_DebugLog: 0
+  m_AllowChoices: 0
+  m_ID: 1166513582
   m_ActionBucket: {fileID: 11400000, guid: a8f06b58613585a47aa19a0dc590eae6, type: 2}

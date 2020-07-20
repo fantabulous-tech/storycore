@@ -15,4 +15,4 @@ MonoBehaviour:
   m_BucketName: Actions
   m_ActionBindings:
   - ActionName: restart
-    GameEvent: {fileID: 11400000, guid: aa4d47a11c283774281e75ede6c5fbc0, type: 2}
+    GameEvent: {fileID: 11400000, guid: a8d8d55dfb64f804fbe28277297bb961, type: 2}

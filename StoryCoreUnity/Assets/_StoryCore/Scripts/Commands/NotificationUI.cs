@@ -29,7 +29,9 @@ namespace StoryCore.Commands {
                 UnityUtils.DestroyObject(this, delay);
             }
 
-            m_StoryTellerLocator.Value.OnChosen += OnChosen;
+            if (m_StoryTellerLocator.Value) {
+                m_StoryTellerLocator.Value.OnChosen += OnChosen;
+            }
             SceneManager.sceneLoaded += OnSceneLoad;
         }
 

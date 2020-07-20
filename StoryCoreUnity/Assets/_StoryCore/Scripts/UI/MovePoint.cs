@@ -17,6 +17,15 @@ namespace StoryCore {
         private string m_MoveName;
         private readonly List<GameObject> m_Touchers = new List<GameObject>();
         private StoryChoice m_MoveChoice;
+        private MoveStates m_MoveState;
+
+        private bool IsActive => m_MoveState != MoveStates.Inactive;
+
+        private enum MoveStates {
+            Inactive,
+            Normal,
+            Hover
+        }
 
         public event Action Activate;
         public event Action Deactivate;
@@ -29,6 +38,7 @@ namespace StoryCore {
             m_StoryTeller = Globals.StoryTeller;
             m_StoryTeller.OnChoicesReady += UpdateState;
             m_StoryTeller.OnChoosing += OnChoosing;
+            m_StoryTeller.OnChosen += UpdateState;
 
             m_MoveName = name.Split(':').ElementAtOrDefault(1);
 
@@ -40,6 +50,15 @@ namespace StoryCore {
 
             if (Globals.CommandRecenter != null) {
                 Globals.CommandRecenter.GenericEvent += OnRecenter;
+            }
+        }
+
+        private void OnTriggerEnter(Collider other) {
+            VRTK_PlayerObject playerObject = other.GetComponent<VRTK_PlayerObject>();
+
+            if (playerObject && playerObject.objectType == VRTK_PlayerObject.ObjectTypes.Headset) {
+                StoryDebug.Log($"Player headset entered MovePoint {name}. Triggering move.", this);
+                OnUse(this, new InteractableObjectEventArgs {interactingObject = other.gameObject});
             }
         }
 
@@ -61,6 +80,7 @@ namespace StoryCore {
             if (m_StoryTeller) {
                 m_StoryTeller.OnChoicesReady -= UpdateState;
                 m_StoryTeller.OnChoosing -= OnChoosing;
+                m_StoryTeller.OnChosen -= UpdateState;
             }
 
             m_Touchers.Clear();
@@ -74,9 +94,8 @@ namespace StoryCore {
         private void OnChoosing(StoryChoice choice) {
             if (MyChoice(choice)) {
                 Move();
-            } else {
-                UpdateState();
             }
+            UpdateState();
         }
 
         private void Move() {
@@ -114,26 +133,33 @@ namespace StoryCore {
 
         private void UpdateState() {
             m_MoveChoice = m_StoryTeller.CurrentChoices.FirstOrDefault(MyChoice);
-            bool isActive = m_MoveChoice != null;
-            bool isHover = isActive && m_Touchers.Count > 0;
 
-            if (!isActive) {
+            if (m_MoveChoice == null) {
+                m_MoveState = MoveStates.Inactive;
+            } else if (m_Touchers.Count == 0) {
+                m_MoveState = MoveStates.Normal;
+            } else {
+                m_MoveState = MoveStates.Hover;
+            }
+            
+            if (!IsActive) {
                 m_Touchers.Clear();
             }
 
             bool wasActive = m_Collision.enabled;
 
-            if (!wasActive && isActive) {
+            if (!wasActive && IsActive) {
                 Activate?.Invoke();
-            } else if (wasActive && !isActive) {
+            } else if (wasActive && !IsActive) {
                 Deactivate?.Invoke();
             }
 
-            m_Collision.enabled = isActive;
+            m_Collision.enabled = IsActive;
 
-            m_Normal.SetActive(!isHover && isActive);
-            m_Hover.SetActive(isHover);
-            m_Label.SetActive(isHover);
+            m_Normal.SetActive(m_MoveState == MoveStates.Normal);
+            m_Hover.SetActive(m_MoveState == MoveStates.Hover);
+            m_Label.SetActive(m_MoveState == MoveStates.Hover);
+            // StoryDebug.Log($"Move point {name} updated state to {m_MoveState}");
         }
     }
 }

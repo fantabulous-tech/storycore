@@ -1,3 +1,4 @@
+using StoryCore.Characters;
 using StoryCore.GameVariables;
 using StoryCore.Utils;
 using UnityEngine;

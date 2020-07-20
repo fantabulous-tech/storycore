@@ -14,6 +14,7 @@ namespace StoryCore {
         [SerializeField] private GameObject m_Target;
         [SerializeField] private CopyGameObjectTask m_RootTask;
         private Vector2 m_Scroll;
+        private static bool s_CreateMissingObjects;
 
         [MenuItem("Tools/Transcribe Components")]
         private static void CreateTranscribeComponentsWizard() {
@@ -32,14 +33,14 @@ namespace StoryCore {
                     m_Target = null;
                 }
 
-                m_RootTask = new CopyGameObjectTask(m_Source, m_Source, m_Target, m_Target);
+                m_RootTask = new CopyGameObjectTask(m_Source, m_Source, m_Target, m_Target, null);
             }
         }
 
         private void OnWizardCreate() {
             m_RootTask.Copy();
             m_RootTask.MoveRelativeReferences();
-            m_RootTask = new CopyGameObjectTask(m_RootTask.Source, m_RootTask.Source, m_RootTask.Target, m_RootTask.Target);
+            m_RootTask = new CopyGameObjectTask(m_RootTask.Source, m_RootTask.Source, m_RootTask.Target, m_RootTask.Target, null);
         }
 
         private void OnGUI() {
@@ -47,6 +48,7 @@ namespace StoryCore {
                 OnWizardUpdate();
             }
 
+            s_CreateMissingObjects = EditorGUILayout.Toggle("Create Missing Objects", s_CreateMissingObjects);
             RowLayout layout = new RowLayout();
             GUI.Label(layout.SourceRect, "Source", EditorStyles.boldLabel);
             GUI.Label(layout.TargetRect, "Target", EditorStyles.boldLabel);
@@ -61,8 +63,9 @@ namespace StoryCore {
         }
 
         private class CopyGameObjectTask {
-            private static Type[] s_ExcludedComponents = {typeof(Transform), typeof(Animator), typeof(SkinnedMeshRenderer), typeof(MeshRenderer), typeof(MeshFilter)};
+            private static Type[] s_ExcludedComponents = {typeof(Transform), typeof(SkinnedMeshRenderer), typeof(MeshRenderer), typeof(MeshFilter)};
 
+            private CopyGameObjectTask m_ParentTask;
             private GameObject m_SourceRoot;
             private GameObject m_TargetRoot;
             private CopyComponentTask[] m_ComponentTasks;
@@ -72,11 +75,17 @@ namespace StoryCore {
             public GameObject Source { get; private set; }
             public GameObject Target { get; private set; }
 
-            public CopyGameObjectTask(GameObject sourceRoot, GameObject source, GameObject targetRoot, GameObject target) {
+            public CopyGameObjectTask(GameObject sourceRoot, GameObject source, GameObject targetRoot, GameObject target, CopyGameObjectTask parent) {
+                m_ParentTask = parent;
                 Source = source;
                 Target = target;
                 m_SourceRoot = sourceRoot;
                 m_TargetRoot = targetRoot;
+
+                if (!m_SourceRoot) {
+                    return;
+                }
+
                 GetComponents();
                 GetSubTasks();
             }
@@ -88,13 +97,13 @@ namespace StoryCore {
 
                 for (int i = 0; i < m_ComponentTasks.Length; i++) {
                     Component sourceComponent = sourceComponents[i];
-                    Component targetComponent = targetComponents.FirstOrDefault(c => c && c.GetType() == sourceComponent.GetType());
+                    Component targetComponent = sourceComponent ? targetComponents.FirstOrDefault(c => c && c.GetType() == sourceComponent.GetType()) : null;
 
                     if (targetComponent) {
                         targetComponents[targetComponents.IndexOf(targetComponent)] = null;
                     }
 
-                    m_ComponentTasks[i] = new CopyComponentTask(sourceComponents[i], targetComponent, Target);
+                    m_ComponentTasks[i] = new CopyComponentTask(sourceComponents[i], targetComponent, this);
                 }
 
                 if (m_ComponentTasks.Any()) {
@@ -117,7 +126,7 @@ namespace StoryCore {
                     GameObject targetChild = targetChildren.FirstOrDefault(c => c && c.name.Equals(sourceChild.name, StringComparison.OrdinalIgnoreCase));
 
                     if (targetChild) {
-                        copyTasks.Add(new CopyGameObjectTask(m_SourceRoot, sourceChild, m_TargetRoot, targetChild));
+                        copyTasks.Add(new CopyGameObjectTask(m_SourceRoot, sourceChild, m_TargetRoot, targetChild, this));
                         sourceChildren[i] = null;
                         targetChildren[targetChildren.IndexOf(targetChild)] = null;
                     }
@@ -133,12 +142,12 @@ namespace StoryCore {
                     GameObject targetChild = targetChildren.ElementAtOrDefault(i);
 
                     if (targetChild) {
-                        copyTasks.Add(new CopyGameObjectTask(m_SourceRoot, sourceChild, m_TargetRoot, targetChild));
+                        copyTasks.Add(new CopyGameObjectTask(m_SourceRoot, sourceChild, m_TargetRoot, targetChild, this));
                         targetChildren[i] = null;
                         continue;
                     }
 
-                    copyTasks.Add(new CopyGameObjectTask(m_SourceRoot, sourceChild, m_TargetRoot, null));
+                    copyTasks.Add(new CopyGameObjectTask(m_SourceRoot, sourceChild, m_TargetRoot, null, this));
                 }
 
                 m_SubTasks = copyTasks.ToArray();
@@ -146,7 +155,7 @@ namespace StoryCore {
             }
 
             public void OnGUI(int indentLevel = 0) {
-                if (!m_ImportantTask) {
+                if (!m_ImportantTask && indentLevel > 0) {
                     return;
                 }
 
@@ -154,10 +163,15 @@ namespace StoryCore {
                 RowLayout layout = new RowLayout(indentLevel);
 
                 GameObject newSource = (GameObject) EditorGUI.ObjectField(layout.SourceRect, Source, typeof(GameObject), true);
-                if (GUI.Button(layout.DividerRect, "->")) {
-                    Copy();
-                    MoveRelativeReferences();
+                
+                if (!Target) {
+                    if (GUI.Button(layout.DividerRect, "->")) {
+                        CopyGameObject();
+                        // Copy();
+                        // MoveRelativeReferences();
+                    }
                 }
+
                 GameObject newTarget = (GameObject) EditorGUI.ObjectField(layout.TargetRect, Target, typeof(GameObject), true);
                 GUILayout.EndHorizontal();
 
@@ -184,12 +198,37 @@ namespace StoryCore {
                 }
 
                 if (m_ComponentTasks.Any() && !Target) {
-                    Debug.LogWarning($"Can't copy {Source.name} components. No matching target found.", Source);
+                    if (s_CreateMissingObjects) {
+                        CopyGameObject();
+                        m_ComponentTasks.ForEach(t => t.Copy());
+                    } else {
+                        Debug.LogWarning($"Can't copy {Source.name} components. No matching target found.", Source);
+                    }
                 } else {
                     m_ComponentTasks.ForEach(t => t.Copy());
                 }
 
                 m_SubTasks.ForEach(t => t.Copy());
+            }
+
+            private void CopyGameObject() {
+                Target = new GameObject(Source.name);
+                Transform newTarget = Target.transform;
+
+                if (!m_ParentTask.Target) {
+                    m_ParentTask.CopyGameObject();
+                }
+
+                if (!m_ParentTask.Target) {
+                    Debug.LogError($"Couldn't create target for {Source.name}", Source);
+                    return;
+                }
+
+                Transform sourceTransform = Source.transform;
+                newTarget.SetParent(m_ParentTask.Target.transform);
+                newTarget.localPosition = sourceTransform.localPosition;
+                newTarget.localRotation = sourceTransform.localRotation;
+                newTarget.localScale = sourceTransform.localScale;
             }
 
             public void MoveRelativeReferences(string sourceRootPath = null, string targetRootPath = null) {
@@ -209,12 +248,14 @@ namespace StoryCore {
             private bool m_Enabled = true;
             private readonly Component m_SourceComponent;
             private Component m_TargetComponent;
-            private readonly GameObject m_Target;
+            private CopyGameObjectTask m_ParentTask;
 
-            public CopyComponentTask(Component sourceComponent, Component targetComponent, GameObject target) {
+            private GameObject Target => m_ParentTask.Target;
+
+            public CopyComponentTask(Component sourceComponent, Component targetComponent, CopyGameObjectTask parent) {
                 m_SourceComponent = sourceComponent;
                 m_TargetComponent = targetComponent;
-                m_Target = target;
+                m_ParentTask = parent;
             }
 
             public void OnGUI(int indentLevel) {
@@ -230,12 +271,19 @@ namespace StoryCore {
             }
 
             public void Copy() {
+                if (!m_SourceComponent) {
+                    return;
+                }
+
+                if (!Target) {
+                    Debug.LogError("Expected m_Target, but it's null.");
+                    return;
+                }
+
+                m_TargetComponent = m_TargetComponent ? m_TargetComponent : Target.AddComponent(m_SourceComponent.GetType());
+
                 if (ComponentUtility.CopyComponent(m_SourceComponent)) {
-                    if (m_TargetComponent) {
-                        ComponentUtility.PasteComponentValues(m_TargetComponent);
-                    } else if (ComponentUtility.PasteComponentAsNew(m_Target)) {
-                        m_TargetComponent = m_Target.GetComponents<Component>().LastOrDefault();
-                    }
+                    ComponentUtility.PasteComponentValues(m_TargetComponent);
                 }
             }
 
@@ -265,18 +313,21 @@ namespace StoryCore {
                     return;
                 }
 
-                string scenePath = reference.FullName(FullName.Parts.FullScenePath);
+                sourceRootPath += "/";
+                targetRootPath += "/";
 
-                if (!scenePath.StartsWith(sourceRootPath, StringComparison.OrdinalIgnoreCase)) {
+                string sourcePath = reference.FullName(FullName.Parts.FullScenePath) + "/";
+
+                if (!sourcePath.StartsWith(sourceRootPath, StringComparison.OrdinalIgnoreCase)) {
                     return;
                 }
 
-                string newPath = scenePath.Replace(sourceRootPath, targetRootPath);
-                Debug.Log(m_TargetComponent.GetType().Name + " has a " + reference.GetType().Name + " reference on " + m_TargetComponent.name + ": " + scenePath + " --> " + newPath, m_TargetComponent);
-                GameObject targetObject = GameObject.Find(newPath);
+                string targetPath = sourcePath.Replace(sourceRootPath, targetRootPath).TrimEnd('/');
+                Debug.Log(m_TargetComponent.GetType().Name + " has a " + reference.GetType().Name + " reference on " + m_TargetComponent.name + ": " + sourcePath + " --> " + targetPath, m_TargetComponent);
+                GameObject targetObject = GameObject.Find(targetPath);
 
                 if (!targetObject) {
-                    Debug.LogWarning("Couldn't find " + newPath);
+                    Debug.LogWarning("Couldn't find " + targetPath);
                     return;
                 }
 

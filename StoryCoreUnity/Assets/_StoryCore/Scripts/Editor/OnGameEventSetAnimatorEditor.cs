@@ -16,6 +16,9 @@ namespace StoryCore.GameEvents {
                 case OnGameEventSetAnimator.ParamType.Float:
                     DrawPropertiesExcluding(serializedObject, "m_BoolValue", "m_IntValue");
                     break;
+                case OnGameEventSetAnimator.ParamType.Trigger:
+                    DrawPropertiesExcluding(serializedObject, "m_BoolValue", "m_IntValue", "m_FloatValue");
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

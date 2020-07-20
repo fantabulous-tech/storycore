@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Ink.Runtime;
 using StoryCore.AssetBuckets;
+using StoryCore.Characters;
 using StoryCore.Choices;
 using StoryCore.Commands;
 using StoryCore.GameEvents;
@@ -28,13 +29,14 @@ namespace StoryCore {
         [SerializeField] private AbstractLineSequenceProvider m_CustomDialogLineProvider;
         [SerializeField] private bool m_StartStoryOnEnable = true;
 
-        private readonly Queue<ISequence> m_SequenceQueue = new Queue<ISequence>();
+        private readonly LinkedList<ISequence> m_SequenceQueue = new LinkedList<ISequence>();
         private ISequence m_CurrentSequence;
         private StoryChoice m_NextChoice;
         private bool m_Complete;
         private Story m_Story;
         private BaseCharacter m_FocusedCharacter;
         private string m_LastFocusedCharacterName;
+        private string m_LastSection;
 
         public SubtitleUI PromptUI => m_PromptUI;
         private bool PlayingSequence => m_CurrentSequence != null && !m_CurrentSequence.IsComplete;
@@ -87,6 +89,7 @@ namespace StoryCore {
                 OnStoryReady?.Invoke();
             }
         }
+        public List<StoryChoice> AllChoices { get; private set; } = new List<StoryChoice>();
         public List<StoryChoice> CurrentChoices { get; private set; } = new List<StoryChoice>();
         public bool HasChoices => Story && Story.currentChoices.Count > 0;
 
@@ -113,7 +116,7 @@ namespace StoryCore {
         public event Action OnStoryReady;
         public event Action OnNext;
         public event Action OnChoicesReady;
-        public event Action OnChoicesReadyAndWaiting;
+        public event Action OnChoicesWaiting;
         public event Action<StoryChoice> OnChoosing;
         public event Action OnChosen;
         public event Action OnEnd;
@@ -146,6 +149,7 @@ namespace StoryCore {
         }
 
         private void OnDisable() {
+            AllChoices.Clear();
             CurrentChoices.Clear();
             Story = null;
         }
@@ -155,15 +159,14 @@ namespace StoryCore {
                 return;
             }
             if (m_Story != null) {
-                UpdateSequences();
                 UpdateChoiceDelay();
+                UpdateSequences();
             }
         }
 
         private void UpdateChoiceDelay() {
-            if (m_NextChoice != null && m_CurrentSequence is ReadyForChoiceSequence choiceSequence) {
-                choiceSequence.IsComplete = true;
-                ChooseInternal(m_NextChoice);
+            if (m_NextChoice != null && m_CurrentSequence is WaitForChoiceSequence) {
+                CompleteChoice();
             }
         }
 
@@ -177,7 +180,9 @@ namespace StoryCore {
             }
 
             while (m_SequenceQueue.Count > 0 && (m_CurrentSequence == null || m_CurrentSequence.IsComplete)) {
-                m_CurrentSequence = m_SequenceQueue.Dequeue();
+                m_CurrentSequence = m_SequenceQueue.First();
+                m_SequenceQueue.RemoveFirst();
+                // StoryDebug.Log($"StoryTeller: Starting {m_CurrentSequence}");
                 m_CurrentSequence.Start();
             }
 
@@ -208,6 +213,10 @@ namespace StoryCore {
         }
 
         public void RestartStory(string storyPath) {
+            if (m_Story == null) {
+                return;
+            }
+
             IStoryVariable[] storyVariables = SaveLoadVariables.SavedVariables.OfType<IStoryVariable>().ToArray();
 
             // Stop listening so we don't raise the variable changes when resetting the state.
@@ -226,12 +235,18 @@ namespace StoryCore {
             m_Story.ChoosePathString(storyPath);
 
             // Add loading an empty scene as the first command.
-            CommandSceneHandler.LoadScene("empty").Then(() => GetNextQueue("Restarting story."));
+            CommandSceneHandler.LoadScene("empty").Then(() => {
+                m_Complete = false;
+                GetNextQueue("Restarting story.");
+            });
         }
 
-        private string m_LastSection;
-
         private void GetNextQueue(string reason) {
+            if (!CanContinue) {
+                Debug.LogWarning("StoryTeller can't get new sequences yet. This shouldn't happen. (Still have choices left?)", this);
+                return;
+            }
+
             StoryDebug.Log("Story Queue Updating: " + reason);
 
             if (m_CurrentSequence != null) {
@@ -240,10 +255,14 @@ namespace StoryCore {
             }
 
             while (m_SequenceQueue.Any()) {
-                m_SequenceQueue.Dequeue().Cancel();
+                m_SequenceQueue.First().Cancel();
+                m_SequenceQueue.RemoveFirst();
             }
 
+            m_SequenceQueue.AddLast(new ActionSequence(EnableInterruptChoices));
+            
             DialogLineSequence lastLine = null;
+            LinkedListNode<ISequence> lastLineNode = null;
 
             while (CanContinue) {
                 // Check for the current path before and after the 'continue' as it is something null after 'Continue' is called.
@@ -267,15 +286,12 @@ namespace StoryCore {
                 }
 
                 if (text.StartsWith("/")) {
-                    CommandSequence commandSequence = new CommandSequence(this, text, Story.currentTags);
-                    m_SequenceQueue.Enqueue(commandSequence);
-                    commandSequence.OnQueue();
+                    CommandSequence commandSequence = new CommandSequence(text, Story.currentTags);
+                    m_SequenceQueue.AddLast(commandSequence);
 
-                    // If this is a 'notify' command, then it probably is used as the 'last line',
-                    // so clear any previous 'lastLine's so the subtitle doesn't stay on.
-                    // TODO: Figure out a better way to check for this.
-                    if (text.Contains("/notify")) {
-                        lastLine = null;
+                    // Only track the 'last line' if it comes after all commands.
+                    if (commandSequence.AllowsChoices) {
+                        lastLineNode = null;
                     }
 
                     continue;
@@ -283,84 +299,59 @@ namespace StoryCore {
 
                 text = m_TextReplacement.Convert(text);
                 lastLine = CreateDialogLine(text, m_LastSection);
-                m_SequenceQueue.Enqueue(lastLine);
-                lastLine.OnQueue();
+                m_SequenceQueue.AddLast(lastLine);
+                lastLineNode = m_SequenceQueue.Last;
+            }
+            
+            // We can no longer continue. Let's create all the available choices at once.
+            AllChoices = Story.currentChoices.Select((c, i) => new StoryChoice(c, this)).ToList();
+
+            if (lastLineNode != null) {
+                // If we have a last VO line, add choice UI
+                lastLine.DisplayChoicePrompt = CanChooseUI;
             }
 
-            if (lastLine != null && CanChooseUI) {
-                lastLine.HasChoice = true;
+            LinkedListNode<ISequence> blockNode = m_SequenceQueue.Last;
+
+            while (blockNode != null && blockNode.Value.AllowsChoices) {
+                blockNode = blockNode.Previous;
             }
 
-            EnableInterruptChoices();
+            if (blockNode == null) {
+                m_SequenceQueue.AddFirst(new ActionSequence(EnableAllChoices));
+            } else {
+                m_SequenceQueue.AddAfter(blockNode, new ActionSequence(EnableAllChoices));
+            }
 
             if (HasChoices) {
-                ReadyForChoiceSequence readyForChoiceSequence = new ReadyForChoiceSequence(this);
-                m_SequenceQueue.Enqueue(readyForChoiceSequence);
-                readyForChoiceSequence.OnQueue();
+                m_SequenceQueue.AddLast(new WaitForChoiceSequence(this, RaiseOnChoicesWaiting));
             } else {
                 EndStorySequence endStorySequence = new EndStorySequence(this);
-                m_SequenceQueue.Enqueue(endStorySequence);
-                endStorySequence.OnQueue();
+                m_SequenceQueue.AddLast(endStorySequence);
             }
+
+            StoryDebug.Log($"New Sequences x{m_SequenceQueue.Count}: \n{m_SequenceQueue.AggregateToString("\n")}\n\n", this);
         }
 
         private DialogLineSequence CreateDialogLine(string text, string section) {
-            return m_CustomDialogLineProvider ? m_CustomDialogLineProvider.CreateDialogLine(this, text, section) : new DialogLineSequence(this, text, section);
+            return m_CustomDialogLineProvider
+                                          ? m_CustomDialogLineProvider.CreateDialogLine(this, text, section)
+                                          : new DialogLineSequence(this, text, section);
         }
 
         private void EnableInterruptChoices() {
-            CurrentChoices.Clear();
-
-            for (int i = 0; i < Story.currentChoices.Count; i++) {
-                Choice choice = Story.currentChoices[i];
-                if (CanInterrupt(choice)) {
-                    CurrentChoices.Add(new StoryChoice(choice, this));
-                }
-            }
-
+            CurrentChoices = AllChoices.Where(c => c.CanInterrupt).ToList();
             RaiseOnChoicesReady();
         }
 
-        public void EnableAllChoices() {
-            CurrentChoices = Story.currentChoices.Select((c, i) => new StoryChoice(c, this)).ToList();
+        private void EnableAllChoices() {
+            CurrentChoices = AllChoices.ToList();
             RaiseOnChoicesReady();
         }
 
-        private static bool CanInterrupt(Choice choice) {
-            return choice.text.EndsWith("!");
-        }
-
-        public static float GetPunctuationPause(string text) {
-            return text.IsNullOrEmpty() ? 0 : GetPunctuationPause(text.Trim().Last());
-        }
-
-        private static float GetPunctuationPause(char c) {
-            // If the last character was a letter, then the break is
-            // a continuous sentence and shouldn't have any pause.
-            if (char.IsLetter(c)) {
-                return 0;
-            }
-
-            // Otherwise, use longer pause for special 'pause' punctuation
-            // or a short pause otherwise.
-            switch (c) {
-                case '.':
-                case '?':
-                case '"':
-                case '\'':
-                case '\\':
-                case '~':
-                case ';':
-                case ':':
-                case ')':
-                case ']':
-                    return 0.8f;
-                case '-':
-                case '/':
-                    return 0;
-                default:
-                    return 0.4f;
-            }
+        public void InterruptSequences() {
+            m_CurrentSequence.Interrupt();
+            m_SequenceQueue.ForEach(s => s.Interrupt());
         }
 
         public bool Choose(string choice) {
@@ -375,11 +366,16 @@ namespace StoryCore {
             return true;
         }
 
-        public bool Choose(int choice) {
-            StoryChoice storyChoice = CurrentChoices.ElementAtOrDefault(choice);
+        public bool Choose(int choiceIndex) {
+            StoryChoice storyChoice = AllChoices.ElementAtOrDefault(choiceIndex);
 
             if (storyChoice == null) {
-                Debug.LogWarning($"Choice #{choice} was not found. Current choices: {CurrentChoices.AggregateToString()}", this);
+                Debug.LogWarning($"Choice #{choiceIndex} was not found. Current choices: {CurrentChoices.AggregateToString()}", this);
+                return false;
+            }
+
+            if (!CurrentChoices.Contains(storyChoice)) {
+                Debug.LogWarning($"Choice #{choiceIndex} was found, but not yet an available choice. Current choices: {CurrentChoices.AggregateToString()}", this);
                 return false;
             }
 
@@ -388,38 +384,41 @@ namespace StoryCore {
         }
 
         public void Choose(StoryChoice choice) {
-            // Clear out any more items in the queue (for interrupt)
-            m_SequenceQueue.Clear();
+            if (!CurrentChoices.Contains(choice)) {
+                Debug.LogWarning($"Tried to select invalid choice: {choice}.");
+                return;
+            }
 
-            // Clear out choices now that we have a choice.
+            // Clear out choices now that we have the next choice.
             CurrentChoices.Clear();
+            AllChoices.Clear();
+            StartChoice(choice);
 
-            if (m_CurrentSequence is ReadyForChoiceSequence) {
+            if (m_CurrentSequence is WaitForChoiceSequence) {
                 // If we are ready to choose, make the choice now.
-                ChooseInternal(choice);
+                CompleteChoice();
             } else {
                 // Otherwise, set the choice's index while we wait for the sequence to finish.
-                m_NextChoice = choice;
-                RaiseOnChoosing(choice);
+                StoryDebug.Log($"Waiting to choose {choice} / Current sequence: {m_CurrentSequence}");
             }
         }
 
-        private void ChooseInternal(StoryChoice choice) {
-            m_NextChoice = null;
-
+        private void StartChoice(StoryChoice choice) {
+            m_NextChoice = choice;
             RaiseOnChoosing(choice);
+        }
+
+        private void CompleteChoice() {
+            StoryChoice choice = m_NextChoice;
+            m_NextChoice = null;
             SubtitleDirector.FadeOut();
-
-            // TODO: Figure out a way for choices to supply their own DelaySequences
-            // so responses to choices wait for any appropriate choice events to finish.
-
-            //Delay.For(1, this).Then(() => {
-            Story.ChooseChoiceIndex(choice.Index);
-            EnableAllChoices();
-            m_CurrentChoice.Value = choice;
-            RaiseOnChosen();
-            GetNextQueue("Choice pause complete.");
-            //});
+            ChoiceManager.GetChoiceDelay(choice).Then(() => {
+                StoryDebug.Log($"Choosing {choice}!");
+                Story.ChooseChoiceIndex(choice.Index);
+                m_CurrentChoice.Value = choice;
+                RaiseOnChosen();
+                GetNextQueue($"Choice {choice} made. (index {choice.Index})");
+            });
         }
 
         public void EndStory() {
@@ -439,9 +438,9 @@ namespace StoryCore {
             }
         }
 
-        public void RaiseOnChoicesReadyAndWaiting() {
+        private void RaiseOnChoicesWaiting() {
             if (CurrentChoices.Count > 0) {
-                OnChoicesReadyAndWaiting?.Invoke();
+                OnChoicesWaiting?.Invoke();
                 StoryDebug.Log($"Current Choices And Waiting: {ChoiceInfo}");
             }
         }
@@ -456,10 +455,6 @@ namespace StoryCore {
 
         private void RaiseOnEnd() {
             OnEnd?.Invoke();
-        }
-
-        public bool IsValidChoice(ChoiceHandler handler) {
-            return ChoiceManager.IsValidChoice(handler);
         }
 
         private string ChoiceInfo {

@@ -16,4 +16,6 @@ MonoBehaviour:
   m_EventDescription: "/logWarning <message>\r\nDisplays <message> in the console
     as a warning.\r"
   m_DebugLog: 0
+  m_AllowChoices: 1
+  m_ID: -346214165
   m_Type: 1

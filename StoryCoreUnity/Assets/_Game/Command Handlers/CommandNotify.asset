@@ -15,8 +15,10 @@ MonoBehaviour:
   m_EventName: 
   m_EventDescription: "/notify title=\"<title>\" [text=\"<text>\"]\r\nPuts up a notification
     box with a title and optional text. Best to have it include a question like \u201CUnderstood?\u201D
-    and have a [yes] choice immediately after so the player can read it at their own
-    speed."
+    and have a [yes] choice immediately after so the player can read it at their
+    own speed."
   m_DebugLog: 0
+  m_AllowChoices: 0
+  m_ID: -1533348924
   m_NotificationPrefab: {fileID: 114174029225380030, guid: 1452b9cf7a8146f41a0f8e2c1ab775b2,
     type: 3}

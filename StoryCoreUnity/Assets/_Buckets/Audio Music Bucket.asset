@@ -17,5 +17,6 @@ MonoBehaviour:
   - {fileID: 102900000, guid: 27fa7c7cf4b13a048a72e85e2e5d95c2, type: 3}
   m_AssetRefs:
   - Name: background-piano
+    Guid: c12115d1e1e1093409f2a54e16569b27
     Asset: {fileID: 8300000, guid: c12115d1e1e1093409f2a54e16569b27, type: 3}
   m_ManualUpdate: 0

@@ -19,8 +19,8 @@ namespace StoryCore.Choices {
         private Camera PlayerCamera => UnityUtils.GetOrSet(ref m_PlayerCamera, () => VRTK_DeviceFinder.HeadsetCamera()?.GetComponent<Camera>());
 
         private Transform Target => m_StoryTeller.AttentionPoint;
-        private bool DistractedChoiceReady => m_DistractedEvent && m_StoryTeller.IsValidChoice(m_DistractedEvent);
-        private bool AttentionChoiceReady => m_AttentionEvent && m_StoryTeller.IsValidChoice(m_AttentionEvent);
+        private bool DistractedChoiceReady => m_DistractedEvent && ChoiceManager.IsValidChoice(m_DistractedEvent);
+        private bool AttentionChoiceReady => m_AttentionEvent && ChoiceManager.IsValidChoice(m_AttentionEvent);
         private bool DistractedDelayComplete => DateTime.Now >= m_LastAttention + TimeSpan.FromSeconds(m_DistractedDelay);
         private bool AttentionDelayComplete => DateTime.Now >= m_LastDistraction + TimeSpan.FromSeconds(m_AttentionDelay);
         private bool CanRaisePayingAttention => IsPayingAttention && m_AttentionEvent && AttentionChoiceReady && AttentionDelayComplete;

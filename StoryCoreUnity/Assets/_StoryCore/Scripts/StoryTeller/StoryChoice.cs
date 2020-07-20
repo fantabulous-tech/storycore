@@ -23,6 +23,8 @@ namespace StoryCore {
         
         public IEnumerable<string> ChoiceParams => GetChoicePieces().Skip(1);
 
+        public bool CanInterrupt => m_InkChoice.text.EndsWith("!");
+
         public bool IsValidChoice(string choiceName) {
             choiceName = choiceName.Replace(" ", "");
 

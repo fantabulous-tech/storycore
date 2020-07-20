@@ -1,10 +1,11 @@
 using System;
 using System.Linq;
+using StoryCore.Locations;
 using DG.Tweening;
 using RogoDigital;
 using RogoDigital.Lipsync;
 using RootMotion.FinalIK;
-using StoryCore.GameVariables;
+using StoryCore.Commands;
 using StoryCore.Utils;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -13,7 +14,7 @@ using UnityEngine.Timeline;
 using VRTK;
 using Object = UnityEngine.Object;
 
-namespace StoryCore.Commands {
+namespace StoryCore.Characters {
     public class Character : BaseCharacter, IPerformAnim, IPerformLipSync, IPerformPlayable, IPerformAudio {
         [SerializeField] private AudioSource m_VoiceSource;
         [SerializeField] private Transform m_SubtitlePoint;
@@ -23,10 +24,10 @@ namespace StoryCore.Commands {
         [SerializeField] private LookAtIK m_LookAtIK;
         [SerializeField] private AnimationClip m_IdleAnim;
         [SerializeField] private Locomotion m_LocomotionController;
-
+ 
         private AnimationMixerPlayable m_ControllerAndClipMixer;
+        private const float kLookAtMaxIntensity = 0.8f;       
         private const float kLookAtTransition = 0.5f;
-
         private const float kLocomotionBlendTime = 0.5f;
 
         private PlayableGraph m_Graph;
@@ -40,6 +41,13 @@ namespace StoryCore.Commands {
         private Transform m_LeftToes;
         private Transform m_RightToes;
 
+        private BaseLocation m_FollowTarget;
+        private float m_FollowDistance;
+        private float m_FollowMaxDistance;
+        private DelaySequence m_FollowSequence;
+
+        private Transform m_LookCommandTarget;
+        
         private Transform Target {
             get {
                 if (m_LookAtIK) {
@@ -82,8 +90,19 @@ namespace StoryCore.Commands {
         private void Update() {
             CheckIdle();
             CheckEmotions();
+            CheckFollowing();
         }
 
+        private void CheckFollowing() {
+            if (m_FollowTarget != null) {
+                if ((transform.position - m_FollowTarget.Position).magnitude > m_FollowMaxDistance) {
+                    if (m_FollowSequence == null || m_FollowSequence.IsDone) {
+                        m_FollowSequence = MoveTo(m_FollowTarget, 2.0f, m_FollowDistance).ThenWaitFor(0.5f);
+                    }
+                }
+            }
+        }
+        
         private void CheckIdle() {
             if (m_IdleAnim != m_LastIdleAnim) {
                 m_LastIdleAnim = m_IdleAnim;
@@ -160,18 +179,47 @@ namespace StoryCore.Commands {
             }
         }
 
-        public override void LookAt(Transform target) {
-            StoryDebug.Log($"{Name} now looking at {target}", this);
+        public override void PauseLookAt() {
+            StoryDebug.Log($"{Name} paused look at", this);
             if (m_LookAtIK != null) {
                 m_LookAtIK.DOKill();
                 Sequence sequence = DOTween.Sequence();
                 sequence.Append(DOTween.To(m_LookAtIK.solver.GetIKPositionWeight, m_LookAtIK.solver.SetIKPositionWeight, 0f, kLookAtTransition));
-                sequence.AppendCallback(() => m_LookAtIK.solver.target = target);
-                sequence.Append(DOTween.To(m_LookAtIK.solver.GetIKPositionWeight, m_LookAtIK.solver.SetIKPositionWeight, 1f, kLookAtTransition));
+                sequence.AppendCallback(() => m_LookAtIK.solver.target = null);
                 sequence.SetTarget(m_LookAtIK);
             }
             if (m_EyeController != null) {
-                m_EyeController.viewTarget = target;
+                m_EyeController.viewTarget = null;
+            }
+        }
+
+        public override void ResumeLookAt() {
+            StoryDebug.Log($"{Name} resumed looking at {m_LookCommandTarget}", this);
+            if (m_LookAtIK != null && m_LookCommandTarget != null) {
+                m_LookAtIK.DOKill();
+                Sequence sequence = DOTween.Sequence();
+                sequence.AppendCallback(() => m_LookAtIK.solver.target = m_LookCommandTarget);
+                sequence.Append(DOTween.To(m_LookAtIK.solver.GetIKPositionWeight, m_LookAtIK.solver.SetIKPositionWeight, kLookAtMaxIntensity, kLookAtTransition));
+                sequence.SetTarget(m_LookAtIK);
+            }
+            if (m_EyeController != null) {
+                m_EyeController.viewTarget = m_LookCommandTarget;
+            }
+        }
+
+        public override void LookAt(Transform target) {
+            StoryDebug.Log($"{Name} now looking at {target}", this);
+            m_LookCommandTarget = target;
+            if (m_LookAtIK != null) {
+                m_LookAtIK.DOKill();
+                Sequence sequence = DOTween.Sequence();
+                sequence.Append(DOTween.To(m_LookAtIK.solver.GetIKPositionWeight, m_LookAtIK.solver.SetIKPositionWeight, 0f, kLookAtTransition));
+                sequence.AppendCallback(() => m_LookAtIK.solver.target = m_LookCommandTarget);
+                sequence.Append(DOTween.To(m_LookAtIK.solver.GetIKPositionWeight, m_LookAtIK.solver.SetIKPositionWeight, kLookAtMaxIntensity, kLookAtTransition));
+                sequence.SetTarget(m_LookAtIK);
+            }
+            if (m_EyeController != null) {
+                m_EyeController.viewTarget = m_LookCommandTarget;
             }
         }
 
@@ -303,6 +351,7 @@ namespace StoryCore.Commands {
             CustomPerformance customPerformance = performance as CustomPerformance;
 
             if (customPerformance != null) {
+                m_FollowTarget = null;
                 return customPerformance.Play(this);
             }
 
@@ -333,6 +382,9 @@ namespace StoryCore.Commands {
                 return DelaySequence.Empty;
             }
 
+            // stop following if you were
+            m_FollowTarget = null;
+                
             // Creates AnimationClipPlayable and connects them to the mixer.
             if (!m_LastAnim.IsValid()) {
                 m_LastAnim = GetClipPlayable(m_Graph, clip);
@@ -392,66 +444,47 @@ namespace StoryCore.Commands {
             return Delay.For(delay, this).Then(() => m_LipSync.Play(lipSyncData)).ThenWaitFor(lipSyncData.length);
         }
 
+        public void StopLipSync() {
+            m_LipSync.Stop(true);
+        }
+
         public DelaySequence PlayPlayable(TimelineAsset playableAsset, float delay = 0) {
             Debug.LogWarning("PlayPlayable not implemented for Characters.");
             return DelaySequence.Empty;
         }
 
+        public override DelaySequence Follow(ScriptCommandInfo command) {
+            
+            string locatorName = command.Params[0];
+            StoryDebug.LogFormat(this, "Character Command: Follow '" + locatorName + "'");
+
+            m_FollowTarget = Buckets.locations.Get(locatorName);
+            m_FollowDistance = 1.0f;
+            m_FollowMaxDistance = 2.0f;
+            
+            return DelaySequence.Empty;
+        }
+
+
         public override DelaySequence MoveTo(ScriptCommandInfo command) {
+            
             // Find the move target, this is a locator name in the scene.
             string moveTargetName = command.Params.GetFirst();
-
             if (moveTargetName.IsNullOrEmpty()) {
                 Debug.LogWarningFormat(this, "No MoveTo target found.");
                 return DelaySequence.Empty;
             }
 
-            int speedParamIndex = 1;
-
-            Vector3 moveToTarget = Vector3.zero;
-            GameVariableVector3 locatorVariable = null;
-
-            // try to parse this first value as a float, in which case expect x,y,z
-            float paramAsFloat;
-
-            if (float.TryParse(moveTargetName, out paramAsFloat)) {
-                if (command.Params.Length < 3) {
-                    Debug.LogWarningFormat(this, "MoveTo unable to parse vector3 for Move Target.");
-                    return DelaySequence.Empty;
-                }
-                moveToTarget.x = paramAsFloat;
-                if (!float.TryParse(command.Params[1], out paramAsFloat)) {
-                    Debug.LogWarningFormat(this, "MoveTo unable to parse vector3 for Move Target.");
-                    return DelaySequence.Empty;
-                }
-                moveToTarget.y = paramAsFloat;
-                if (!float.TryParse(command.Params[2], out paramAsFloat)) {
-                    Debug.LogWarningFormat(this, "MoveTo unable to parse vector3 for Move Target.");
-                    return DelaySequence.Empty;
-                }
-                moveToTarget.z = paramAsFloat;
-                speedParamIndex = 3;
-            } else {
-                // otherwise search the scene for a node of that name to move to
-
-                // Find the performance object.
-                locatorVariable = Buckets.Locators.Items.First(i => i && Equals(i.name, moveTargetName));
-                if (locatorVariable != null) {
-                    moveToTarget = locatorVariable.Value;
-                } else {
-                    Debug.LogWarningFormat(this, $"MoveTo target {moveTargetName} not found.");
-                    return DelaySequence.Empty;
-                }
-                // GameObject targetLocator = GameObject.Find(moveTargetName);
-                // if (targetLocator == null) {
-                // 	Debug.LogWarningFormat(this, $"MoveTo target {moveTargetName} not found.");
-                // 	return DelaySequence.Empty;
-                // }
-                //moveToTarget = targetLocator.transform.position;
+            // Find the location object.
+            BaseLocation baseLocation = Buckets.locations.Get(moveTargetName);
+            if (baseLocation == null) {
+                Debug.LogWarningFormat(this, $"MoveTo target {moveTargetName} not found.");
+                return DelaySequence.Empty;
             }
-
+            
             float moveSpeed = 2.0f;
 
+            int speedParamIndex = 1;
             if (command.Params.Length > speedParamIndex) {
                 string moveSpeedString = command.Params[speedParamIndex];
                 float parsedSpeed;
@@ -461,27 +494,18 @@ namespace StoryCore.Commands {
                 }
                 moveSpeed = parsedSpeed;
             }
-
-            bool turnToTarget = false;
-            if (command.Params.Length > speedParamIndex + 1) {
-                string turnBoolString = command.Params[speedParamIndex + 1];
-                if (turnBoolString.Contains('T') || turnBoolString.Contains('t') || turnBoolString.Contains('1')) {
-                    turnToTarget = true;
-                }
-            }
-
-            return MoveTo(locatorVariable, moveToTarget, moveSpeed, turnToTarget);
+            
+            // stop following if you were
+            m_FollowTarget = null;
+            
+            return MoveTo(baseLocation, moveSpeed, 0.0f);
         }
 
-        public DelaySequence MoveTo(GameVariableVector3 targetVariable, Vector3 targetPosition, float speed, bool turnToTarget) {
+        public DelaySequence MoveTo(BaseLocation targetLocation, float speed, float minDistance) {
             // blend in locomotion control
             BlendAnimControlTo(1.0f, kLocomotionBlendTime);
-
-            if (targetVariable != null) {
-                m_LocomotionController.MoveTo(targetVariable, speed, turnToTarget);
-            } else {
-                m_LocomotionController.MoveTo(targetPosition, speed, turnToTarget);
-            }
+            
+            m_LocomotionController.MoveTo(targetLocation, speed, minDistance);
             return Delay.Until(() => !m_LocomotionController.IsMoving, m_LocomotionController).Then(() => {
                 // blend out locomotion control
                 BlendAnimControlTo(0.0f, kLocomotionBlendTime);

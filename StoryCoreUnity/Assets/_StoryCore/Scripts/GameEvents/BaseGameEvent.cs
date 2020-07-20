@@ -14,7 +14,7 @@ namespace StoryCore.GameEvents {
 
         public string Name => m_EventName.IsNullOrEmpty() ? name : m_EventName;
 
-        protected void Awake() {
+        protected virtual void Awake() {
             TryInit();
         }
 

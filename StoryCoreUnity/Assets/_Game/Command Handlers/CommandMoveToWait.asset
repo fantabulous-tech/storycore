@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e43ff8cc3c843d193016104eeb67cc9, type: 3}
+  m_Name: CommandMoveToWait
+  m_EditorClassIdentifier: 
+  m_EventName: 
+  m_EventDescription: "/moveto-wait <locator>\r [<speed>] [<turn>]\nThis tells the
+    focused character to move to a particular locator at a certain speed in m/s,
+    and a bool to turn to face the destination.\nThis version will wait before continuing
+    the sequence queue."
+  m_DebugLog: 0
+  m_AllowChoices: 1
+  m_ID: 1224820971
+  m_FocusedCharacter: {fileID: 11400000, guid: 7c9ef05b0b934a74d992fe9a0d93c2fd, type: 2}
+  m_WaitForMove: 1

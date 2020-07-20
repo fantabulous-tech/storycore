@@ -5,7 +5,7 @@ using StoryCore.Utils;
 using TMPro;
 using UnityEngine;
 
-namespace StoryCore {
+namespace StoryCore.Characters {
     public class EmotionTester : MonoBehaviour {
         [SerializeField, AutoFillAsset] private EmotionBucket m_EmotionBucket;
         [SerializeField] private TMP_Dropdown m_Dropdown;

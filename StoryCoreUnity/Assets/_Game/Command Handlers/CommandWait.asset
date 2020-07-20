@@ -13,8 +13,12 @@ MonoBehaviour:
   m_Name: CommandWait
   m_EditorClassIdentifier: 
   m_EventName: 
-  m_EventDescription: "/wait [<seconds>]\r\nWaits for a set amount of time before
-    continuing. This is the equivalent of using the [continue] choice. <seconds> determines
-    how long to wait. If not included, /wait will pause for 1 second."
+  m_EventDescription: '/wait [<seconds>]
+
+    Waits for a set amount of time before
+    continuing. This is the equivalent of using the [continue] choice. <seconds>
+    determines how long to wait. If not included, /wait will pause for 1 second.'
   m_DebugLog: 0
+  m_AllowChoices: 1
+  m_ID: 1888869306
   m_DefaultWait: 1

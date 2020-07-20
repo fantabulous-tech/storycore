@@ -340,7 +340,7 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 1
   m_Enabled: 1
-  m_Radius: 0.74
+  m_Radius: 0.59
   m_Height: 2.68
   m_Direction: 1
   m_Center: {x: 0, y: 0.69, z: 0}
@@ -515,7 +515,6 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
-  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []

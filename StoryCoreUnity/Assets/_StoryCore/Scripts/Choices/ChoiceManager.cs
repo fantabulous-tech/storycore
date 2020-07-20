@@ -37,7 +37,7 @@ namespace StoryCore.Choices {
 
         private void SubscribeToStoryTeller() {
             StoryTeller.OnChoicesReady += OnChoicesReady;
-            StoryTeller.OnChoicesReadyAndWaiting += OnChoicesReadyAndWaiting;
+            StoryTeller.OnChoicesWaiting += OnChoicesWaiting;
             StoryTeller.OnChoosing += OnChoosing;
             StoryTeller.OnChosen += OnChosen;
         }
@@ -48,7 +48,7 @@ namespace StoryCore.Choices {
             }
 
             StoryTeller.OnChoicesReady -= OnChoicesReady;
-            StoryTeller.OnChoicesReadyAndWaiting -= OnChoicesReadyAndWaiting;
+            StoryTeller.OnChoicesWaiting -= OnChoicesWaiting;
             StoryTeller.OnChoosing -= OnChoosing;
             StoryTeller.OnChosen -= OnChosen;
         }
@@ -99,23 +99,35 @@ namespace StoryCore.Choices {
             return Bindings.FirstOrDefault(b => storyChoice.IsValidChoice(b.ChoiceKey))?.ChoiceHandler;
         }
 
-        private void OnChoicesReadyAndWaiting() {
+        private void OnChoicesWaiting() {
             // This assumes 'Ready' comes before 'ReadyAndWaiting' and has the same choices.
-            m_CurrentChoiceHandlers.ForEach(kvp => kvp.Value.ReadyAndWaiting(kvp.Key));
+            
+            // Create separate list in case current handlers gets cleared out.
+            ChoiceHandler[] handlers = m_CurrentChoiceHandlers.Values.ToArray();
+            
+            handlers.ForEach(h => h.ReadyAndWaiting());
         }
 
         private void OnChoiceEvaluating(ChoiceHandler handler) {
             m_CurrentChoiceHandlers.Values.ForEach(h => h.PauseIf(h != handler));
+            if (handler.InterruptsOnEvaluation) {
+                m_StoryTeller.InterruptSequences();
+            }
         }
 
         private void OnChoiceEvaluationFailed(ChoiceHandler handler) {
-            m_CurrentChoiceHandlers.Values.ForEach(h => h.Resume());
+            // handler.Resume() can clear out the current choice handlers, so we are setting aside an array that won't change.
+            ChoiceHandler[] handlers = m_CurrentChoiceHandlers.Values.ToArray();
+            handlers.ForEach(h => h.Resume());
         }
 
         private void OnChoosing(StoryChoice storyChoice) {
             foreach (KeyValuePair<StoryChoice, ChoiceHandler> kvp in m_CurrentChoiceHandlers) {
                 if (kvp.Key != storyChoice) {
-                    kvp.Value.Cancel();
+                    kvp.Value.Cancel(storyChoice);
+                } else if (kvp.Value.InterruptsOnChosen) {
+                    // If the chosen ChoiceHandler interrupts running sequences when chosen, then interrupt sequences.
+                    m_StoryTeller.InterruptSequences();
                 }
             }
         }
@@ -127,6 +139,15 @@ namespace StoryCore.Choices {
 
         public static bool IsValidChoice(ChoiceHandler handler) {
             return Instance.m_CurrentChoiceHandlers.Values.Contains(handler);
+        }
+
+        public static DelaySequence GetChoiceDelay(StoryChoice choice) {
+            if (Instance.m_CurrentChoiceHandlers.TryGetValue(choice, out ChoiceHandler handler)) {
+                return handler.ChoiceDelay;
+            }
+
+            Debug.LogWarning($"Couldn't find current handler for {choice}", Instance);
+            return DelaySequence.Empty;
         }
     }
 }

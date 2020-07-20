@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BucketName: Characters
   m_Sources:
-  - {fileID: 102900000, guid: 6400168e8dadd4c42a828da189927494, type: 3}
+  - {fileID: 102900000, guid: ec18ee5fd64d86b4ab1d3dbc577540eb, type: 3}
   m_AssetRefs:
   - Name: kelly
+    Guid: 5b7b45bd78e9381429e52a7925296355
     Asset: {fileID: -4933310684350686666, guid: 5b7b45bd78e9381429e52a7925296355,
       type: 3}
   m_ManualUpdate: 0

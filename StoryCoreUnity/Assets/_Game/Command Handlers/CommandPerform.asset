@@ -17,4 +17,6 @@ MonoBehaviour:
     to perform an animation. This can also sometimes include sounds, such as performances
     of the \u2018crowd\u2019 character in the Headmistress\u2019 auditorium.\r"
   m_DebugLog: 0
+  m_AllowChoices: 1
+  m_ID: 1204072202
   m_FocusedCharacter: {fileID: 11400000, guid: 7c9ef05b0b934a74d992fe9a0d93c2fd, type: 2}

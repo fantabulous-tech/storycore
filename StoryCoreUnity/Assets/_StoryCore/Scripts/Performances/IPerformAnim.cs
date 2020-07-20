@@ -10,6 +10,7 @@ namespace StoryCore {
 
     public interface IPerformLipSync {
         DelaySequence PlayLipSync(LipSyncData lipSyncData, float delay = 0);
+        void StopLipSync();
     }
 
     public interface IPerformPlayable {

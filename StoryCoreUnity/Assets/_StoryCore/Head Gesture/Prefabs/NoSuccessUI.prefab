@@ -349,7 +349,7 @@ GameObject:
   - component: {fileID: -1493027900534337432}
   - component: {fileID: -3361292738423555668}
   m_Layer: 5
-  m_Name: NoUI
+  m_Name: NoSuccessUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -14,22 +14,25 @@ namespace StoryCore.AssetBuckets {
         public event Action<T> Removed;
 
         public void Add(T instance) {
-            Instances[instance.name] = instance;
+            string assetName = GetName(instance);
+            Instances[assetName] = instance;
             PrefabInstanceTracker tracker = UnityUtils.GetGameObject(instance).GetOrAddComponent<PrefabInstanceTracker>();
+            tracker.Name = assetName;
             tracker.Destroyed += OnInstanceDestroyed;
             Added?.Invoke(instance);
         }
 
-        private void OnInstanceDestroyed(GameObject obj) {
-            Remove(obj.name);
+        private void OnInstanceDestroyed(string assetName) {
+            Remove(assetName);
         }
 
         public void Remove(T instance) {
-            if (!instance || !Instances.ContainsKey(instance.name)) {
+            string assetName = GetName(instance);
+            if (!instance || !Instances.ContainsKey(assetName)) {
                 return;
             }
 
-            m_Instances.Remove(instance.name);
+            m_Instances.Remove(assetName);
             Removed?.Invoke(instance);
         }
 

@@ -3,10 +3,17 @@ using UnityEngine;
 
 namespace StoryCore.AssetBuckets {
     public class PrefabInstanceTracker : MonoBehaviour {
-        public event Action<GameObject> Destroyed;
+        private string m_Name;
+        
+        public string Name {
+            get => m_Name ?? name;
+            set => m_Name = value;
+        }
+
+        public event Action<string> Destroyed;
 
         private void OnDestroy() {
-            Destroyed?.Invoke(gameObject);
+            Destroyed?.Invoke(m_Name);
         }
     }
 }

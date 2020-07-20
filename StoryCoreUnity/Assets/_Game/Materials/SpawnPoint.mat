@@ -8,22 +8,26 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: SpawnPoint
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: _ALPHAPREMULTIPLY_ON _EMISSION _MK_EMISSION_DEFAULT _MK_LIGHTMODEL_LAMBERT
-    _MK_LIGHTTYPE_CEL_SHADE_SIMPLE _MODE_OPAQUE _SOFTENLIGHTING_ON
-  m_LightmapFlags: 1
+  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
+  m_ShaderKeywords: _EMISSION
+  m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: 3050
   stringTagMap:
     IGNOREPROJECTOR: False
     QUEUE: Geometry
     RenderType: Transparent
-  disabledShaderPasses: []
+  disabledShaderPasses:
+  - SHADOWCASTER
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _AnisoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BaseMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -129,8 +133,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlbedoMap: 0
+    - _AlphaClip: 0
     - _AngularVelocity: 0
     - _AnisoOffset: -0.2
+    - _Blend: 0
     - _Blend0: 1
     - _Blend1: 0
     - _Brightness: 1
@@ -138,6 +144,7 @@ Material:
     - _BumpScale: 1
     - _CameraLightIntensity: 0.11
     - _Contrast: 1
+    - _Cull: 2
     - _CullMode: 2
     - _Cutoff: 0.5
     - _Darken: 0
@@ -147,6 +154,7 @@ Material:
     - _DissolveAmount: 0.5
     - _DissolveRampSize: 0.25
     - _DstBlend: 10
+    - _EnvironmentReflections: 1
     - _FeatherSize: 0.1
     - _GlossMapScale: 1
     - _Glossiness: 0.585
@@ -176,6 +184,8 @@ Material:
     - _OutlineMode: 0
     - _OutlineSize: 0.02
     - _Parallax: 0.02
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
     - _ReflectIntensity: 0.5
     - _ReflectSmoothness: 0
     - _RimIntensity: 0.5
@@ -199,14 +209,15 @@ Material:
     - _SketchToneMin: 0.5
     - _SkinRimShadePower: 2
     - _SkinRimShadeScale: 1
-    - _Smoothness: 0.629
+    - _Smoothness: 0.585
     - _SmoothnessTextureChannel: 0
     - _SoftenIndirectLighting: 0
     - _SoftenLighting: 1
     - _SpecularHighlights: 1
     - _SpecularIntensity: 0.5
     - _Specularity: 0.088
-    - _SrcBlend: 1
+    - _SrcBlend: 5
+    - _Surface: 1
     - _Thickness: 1
     - _TranslucentIntensity: 0.5
     - _TranslucentShininess: 0.275
@@ -220,16 +231,18 @@ Material:
     - _UseSketch: 0
     - _UseTranslucent: 0
     - _WireThickness: 100
+    - _WorkflowMode: 1
     - _ZWrite: 0
     - __dirty: 1
     - _outline_tint: 0.5
     - _outline_width: 0.2
     m_Colors:
+    - _BaseColor: {r: 0.24528283, g: 0.24528283, b: 0.24528283, a: 0.15686275}
     - _CameraLightPSB: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 0.24528295, g: 0.24528295, b: 0.24528295, a: 0.14117648}
     - _DetailColor: {r: 1, g: 1, b: 1, a: 1}
     - _DissolveColor: {r: 1, g: 1, b: 1, a: 0.5}
-    - _EmissionColor: {r: 0.2131752, g: 0.22984688, b: 0.32987696, a: 1}
+    - _EmissionColor: {r: 0.9882353, g: 1.0745099, b: 1.4901961, a: 1}
     - _HighlightColor: {r: 1, g: 1, b: 1, a: 1}
     - _LineColor: {r: 0.5294118, g: 0.5294118, b: 0.5294118, a: 0}
     - _MainColor: {r: 0.39215687, g: 0.39215687, b: 0.39215687, a: 1}
@@ -245,3 +258,16 @@ Material:
     - _TintColor: {r: 0.35590956, g: 0.4234336, b: 0.5849056, a: 0.23137255}
     - _TranslucentColor: {r: 1, g: 1, b: 1, a: 0.5}
     - _outline_color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+--- !u!114 &8449681089978757553
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 1

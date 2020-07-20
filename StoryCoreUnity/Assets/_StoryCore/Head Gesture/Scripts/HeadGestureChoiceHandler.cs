@@ -17,7 +17,7 @@ namespace StoryCore.HeadGesture {
 
         [SerializeField] private GameVariableBool m_ShowFeedback;
         [SerializeField] private DirectionEdge m_DirectionEdgePrefab;
-        [SerializeField] private RectTransform m_OnSuccessUIPrefab;
+        [SerializeField] private GameObject m_OnSuccessUIPrefab;
 
         [Tooltip("Where to put the feedback UI.")]
         [SerializeField] private Vector3 m_Offset = Vector3.forward;
@@ -94,8 +94,8 @@ namespace StoryCore.HeadGesture {
             EdgeContainer.SetActive(true);
         }
 
-        public override void Cancel() {
-            base.Cancel();
+        protected override void CancelInternal(StoryChoice choice) {
+            base.CancelInternal(choice);
             ResetNod();
             EdgeContainer.SetActive(false);
         }
