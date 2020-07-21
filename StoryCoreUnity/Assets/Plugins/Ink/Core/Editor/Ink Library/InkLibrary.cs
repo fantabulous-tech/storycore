@@ -172,6 +172,28 @@ namespace Ink.UnityIntegration {
             }
         }
 
+        private static bool Different(List<InkFile> l1, List<InkFile> l2) {
+            if (l1 == null && l2 == null) {
+                return true;
+            }
+
+            if (l1 == null || l2 == null) {
+                return false;
+            }
+
+            if (l1.Count != l2.Count) {
+                return false;
+            }
+
+            for (int i = 0; i < l1.Count; i++) {
+                if (l1[i].inkAsset != l2[i].inkAsset) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public static string GetGuid(Object obj) {
             return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(obj));
         }
@@ -216,9 +238,9 @@ namespace Ink.UnityIntegration {
 				newInkLibrary.Add(inkFile);
 			}
 
-            // if (inkLibraryChanged) {
+            if (inkLibraryChanged || Different(newInkLibrary, Instance.inkLibrary)) {
                 Instance.inkLibrary = newInkLibrary.OrderBy(i => GetGuid(i.inkAsset)).ToList();
-            // }
+            }
 
             CreateDictionary();
 
