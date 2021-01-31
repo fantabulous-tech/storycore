@@ -219,9 +219,11 @@ namespace RootMotion.FinalIK {
                         bendNormal = Vector3.Slerp(rootRotation * bendNormalRelToPelvis, rotation * bendNormalRelToTarget, bendToTargetWeight);
                     }
                 }
+
+                bendNormal = bendNormal.normalized;
 			}
 
-			public override void ApplyOffsets() {
+			public override void ApplyOffsets(float scale) {
 				ApplyPositionOffset(footPositionOffset, 1f);
 				ApplyRotationOffset(footRotationOffset, 1f);
 
@@ -234,7 +236,7 @@ namespace RootMotion.FinalIK {
 				float bAngle = 0f;
 
 				if (bendGoal != null && bendGoalWeight > 0f) {
-					Vector3 b = Vector3.Cross(bendGoal.position - thigh.solverPosition, position - thigh.solverPosition);
+                    Vector3 b = Vector3.Cross(bendGoal.position - thigh.solverPosition, position - thigh.solverPosition);
 					Quaternion l = Quaternion.LookRotation(bendNormal, thigh.solverPosition - foot.solverPosition);
 					Vector3 bRelative = Quaternion.Inverse(l) * b;
 					bAngle = Mathf.Atan2(bRelative.x, bRelative.z) * Mathf.Rad2Deg * bendGoalWeight;
@@ -287,7 +289,7 @@ namespace RootMotion.FinalIK {
                     return;
                 }
 				
-				Vector3 b = Vector3.Cross(foot.solverPosition - thigh.solverPosition, toes.solverPosition - foot.solverPosition);
+				Vector3 b = Vector3.Cross(foot.solverPosition - thigh.solverPosition, toes.solverPosition - foot.solverPosition).normalized;
 
 				VirtualBone.SolveTrigonometric(bones, 0, 2, 3, position, b, 1f);
 

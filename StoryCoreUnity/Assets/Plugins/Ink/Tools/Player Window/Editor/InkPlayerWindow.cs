@@ -739,7 +739,7 @@ namespace Ink.UnityIntegration {
                 }
             }
 
-			PingAutomator();
+            EditorApplication.delayCall += PingAutomator;
         }
 
 		static void PingAutomator () {

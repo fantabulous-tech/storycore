@@ -101,7 +101,7 @@ public class BakeBlendshapesTool : EditorWindow {
 		return deltas;
 	}
 
-	[MenuItem("Window/Rogo Digital/LipSync Pro/Create Mesh with Blend Shapes")]
+	[MenuItem("Window/Rogo Digital/LipSync Pro/Create Mesh with Blend Shapes", priority = 1012)]
 	public static void ShowWindow () {
 		BakeBlendshapesTool window = EditorWindow.GetWindow<BakeBlendshapesTool>(true);
 

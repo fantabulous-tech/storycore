@@ -1,4 +1,4 @@
-using StoryCore.Commands;
+using CoreUtils;
 using StoryCore.Utils;
 using UnityEngine;
 using VRSubtitles;
@@ -6,10 +6,6 @@ using Object = UnityEngine.Object;
 
 namespace StoryCore {
     public class DialogLineSequence : ISequence {
-
-        public delegate void DialogLineEventHandler(string character, string line);
-        public static event DialogLineEventHandler onDialogLine;  
-        public static event DialogLineEventHandler onDialogLineComplete;  
         
         protected readonly StoryTeller m_StoryTeller;
         protected string m_Text;
@@ -52,9 +48,7 @@ namespace StoryCore {
                     duration: DisplayChoicePrompt ? float.MaxValue : duration
                 );
             }
-            
-            onDialogLine?.Invoke( m_StoryTeller.FocusedCharacter == null ? "Dispatch" : m_StoryTeller.FocusedCharacter.Name, m_Text );
-            
+
             m_Delay = Delay.For(duration, m_StoryTeller).Then(OnComplete);
         }
 
@@ -70,7 +64,6 @@ namespace StoryCore {
 
         protected virtual void OnComplete() {
             // Log("Subtitles completed: '" + m_Text + "'");
-            onDialogLineComplete?.Invoke(m_StoryTeller.FocusedCharacter.Name, m_Text);
             IsComplete = true;
         }
 

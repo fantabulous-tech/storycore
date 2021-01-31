@@ -118,8 +118,8 @@ namespace RootMotion.FinalIK {
 				rootRotationWeight = Mathf.Clamp(rootRotationWeight, 0f, 1f);
 				rootRotationSpeed = Mathf.Clamp(rootRotationSpeed, 0f, rootRotationSpeed);
 
-				// Root rotation
-				if (characterRoot != null && rootRotationSpeed > 0f && rootRotationWeight > 0f) {
+                // Root rotation
+				if (characterRoot != null && rootRotationSpeed > 0f && rootRotationWeight > 0f && solver.isGrounded) {
 					Vector3 normal = solver.GetLegsPlaneNormal();
                     
 					// Root rotation weight

@@ -132,9 +132,9 @@ namespace RootMotion.FinalIK {
 			}
 		}
 		
-		[SerializeField][HideInInspector] public LimitPoint[] points;
-		[SerializeField][HideInInspector] public Vector3[] P;
-		[SerializeField][HideInInspector] public ReachCone[] reachCones = new ReachCone[0];
+		[HideInInspector] public LimitPoint[] points;
+		[HideInInspector] public Vector3[] P;
+		[HideInInspector] public ReachCone[] reachCones = new ReachCone[0];
 		
 		void Start() {
 			if (points.Length < 3) ResetToDefault();

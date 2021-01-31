@@ -66,6 +66,12 @@ namespace RootMotion.FinalIK {
 		/// </summary>
 		public float slerpSpeed = 3f;
 
+        [Tooltip("Smoothing time for turning towards the yaw and pitch of the target using Mathf.SmoothDampAngle. Value of 0 means smooth damping is disabled." )]
+        /// <summary>
+		/// Smoothing time for turning towards the yaw and pitch of the target using Mathf.SmoothDampAngle. Value of 0 means smooth damping is disabled.
+		/// </summary>
+        public float smoothDampTime = 0f;
+
 		[Tooltip("The position of the pivot that the aim target is rotated around relative to the root of the character.")]
 		/// <summary>
 		/// The position of the pivot that the aim target is rotated around relative to the root of the character.
@@ -154,12 +160,13 @@ namespace RootMotion.FinalIK {
 				lastTarget = target;
 			}
 
-			// Smooth weight
-			ik.solver.IKPositionWeight = Mathf.SmoothDamp(ik.solver.IKPositionWeight, (target != null? weight: 0f), ref weightV, weightSmoothTime);
-			if (ik.solver.IKPositionWeight >= 0.999f) ik.solver.IKPositionWeight = 1f;
-			if (ik.solver.IKPositionWeight <= 0.001f) ik.solver.IKPositionWeight = 0f;
+            // Smooth weight
+            float targetWeight = target != null ? weight : 0f;
+            ik.solver.IKPositionWeight = Mathf.SmoothDamp(ik.solver.IKPositionWeight, targetWeight, ref weightV, weightSmoothTime);
+            if (ik.solver.IKPositionWeight >= 0.999f && targetWeight > ik.solver.IKPositionWeight) ik.solver.IKPositionWeight = 1f;
+            if (ik.solver.IKPositionWeight <= 0.001f && targetWeight < ik.solver.IKPositionWeight) ik.solver.IKPositionWeight = 0f;
 
-			if (ik.solver.IKPositionWeight <= 0f) return;
+            if (ik.solver.IKPositionWeight <= 0f) return;
 
 			// Smooth target switching
 			switchWeight = Mathf.SmoothDamp(switchWeight, 1f, ref switchWeightV, targetSwitchSmoothTime);
@@ -177,9 +184,30 @@ namespace RootMotion.FinalIK {
 
 			if (smoothTurnTowardsTarget) {
 				Vector3 targetDir = ik.solver.IKPosition - pivot;
-				dir = Vector3.Slerp(dir, targetDir, Time.deltaTime * slerpSpeed);
-				dir = Vector3.RotateTowards(dir, targetDir, Time.deltaTime * maxRadiansDelta, maxMagnitudeDelta);
-				ik.solver.IKPosition = pivot + dir;
+
+                // Slerp
+				if (slerpSpeed > 0f) dir = Vector3.Slerp(dir, targetDir, Time.deltaTime * slerpSpeed);
+
+                // RotateTowards
+				if (maxRadiansDelta > 0 || maxMagnitudeDelta > 0f) dir = Vector3.RotateTowards(dir, targetDir, Time.deltaTime * maxRadiansDelta, maxMagnitudeDelta);
+
+                // SmoothDamp
+                if (smoothDampTime > 0f)
+                {
+                    float yaw = V3Tools.GetYaw(dir);
+                    float targetYaw = V3Tools.GetYaw(targetDir);
+                    float y = Mathf.SmoothDampAngle(yaw, targetYaw, ref yawV, smoothDampTime);
+
+                    float pitch = V3Tools.GetPitch(dir);
+                    float targetPitch = V3Tools.GetPitch(targetDir);
+                    float p = Mathf.SmoothDampAngle(pitch, targetPitch, ref pitchV, smoothDampTime);
+
+                    float dirMag = Mathf.SmoothDamp(dir.magnitude, targetDir.magnitude, ref dirMagV, smoothDampTime);
+
+                    dir = Quaternion.Euler(p, y, 0f) * Vector3.forward * dirMag;
+                }
+
+                ik.solver.IKPosition = pivot + dir;
 			}
 
 			// Min distance from the pivot
@@ -193,6 +221,8 @@ namespace RootMotion.FinalIK {
 				ik.solver.axis = ik.solver.transform.InverseTransformVector(ik.transform.rotation * animatedAimDirection);
 			}
 		}
+
+        private float yawV, pitchV, dirMagV;
 
 		// Pivot of rotating the aiming direction.
 		private Vector3 pivot {

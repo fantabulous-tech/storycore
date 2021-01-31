@@ -137,14 +137,22 @@ namespace RootMotion.FinalIK {
 			for (int i = 0; i < eyes.Length; i++) eyes[i].StoreDefaultLocalState();
 			if (head != null && head.transform != null) head.StoreDefaultLocalState();
 		}
-		
-		public override void FixTransforms() {
+
+        // Flag for Fix Transforms.
+        public void SetDirty()
+        {
+            isDirty = true;
+        }
+
+        public override void FixTransforms() {
 			if (!initiated) return;
-			if (IKPositionWeight <= 0f) return;
+			if (IKPositionWeight <= 0f && !isDirty) return;
 
 			for (int i = 0; i < spine.Length; i++) spine[i].FixTransform();
 			for (int i = 0; i < eyes.Length; i++) eyes[i].FixTransform();
 			if (head != null && head.transform != null) head.FixTransform();
+
+            isDirty = false;
 		}
 		
 		public override bool IsValid (ref string message) {
@@ -275,8 +283,9 @@ namespace RootMotion.FinalIK {
 		protected Vector3[] spineForwards = new Vector3[0];
         protected Vector3[] headForwards = new Vector3[1];
         protected Vector3[] eyeForward = new Vector3[1];
-		
-		protected override void OnInitiate() {
+        private bool isDirty;
+
+        protected override void OnInitiate() {
 			// Set IKPosition to default value
 			if (firstInitiation || !Application.isPlaying) {
 				if (spine.Length > 0) IKPosition = spine[spine.Length - 1].transform.position + root.forward * 3f;

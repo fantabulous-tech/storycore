@@ -1,11 +1,13 @@
 using System.Linq;
-using StoryCore.AssetBuckets;
+using CoreUtils;
+using CoreUtils.AssetBuckets;
+using StoryCore.Characters;
 using StoryCore.Commands;
 using StoryCore.Utils;
 using TMPro;
 using UnityEngine;
 
-namespace StoryCore.Characters {
+namespace StoryCore {
     public class EmotionTester : MonoBehaviour {
         [SerializeField, AutoFillAsset] private EmotionBucket m_EmotionBucket;
         [SerializeField] private TMP_Dropdown m_Dropdown;

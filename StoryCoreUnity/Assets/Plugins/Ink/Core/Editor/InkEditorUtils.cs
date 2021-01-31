@@ -55,8 +55,8 @@ namespace Ink.UnityIntegration {
 		}
 
 		static void OnOpenUnityEditor () {
-			InkLibrary.Rebuild();
-		}
+            EditorApplication.delayCall += InkLibrary.Rebuild;
+        }
 
 		[MenuItem("Assets/Rebuild Ink Library", false, 60)]
 		public static void RebuildLibrary() {
@@ -71,6 +71,14 @@ namespace Ink.UnityIntegration {
 				"No valid ink found. Note that only files with 'Compile Automatic' checked are compiled if not set to compile all files automatically in InkSettings file.";
 			Debug.Log(logString);
 		}
+        
+        public static void RecompileAllImmediately() {
+            InkCompiler.CompileInk(InkLibrary.FilesCompiledByRecompileAll().ToArray(), true, null);
+            string logString = InkLibrary.FilesCompiledByRecompileAll().Any() ? 
+                                   "Recompile All will compile "+string.Join(", ", InkLibrary.FilesCompiledByRecompileAll().Select(x => Path.GetFileName(x.filePath)).ToArray()) :
+                                   "No valid ink found. Note that only files with 'Compile Automatic' checked are compiled if not set to compile all files automatically in InkSettings file.";
+            Debug.Log(logString);
+        }
 
 
 		[MenuItem("Assets/Create/Ink Script", false, 120)]
@@ -289,7 +297,7 @@ namespace Ink.UnityIntegration {
 
 		static T FindAndEnforceSingletonScriptableObjectOfType<T> () where T : ScriptableObject {
 			string typeName = typeof(T).Name;
-			string[] GUIDs = AssetDatabase.FindAssets("t:"+typeName);
+            string[] GUIDs = AssetDatabase.FindAssets("t:"+typeName);
 			if(GUIDs.Length > 0) {
 				string path = AssetDatabase.GUIDToAssetPath(GUIDs[0]);
 				if(GUIDs.Length > 1) {

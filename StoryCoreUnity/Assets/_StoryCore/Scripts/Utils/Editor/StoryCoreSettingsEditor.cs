@@ -1,3 +1,4 @@
+using CoreUtils.Editor;
 using JetBrains.Annotations;
 using StoryCore.Utils;
 using UnityEditor;
@@ -15,6 +16,7 @@ namespace StoryCore.Editor {
             }
 
             Target.Manager = Target.Manager ? Target.Manager : FindObjectOfType<VRTK_SDKManager>();
+            Target.StoryTeller = Target.StoryTeller ? Target.StoryTeller : FindObjectOfType<StoryTeller>();
             m_ManagerProperty = serializedObject.FindProperty("m_Manager");
         }
 
@@ -35,7 +37,7 @@ namespace StoryCore.Editor {
 
         private static void OnSettingsGUI() {
             EditorGUILayout.HelpBox("NOTE: These settings only apply at editor time.", MessageType.Info);
-            StoryCoreSettings.UseDebugInInk = EditorGUILayout.Toggle("Set 'isDebug' in Ink", StoryCoreSettings.UseDebugInInk);
+            StoryCoreSettings.UseDebugInInk = EditorGUILayout.Toggle("Set 'debug' in Ink", StoryCoreSettings.UseDebugInInk);
             StoryCoreSettings.ForceSimulationMode = EditorGUILayout.Toggle("Force VR Simulator Mode", StoryCoreSettings.ForceSimulationMode);
             StoryCoreSettings.EnableLogging = EditorGUILayout.Toggle("Enable StoryDebug.Log()", StoryCoreSettings.EnableLogging);
         }

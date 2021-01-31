@@ -1,4 +1,4 @@
-using StoryCore.Utils;
+using CoreUtils.Editor;
 using UnityEditor;
 using UnityEngine;
 

@@ -320,21 +320,23 @@ namespace RootMotion.FinalIK {
                 pelvisRotation = QuaTools.Lerp(pelvis.solverRotation, IKRotationPelvis, rotationWeight);
             }
 
-			public override void ApplyOffsets() {
+			public override void ApplyOffsets(float scale) {
 				headPosition += headPositionOffset;
+
+                float mHH = minHeadHeight * scale;
 
 				Vector3 rootUp = rootRotation * Vector3.up;
 				if (rootUp == Vector3.up) {
-					headPosition.y = Math.Max(rootPosition.y + minHeadHeight, headPosition.y);
+					headPosition.y = Math.Max(rootPosition.y + mHH, headPosition.y);
 				} else {
 					Vector3 toHead = headPosition - rootPosition;
 					Vector3 hor = V3Tools.ExtractHorizontal(toHead, rootUp, 1f);
 					Vector3 ver = toHead - hor;
 					float dot = Vector3.Dot(ver, rootUp);
 					if (dot > 0f) {
-						if (ver.magnitude < minHeadHeight) ver = ver.normalized * minHeadHeight;
+						if (ver.magnitude < mHH) ver = ver.normalized * mHH;
 					} else {
-						ver = -ver.normalized * minHeadHeight;
+						ver = -ver.normalized * mHH;
 					}
 
 					headPosition = rootPosition + hor + ver;
@@ -359,7 +361,7 @@ namespace RootMotion.FinalIK {
 				faceDirection = Vector3.Cross(anchorRotation * Vector3.right, rootBone.readRotation * Vector3.up) + anchorRotation * Vector3.forward;
 			}
 
-			public void Solve(VirtualBone rootBone, Leg[] legs, Arm[] arms) {
+			public void Solve(VirtualBone rootBone, Leg[] legs, Arm[] arms, float scale) {
                 CalculateChestTargetRotation(rootBone, arms);
 
                 // Root rotation
@@ -389,7 +391,7 @@ namespace RootMotion.FinalIK {
 				Vector3 rootUp = rootBone.solverRotation * Vector3.up;
 
                 // Translate pelvis to make the head's position & rotation match with the head target
-                TranslatePelvis(legs, headDeltaPosition, pelvisDeltaRotation);
+                TranslatePelvis(legs, headDeltaPosition, pelvisDeltaRotation, scale);
                 
                 FABRIKPass(animatedPelvisPos, rootUp, positionWeight);
                 
@@ -421,9 +423,42 @@ namespace RootMotion.FinalIK {
 				VirtualBone.SolveFABRIK(bones, startPos, endPos, weight, 1f, 1, dist, startOffset);
 			}
 
-			private void SolvePelvis() {
-				// Pelvis target
-				if (pelvisPositionWeight > 0f) {
+            private void SolvePelvis() {
+                // Pelvis target
+                if (pelvisPositionWeight > 0f)
+                {
+                    Quaternion headSolverRotation = head.solverRotation;
+
+                    Vector3 delta = ((IKPositionPelvis + pelvisPositionOffset) - pelvis.solverPosition) * pelvisPositionWeight;
+                    foreach (VirtualBone bone in bones) bone.solverPosition += delta;
+
+                    Vector3 bendNormal = anchorRotation * Vector3.right;
+
+                    if (hasChest && hasNeck)
+                    {
+                        VirtualBone.SolveTrigonometric(bones, spineIndex, chestIndex, headIndex, headPosition, bendNormal, pelvisPositionWeight * 0.9f);
+                        VirtualBone.SolveTrigonometric(bones, chestIndex, neckIndex, headIndex, headPosition, bendNormal, pelvisPositionWeight);
+
+                    }
+                    else if (hasChest && !hasNeck)
+                    {
+                        VirtualBone.SolveTrigonometric(bones, spineIndex, chestIndex, headIndex, headPosition, bendNormal, pelvisPositionWeight);
+                    }
+                    else if (!hasChest && hasNeck)
+                    {
+                        VirtualBone.SolveTrigonometric(bones, spineIndex, neckIndex, headIndex, headPosition, bendNormal, pelvisPositionWeight);
+                    }
+                    else if (!hasNeck && !hasChest)
+                    {
+                        VirtualBone.SolveTrigonometric(bones, pelvisIndex, spineIndex, headIndex, headPosition, bendNormal, pelvisPositionWeight);
+                    }
+
+                    head.solverRotation = headSolverRotation;
+                }
+
+                /* FIK v 1.9 - pelvis rotation to pelvis target was not working right
+                // Pelvis target
+                if (pelvisPositionWeight > 0f) {
 					Quaternion headSolverRotation = head.solverRotation;
 					
 					Vector3 delta = ((IKPositionPelvis + pelvisPositionOffset) - pelvis.solverPosition) * pelvisPositionWeight;
@@ -448,6 +483,7 @@ namespace RootMotion.FinalIK {
 					
 					head.solverRotation = headSolverRotation;
 				}
+                */
 			}
 
 			public override void Write(ref Vector3[] solvedPositions, ref Quaternion[] solvedRotations) {
@@ -518,7 +554,7 @@ namespace RootMotion.FinalIK {
 			}
 
 			// Move and rotate the pelvis
-			private void TranslatePelvis(Leg[] legs, Vector3 deltaPosition, Quaternion deltaRotation) {
+			private void TranslatePelvis(Leg[] legs, Vector3 deltaPosition, Quaternion deltaRotation, float scale) {
 				// Rotation
 				Vector3 p = head.solverPosition;
 
@@ -533,7 +569,8 @@ namespace RootMotion.FinalIK {
 				// Position
 				// Move the body back when head is moving down
 				Vector3 m = rootRotation * Vector3.forward;
-				float deltaY = V3Tools.ExtractVertical(deltaPosition, rootRotation * Vector3.up, 1f).magnitude;
+                float deltaY = V3Tools.ExtractVertical(deltaPosition, rootRotation * Vector3.up, 1f).magnitude;
+                if (scale > 0f) deltaY /= scale;
 				float backOffset = deltaY * -moveBodyBackWhenCrouching * headHeight;
 				deltaPosition += m * backOffset;
 

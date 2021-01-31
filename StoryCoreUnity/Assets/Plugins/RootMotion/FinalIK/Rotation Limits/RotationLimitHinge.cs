@@ -55,15 +55,13 @@ namespace RootMotion.FinalIK {
 		 * Limits the rotation in the local space of this instance's Transform.
 		 * */
 		protected override Quaternion LimitRotation(Quaternion rotation) {
-			lastRotation = LimitHinge(rotation);
-			return lastRotation;
+			return LimitHinge(rotation);
 		}
 
 		[HideInInspector] public float zeroAxisDisplayOffset; // Angular offset of the scene view display of the Hinge rotation limit
 		
-		private Quaternion lastRotation = Quaternion.identity;
 		private float lastAngle;
-		
+        
 		/*
 		 * Apply the hinge rotation limit
 		 * */
@@ -73,21 +71,14 @@ namespace RootMotion.FinalIK {
 			
 			// Get 1 degree of freedom rotation along axis
 			Quaternion free1DOF = Limit1DOF(rotation, axis);
-			if (!useLimits) return free1DOF;
+            if (!useLimits) return free1DOF;
 
-			// Get offset from last rotation in angle-axis representation
-			Quaternion addR = free1DOF * Quaternion.Inverse(lastRotation);
+            Quaternion workingSpace = Quaternion.Inverse(Quaternion.AngleAxis(lastAngle, axis) * Quaternion.LookRotation(secondaryAxis, axis));
+            Vector3 d = workingSpace * free1DOF * secondaryAxis;
+            float deltaAngle = Mathf.Atan2(d.x, d.z) * Mathf.Rad2Deg;
 
-			float addA = Quaternion.Angle(Quaternion.identity, addR);
-
-			Vector3 secondaryAxis = new Vector3(axis.z, axis.x, axis.y);
-			Vector3 cross = Vector3.Cross(secondaryAxis, axis);
-			if (Vector3.Dot(addR * secondaryAxis, cross) > 0f) addA = - addA;
-			
-			// Clamp to limits
-			lastAngle = Mathf.Clamp(lastAngle + addA, min, max);
-			
-			return Quaternion.AngleAxis(lastAngle, axis);
-		}
+            lastAngle = Mathf.Clamp(lastAngle + deltaAngle, min, max);
+            return Quaternion.AngleAxis(lastAngle, axis);
+        }
 	}
 }

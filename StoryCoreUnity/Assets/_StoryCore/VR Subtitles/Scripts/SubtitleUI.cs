@@ -1,5 +1,6 @@
 ﻿using System;
-using StoryCore.Utils;
+using CoreUtils;
+using CoreUtils.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +16,7 @@ namespace VRSubtitles {
         private float m_FadeOutDuration;
         private Vector3 m_InitialScale;
         private bool m_Init;
+        private Transform m_Target;
 
         private FadeCanvasGroup Fade => UnityUtils.GetOrSet(ref m_Fade, this.GetOrAddComponent<FadeCanvasGroup>);
         private Image Portrait => m_Portrait;
@@ -26,6 +28,13 @@ namespace VRSubtitles {
 
         private void Update() {
             CheckForFadeOut();
+            UpdateScale();
+        }
+
+        private void UpdateScale() {
+            if (m_Target != null) {
+                transform.localScale = m_InitialScale*Mathf.Clamp(transform.position.DistanceTo(m_Target.position), 1f, 3f);
+            }
         }
 
         private void OnDestroy() {
@@ -74,6 +83,7 @@ namespace VRSubtitles {
         }
 
         public void Show(Subtitle item, Transform target) {
+            m_Target = target;
             Init();
             Unsubscribe();
             m_Current = item;
@@ -81,8 +91,7 @@ namespace VRSubtitles {
             m_FadingOut = false;
             m_FadeOutDuration = Mathf.Min(m_Current.Config.FadeOut, item.AutoCloseDuration*0.4f);
 
-            transform.rotation = Quaternion.LookRotation(transform.position - target.position);
-            transform.localScale = m_InitialScale*Mathf.Clamp(transform.position.DistanceTo(target.position), 1f, 3f);
+            UpdateScale();
 
             Fade.In(m_Current.Config.FadeIn, m_Current.Config.FadeInCurve);
 

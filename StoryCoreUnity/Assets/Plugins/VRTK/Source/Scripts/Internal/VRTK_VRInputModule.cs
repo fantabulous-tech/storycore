@@ -80,8 +80,6 @@ namespace VRTK
 
         protected virtual bool NoValidCollision(VRTK_UIPointer pointer, List<RaycastResult> results)
         {
-            // TH - I've changed this as it appears incorrect. Why do we suddenly care about the first raycast result
-            // when we didn't before? I've changed it to check all results.
             //return (results.Count == 0 || !CheckTransformTree(results[0].gameObject.transform, pointer.pointerEventData.pointerEnter.transform));
             if (results.Count == 0)
             {
@@ -135,7 +133,7 @@ namespace VRTK
 
         protected virtual void Hover(VRTK_UIPointer pointer, List<RaycastResult> results)
         {
-            if (pointer.pointerEventData.pointerEnter)
+            if (pointer.pointerEventData.pointerEnter != null)
             {
                 CheckPointerHoverClick(pointer, results);
                 if (!ValidElement(pointer.pointerEventData.pointerEnter))
@@ -153,22 +151,30 @@ namespace VRTK
             }
             else
             {
-                foreach (var result in results)
+                for (int i = 0; i < results.Count; i++)
                 {
+                    RaycastResult result = results[i];
                     if (!ValidElement(result.gameObject))
                     {
                         continue;
                     }
 
-                    var target = ExecuteEvents.ExecuteHierarchy(result.gameObject, pointer.pointerEventData, ExecuteEvents.pointerEnterHandler);
+                    GameObject target = ExecuteEvents.ExecuteHierarchy(result.gameObject, pointer.pointerEventData, ExecuteEvents.pointerEnterHandler);
+                    target = (target == null ? result.gameObject : target);
+
                     if (target != null)
                     {
-                        var selectable = target.GetComponent<Selectable>();
-                        if (selectable)
+                        Selectable selectable = target.GetComponent<Selectable>();
+                        if (selectable != null)
                         {
-                            var noNavigation = new Navigation();
+                            Navigation noNavigation = new Navigation();
                             noNavigation.mode = Navigation.Mode.None;
                             selectable.navigation = noNavigation;
+                        }
+
+                        if (pointer.hoveringElement != null && pointer.hoveringElement != target)
+                        {
+                            pointer.OnUIPointerElementExit(pointer.SetUIPointerEvent(result, null, pointer.hoveringElement));
                         }
 
                         pointer.OnUIPointerElementEnter(pointer.SetUIPointerEvent(result, target, pointer.hoveringElement));
@@ -178,14 +184,12 @@ namespace VRTK
                         pointer.pointerEventData.hovered.Add(pointer.pointerEventData.pointerEnter);
                         break;
                     }
-                    else
+
+                    if (result.gameObject != pointer.hoveringElement)
                     {
-                        if (result.gameObject != pointer.hoveringElement)
-                        {
-                            pointer.OnUIPointerElementEnter(pointer.SetUIPointerEvent(result, result.gameObject, pointer.hoveringElement));
-                        }
-                        pointer.hoveringElement = result.gameObject;
+                        pointer.OnUIPointerElementEnter(pointer.SetUIPointerEvent(result, result.gameObject, pointer.hoveringElement));
                     }
+                    pointer.hoveringElement = result.gameObject;
                 }
 
                 if (pointer.hoveringElement && results.Count == 0)

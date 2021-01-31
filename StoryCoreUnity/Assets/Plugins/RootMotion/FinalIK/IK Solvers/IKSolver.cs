@@ -8,8 +8,10 @@ namespace RootMotion.FinalIK {
 	/// </summary>
 	[System.Serializable]
 	public abstract class IKSolver {
-		
-		#region Main Interface
+
+        #region Main Interface
+
+        [HideInInspector] public bool executedInEditor;
 
 		/// <summary>
 		/// Determines whether this instance is valid or not.
@@ -28,6 +30,7 @@ namespace RootMotion.FinalIK {
 		/// Initiate the solver with specified root Transform. Use only if this %IKSolver is not a member of an %IK component.
 		/// </summary>
 		public void Initiate(Transform root) {
+            if (executedInEditor) return;
 			if (OnPreInitiate != null) OnPreInitiate();
 
 			if (root == null) Debug.LogError("Initiating IKSolver with null root Transform.");
@@ -109,11 +112,11 @@ namespace RootMotion.FinalIK {
 		public Transform GetRoot() {
 			return root;
 		}
-		
-		/// <summary>
-		/// Gets a value indicating whether this <see cref="IKSolver"/> has successfully initiated.
-		/// </summary>
-		public bool initiated { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="IKSolver"/> has successfully initiated.
+        /// </summary>
+        public bool initiated { get; private set; }
 
 		/// <summary>
 		/// Gets all the points used by the solver.

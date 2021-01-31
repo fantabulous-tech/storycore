@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using CoreUtils;
 using StoryCore.Utils;
 using UnityEngine;
 using VRSubtitles.Utils;
@@ -24,7 +25,7 @@ namespace VRSubtitles {
             m_Config = m_Config ? m_Config : ScriptableObject.CreateInstance<SubtitleDirectorConfig>();
             m_PlaceInFov = this.GetOrAddComponent<PlaceInFov>();
             m_PlaceInFov.Distance = m_Config.DistanceFromCamera;
-            m_PlaceInFov.Speed = m_Config.FOVMoveSpeed;
+            m_PlaceInFov.SmoothTime = m_Config.SmoothTime;
             VRTK_SDKManager.instance.LoadedSetupChanged += OnSetupChanged;
         }
 
@@ -53,21 +54,19 @@ namespace VRSubtitles {
         }
 
         private void ShowNow(Subtitle subtitle) {
+            m_PlaceInFov.Roost = subtitle.Speaker;
+            m_PlaceInFov.SnapToPlace();
+
             if (subtitle.Template) {
                 Transform t = transform;
                 t.DestroyAllChildren();
-                m_UIInstance = Instantiate(subtitle.Template, t);
-                Transform instanceTransform = m_UIInstance.transform;
-                instanceTransform.localRotation = Quaternion.identity;
-                instanceTransform.localPosition = Vector3.zero;
+                m_UIInstance = Instantiate(subtitle.Template, t, false);
             }
 
-            m_PlaceInFov.Roost = subtitle.Speaker;
-            m_PlaceInFov.SnapToTargetPosition();
             UIInstance.Show(subtitle, m_Player);
             subtitle.Show();
             string duration = subtitle.AutoCloseDuration > 1000000 ? "∞" : subtitle.AutoCloseDuration.ToString("N2");
-            //Debug.Log($"[Subtitles] Showing ({duration}) \'{subtitle.Text}\'");
+            Debug.Log($"[Subtitles] Showing ({duration}) \'{subtitle.Text}\'");
             Delay.For(subtitle.AutoCloseDuration, this).Then(() => FadeOut(subtitle));
         }
 

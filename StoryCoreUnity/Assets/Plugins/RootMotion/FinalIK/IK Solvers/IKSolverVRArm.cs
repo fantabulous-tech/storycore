@@ -208,6 +208,10 @@ namespace RootMotion.FinalIK
                     Vector3 upperArmForwardAxis = AxisTools.GetAxisVectorToDirection(upperArmRotation, rootForward);
                     if (Vector3.Dot(upperArmRotation * upperArmForwardAxis, rootForward) < 0f) upperArmForwardAxis = -upperArmForwardAxis;
                     upperArmBendAxis = Vector3.Cross(Quaternion.Inverse(upperArmRotation) * (forearmPosition - upperArmPosition), upperArmForwardAxis);
+                    if (upperArmBendAxis == Vector3.zero)
+                    {
+                        Debug.LogWarning("VRIK can not calculate which way to bend the arms because the arms are perfectly straight. Please rotate the elbow bones slightly in their natural bending direction in the Editor.");
+                    }
                 }
 
                 if (hasShoulder)
@@ -240,7 +244,7 @@ namespace RootMotion.FinalIK
                 forearmRelToUpperArm = Quaternion.Inverse(upperArm.solverRotation) * forearm.solverRotation;
             }
 
-            public override void ApplyOffsets()
+            public override void ApplyOffsets(float scale)
             {
                 position += handPositionOffset;
             }
@@ -413,13 +417,13 @@ namespace RootMotion.FinalIK
                     }
                 }
 
-                if (LOD < 1)
+                if (LOD < 1 && positionWeight > 0f)
                 {
                     // Fix upperarm twist relative to bend normal
                     Quaternion space = Quaternion.LookRotation(upperArm.solverRotation * upperArmBendAxis, forearm.solverPosition - upperArm.solverPosition);
                     Vector3 upperArmTwist = Quaternion.Inverse(space) * bendNormal;
                     float angle = Mathf.Atan2(upperArmTwist.x, upperArmTwist.z) * Mathf.Rad2Deg;
-                    upperArm.solverRotation = Quaternion.AngleAxis(angle, forearm.solverPosition - upperArm.solverPosition) * upperArm.solverRotation;
+                    upperArm.solverRotation = Quaternion.AngleAxis(angle * positionWeight, forearm.solverPosition - upperArm.solverPosition) * upperArm.solverRotation;
 
                     // Fix forearm twist relative to upper arm
                     Quaternion forearmFixed = upperArm.solverRotation * forearmRelToUpperArm;

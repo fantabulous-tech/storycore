@@ -3,18 +3,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using CoreUtils;
 using RogoDigital.Lipsync;
 using RogoDigital.Lipsync.AutoSync;
-using StoryCore.AssetBuckets;
+using CoreUtils.AssetBuckets;
+using CoreUtils.Editor;
 using StoryCore.InkTodo;
 using StoryCore.Utils;
-using StoryCore.Utils.Editor;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace StoryCore {
     public static class LipSyncAudioChecker {
         private const string kVoiceScriptPath = "Exports\\Voice Script.txt";
+        private const string kFormattedVoiceScriptPath = "Exports\\Voice Script.html";
+        private const string kFormattedMissingLinesPath = "Exports\\Missing Lines Script.html";
         private const string kMissingLinesPath = "Exports\\Missing Lines Script.txt";
         private static Queue<string> s_LipSyncQueue;
         private static ProgressBarCounted s_AutoSyncProgress;
@@ -26,22 +31,10 @@ namespace StoryCore {
 
         private static VOBucket VOBucket => UnityUtils.GetOrSet(ref s_VOBucket, () => AssetDatabase.LoadAssetAtPath<VOBucket>(AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets("t:VOBucket").First())));
 
-        // [MenuItem("Window/Rogo Digital/Run LipSync on VO Missing Transcript")]
-        // public static void RunAutoSyncOnVO() {
-        // 	string[] paths = AssetDatabase.FindAssets("t:LipSyncData")
-        // 		.Select(AssetDatabase.GUIDToAssetPath)
-        // 		.Where(NeedsLipSyncPass)
-        // 		.ToArray();
-        //
-        // 	if (!EditorUtility.DisplayDialog("Run Auto-Sync on ALL VO files.", $"Are you sure you want to auto-sync {paths.Length} files?", "Yes", "Cancel")) {
-        // 		return;
-        // 	}
-        //
-        // 	StartAutoSync(paths);
-        // }
-
-        [MenuItem("Window/Rogo Digital/Check VO Lip Sync Files")]
+        [MenuItem("Window/VO and Ink Tools/Check VO Lip Sync Files", false, (int)MenuOrder.VOTools)]
         public static void CheckLipSyncAudio() {
+            InkUtils.RefreshTranscript();
+
             // Check for errors in LipSyncData files.
             AssetDatabase.FindAssets("t:LipSyncData").ForEach(CheckLipSyncData);
 
@@ -51,8 +44,8 @@ namespace StoryCore {
             Debug.Log("Check complete.");
         }
 
-        [MenuItem("Window/Rogo Digital/Create Missing Lip Sync Files")]
-        private static void CreateMissingLipSyncData() {
+        [MenuItem("Window/VO and Ink Tools/Create Missing Lip Sync Files", false, (int)MenuOrder.VOTools)]
+        public static void CreateMissingLipSyncData() {
             InkUtils.RefreshTranscript();
 
             s_WasManual = VOBucket.ManualUpdate;
@@ -85,7 +78,7 @@ namespace StoryCore {
             }
         }
 
-        [MenuItem("Window/Rogo Digital/Create Missing Lip Sync Files x1")]
+        [MenuItem("Window/VO and Ink Tools/Create Missing Lip Sync Files x1", false, (int)MenuOrder.VOTools)]
         private static void CreateNextMissingLipSyncData() {
             InkUtils.RefreshTranscript();
 
@@ -103,20 +96,228 @@ namespace StoryCore {
             StartAutoSync(paths);
         }
 
-        [MenuItem("Window/Rogo Digital/Export Transcript")]
+        [MenuItem("Window/VO and Ink Tools/Export Transcript", false, (int)MenuOrder.VOTools)]
         public static void ExportScript() {
+            FileUtils.WriteAllText(kVoiceScriptPath, GetScript());
+            System.Diagnostics.Process.Start(kVoiceScriptPath);
+        }
+
+        [MenuItem("Window/VO and Ink Tools/Export Transcript to HTML", false, (int)MenuOrder.VOTools)]
+        public static void ExportFormattedScript() {
+            string formattedScript = GetFormattedScript();
+            FileUtils.WriteAllText(kFormattedVoiceScriptPath, formattedScript);
+            System.Diagnostics.Process.Start(kFormattedVoiceScriptPath);
+        }
+
+        [MenuItem("Window/VO and Ink Tools/Export Missing Lines", false, (int)MenuOrder.VOTools)]
+        public static void ExportMissingLines() {
+            FileUtils.WriteAllText(kMissingLinesPath, GetMissingLines());
+            System.Diagnostics.Process.Start(kMissingLinesPath);
+        }
+        
+        [MenuItem("Window/VO and Ink Tools/Export Missing Lines to HTML", false, (int)MenuOrder.VOTools)]
+        public static void ExportFormattedMissingLines() {
+            string formattedScript = GetFormattedScript(true);
+            FileUtils.WriteAllText(kFormattedMissingLinesPath, formattedScript);
+            System.Diagnostics.Process.Start(kFormattedMissingLinesPath);
+        }
+
+        [MenuItem("Assets/Export Script to HTML", true)]
+        [MenuItem("Assets/Export Missing Lines to HTML", true)]
+        public static bool ValidateExportFromInkSelection() {
+            string path = AssetDatabase.GetAssetPath(Selection.activeObject);
+            return Selection.activeObject is DefaultAsset && File.Exists(path);
+        }
+
+        [MenuItem("Assets/Export Script to HTML", false, 72)]
+        public static void ExportFullScriptToHtmlFromSelection() {
+            ExportFormattedScriptFromSelection(false);
+        }
+
+        [MenuItem("Assets/Export Missing Lines to HTML", false, 73)]
+        public static void ExportMissingLinesToHtmlFromSelection() {
+            ExportFormattedScriptFromSelection(true);
+        }
+
+        private static void ExportFormattedScriptFromSelection(bool missingLinesOnly) {
+            string rootPath = Path.GetDirectoryName(InkUtils.kStoryScriptPath)?.Replace('\\', '/').TrimEnd('/');
+
+            foreach (Object obj in Selection.objects) {
+                if (!obj) {
+                    continue;
+                }
+
+                string path = AssetDatabase.GetAssetPath(obj);
+                string ext = Path.GetExtension(path);
+
+                if (!ext.Equals(".ink", StringComparison.OrdinalIgnoreCase) && !ext.IsNullOrEmpty()) {
+                    continue;
+                }
+                
+                InkFileInfo info = new InkFileInfo(path, rootPath);
+                string formattedScript = GetFormattedScriptFromInkFile(info, missingLinesOnly);
+                string exportPath = missingLinesOnly ? kFormattedMissingLinesPath : kFormattedVoiceScriptPath;
+                string fileName = $"{Path.GetFileNameWithoutExtension(exportPath)} {Path.GetFileName(Path.GetDirectoryName(path))}_{Path.GetFileNameWithoutExtension(path)}.html";
+                exportPath = Path.Combine(Path.GetDirectoryName(exportPath) ?? "", fileName);
+                FileUtils.WriteAllText(exportPath, formattedScript);
+                System.Diagnostics.Process.Start(exportPath);
+            }
+        }
+
+        private static string GetFormattedScript(bool missingLinesOnly = false) {
+            StringBuilder sb = new StringBuilder();
+            List<InkFileInfo> inkFiles = InkUtils.GetInkFiles(InkUtils.kStoryScriptPath);
+
+            foreach (InkFileInfo info in inkFiles) {
+                BuildFormattedScriptFromInkFile(info, sb, missingLinesOnly);
+            }
+
+            return WrapFormattedScript(sb.ToString());
+        }
+
+        private static string GetFormattedScriptFromInkFile(InkFileInfo info, bool missingLinesOnly = false) {
+            if (info.Lines.Any(InkEditorUtils.CanTag)) {
+                if (EditorUtility.DisplayDialog("Untagged Lines Found", "There are untagged lines in this file. Do you want to tag them first?", "Yes", "Skip")) {
+                    InkEditorUtils.TagInkLinesAtPath(info.Path, info.InkAsset);
+                    info.Refresh();
+                }
+            }
+
+            StringBuilder sb = new StringBuilder();
+            BuildFormattedScriptFromInkFile(info, sb, missingLinesOnly);
+            return WrapFormattedScript(sb.ToString());
+        }
+
+        private static string WrapFormattedScript(string bodyHtml) {
+            bodyHtml = bodyHtml.IsNullOrEmpty() ? "<h1>No lines found.</h1>" : bodyHtml;
+            return $@"<html>
+<head>
+<style>
+p {{text-align: center; font-family:'Courier New', Courier, monospace;}}
+span {{color: #D3D3D3; font-size: 16; font-family:'Courier New', Courier, monospace; font-weight: normal;}}
+</style>
+</head>
+<body>
+{bodyHtml}</body>
+</html>";
+        }
+
+        private static void BuildFormattedScriptFromInkFile(InkFileInfo info, StringBuilder sb, bool missingLinesOnly) {
+            string currentKnot = null;
+            string newKnot = null;
+            string currentStitch = null;
+            string newStitch = null;
+            string currentCharacter = null;
+            string newCharacter = null;
+            string emotion = null;
+            string emotionAmount = null;
+
+            foreach (string line in info.Lines) {
+                Match knotMatch = InkEditorUtils.KnotRegex.Match(line);
+
+                if (knotMatch.Success) {
+                    newKnot = knotMatch.Groups["knot"].Value;
+                    continue;
+                }
+
+                Match stitchMatch = InkEditorUtils.StitchRegex.Match(line);
+
+                if (stitchMatch.Success) {
+                    newStitch = stitchMatch.Groups["stitch"].Value;
+                    continue;
+                }
+
+                Match characterMatch = InkEditorUtils.CharacterRegex.Match(line);
+
+                bool continueSearch = true;
+
+                if (characterMatch.Success) {
+                    newCharacter = characterMatch.Groups["character"].Value;
+                    continueSearch = false;
+                }
+
+                Match emotionMatch = InkEditorUtils.EmotionRegex.Match(line);
+
+                if (emotionMatch.Success) {
+                    emotion = emotionMatch.Groups["emotion"].Value;
+                    emotionAmount = emotionMatch.Groups["amount"].Value;
+                    continueSearch = false;
+                }
+
+                if (!continueSearch || string.IsNullOrEmpty(newKnot) || !line.Contains('#')) {
+                    continue;
+                }
+
+                MatchCollection tagMatches = InkEditorUtils.TagRegex.Matches(line);
+
+                foreach (Match match in tagMatches) {
+                    if (!int.TryParse(match.Groups["tag"].Value, out int tagId)) {
+                        continue;
+                    }
+
+                    if (currentKnot != newKnot) {
+                        currentKnot = newKnot;
+                        sb.AppendLine($"<h1>{currentKnot.ToSpacedName(true, false, false)} <span>({currentKnot})</span></h1>");
+                        currentCharacter = null;
+                    }
+
+                    if (currentStitch != newStitch) {
+                        currentStitch = newStitch;
+                        sb.AppendLine($"<h2>{currentStitch.ToSpacedName(true, false, false)}</h2>");
+                        currentCharacter = null;
+                    }
+
+                    if (currentCharacter != newCharacter) {
+                        currentCharacter = newCharacter;
+                        sb.AppendLine($"<p><b>{currentCharacter.ToUpper()}</b></p>");
+                    }
+
+                    AppendDialogLine(line);
+
+                    emotion = null;
+
+                    void AppendDialogLine(string text, string voTag = "") {
+                        sb.Append("<p>");
+                        if (emotion != null) {
+                            sb.Append($"<span>({emotion}");
+
+                            if (!emotionAmount.IsNullOrEmpty()) {
+                                sb.Append($" {emotionAmount}%");
+                            }
+
+                            sb.Append(")</span> ");
+                        }
+                        sb.AppendLine($"{InkUtils.CleanupTranscript(text)} <span>({tagId:00}{voTag})</span></p>");
+                    }
+                }
+            }
+        }
+
+        private static string GetScript() {
             InkUtils.RefreshTranscript();
             StringBuilder sb = new StringBuilder();
 
             foreach (KeyValuePair<string, string> kvp in InkUtils.TranscriptLookup) {
-                sb.AppendLine($"{kvp.Key}\t{kvp.Value}");
+                if (kvp.Value.Contains('{')) {
+                    string boyLine = InkUtils.GetTranscriptByKey(kvp.Key + "-boy");
+                    sb.AppendLine($"{kvp.Key}-boy\t{boyLine}");
+
+                    string girlLine = InkUtils.GetTranscriptByKey(kvp.Key + "-girl");
+                    sb.AppendLine($"{kvp.Key}-girl\t{girlLine}");
+
+                    string petLine = InkUtils.GetTranscriptByKey(kvp.Key + "-pet");
+                    if (petLine != girlLine && !petLine.IsNullOrEmpty()) {
+                        sb.AppendLine($"{kvp.Key}-pet\t{petLine}");
+                    }
+                } else {
+                    sb.AppendLine($"{kvp.Key}\t{kvp.Value}");
+                }
             }
-            FileUtils.WriteAllText(kVoiceScriptPath, sb.ToString());
-            System.Diagnostics.Process.Start(kVoiceScriptPath);
+            
+            return sb.ToString();
         }
 
-        [MenuItem("Window/Rogo Digital/Export Missing Lines")]
-        public static void ExportMissingLines() {
+        private static string GetMissingLines() {
             StringBuilder sb = new StringBuilder();
 
             InkUtils.RefreshTranscript();
@@ -128,8 +329,8 @@ namespace StoryCore {
 
                 sb.AppendLine($"{kvp.Key}: {kvp.Value}");
             }
-            FileUtils.WriteAllText(kMissingLinesPath, sb.ToString());
-            System.Diagnostics.Process.Start(kMissingLinesPath);
+
+            return sb.ToString();
         }
 
         private static bool HasVO(string key) {
@@ -145,7 +346,7 @@ namespace StoryCore {
 
             string clipTestPath = Path.ChangeExtension(clipPath, ".asset");
 
-            if (clipTestPath.IsNullOrEmpty() || File.Exists(clipTestPath)) {
+            if (string.IsNullOrEmpty(clipTestPath) || File.Exists(clipTestPath)) {
                 return;
             }
 
@@ -154,28 +355,13 @@ namespace StoryCore {
             Debug.LogWarning($"No lip sync data found for '{clipPath}'", clip);
         }
 
-        private static bool NeedsLipSyncPass(string path) {
-            if (path == null || !path.Contains("_VO")) {
-                return false;
-            }
-
-            LipSyncData lsd = AssetDatabase.LoadAssetAtPath<LipSyncData>(path);
-            string scriptTranscript = InkUtils.GetTranscript(path, lsd);
-
-            if (scriptTranscript.IsNullOrEmpty()) {
-                return false;
-            }
-
-            return !lsd || lsd.transcript.IsNullOrEmpty();
-        }
-
         private static bool HasMissingData(string path) {
             if (!path.Contains("_VO")) {
                 return false;
             }
 
             string lipSyncPath = Path.ChangeExtension(path, ".asset");
-            return !lipSyncPath.IsNullOrEmpty() && !File.Exists(lipSyncPath);
+            return !string.IsNullOrEmpty(lipSyncPath) && !File.Exists(lipSyncPath);
         }
 
         private static void CheckLipSyncData(string guid) {
@@ -208,8 +394,8 @@ namespace StoryCore {
             }
 
             string transcript = InkUtils.GetTranscript(lipSyncPath, lipSync);
-            if (lipSync.transcript.IsNullOrEmpty() && !transcript.IsNullOrEmpty()) {
-                Debug.Log($"Transcript missing on {InkUtils.GetFolderName(filePath)}.{lipSync.name}: {transcript}", lipSync);
+            if (string.IsNullOrEmpty(lipSync.transcript) && !string.IsNullOrEmpty(transcript)) {
+                Debug.LogWarning($"LipSync file's transcript is missing on {InkUtils.GetFolderName(filePath)}.{lipSync.name}: {transcript}", lipSync);
             }
 
             if (!lipSync.clip) {
@@ -218,9 +404,18 @@ namespace StoryCore {
 
             string clipTestPath = Path.ChangeExtension(clipPath, ".asset");
 
-            if (!lipSyncPath.IsNullOrEmpty() && !clipTestPath.IsNullOrEmpty() && !lipSyncPath.Equals(clipTestPath, StringComparison.OrdinalIgnoreCase)) {
+            if (!string.IsNullOrEmpty(lipSyncPath) && !string.IsNullOrEmpty(clipTestPath) && !lipSyncPath.Equals(clipTestPath, StringComparison.OrdinalIgnoreCase)) {
                 Debug.LogWarning($"Lip sync file '{lipSyncPath}' doesn't match clip '{clipPath}'", lipSync);
             }
+        }
+
+        private static void RenameFiles(string oldPath, string newPath) {
+            if (File.Exists(newPath)) {
+                Debug.LogError($"Can't rename {oldPath} -> {newPath} because new path exists.");
+                return;
+            }
+
+            AssetDatabase.RenameAsset(oldPath, Path.GetFileName(newPath));
         }
 
         private static void StartAutoSync(IReadOnlyCollection<string> paths) {
@@ -256,7 +451,7 @@ namespace StoryCore {
                     tempData.length = tempData.clip.length;
                     tempData.transcript = CleanTranscript(InkUtils.GetTranscript(path, clip));
 
-                    if (tempData.transcript.IsNullOrEmpty()) {
+                    if (string.IsNullOrEmpty(tempData.transcript)) {
                         continue;
                     }
 
@@ -280,10 +475,18 @@ namespace StoryCore {
         }
 
         private static string CleanTranscript(string transcript) {
-            if (!transcript.IsNullOrEmpty() && transcript.Contains('<')) {
+            if (transcript == null) {
+                return null;
+            }
+
+            // Remove any <br/> html markup.
+            if (!string.IsNullOrEmpty(transcript) && transcript.Contains('<')) {
                 transcript = transcript.Replace(@"<br/>", " ");
                 transcript = transcript.ReplaceRegex(@"<[^>]*>", "");
             }
+            
+            // Remove any single quotes.
+            transcript = transcript.ReplaceRegex(@"('\B|\B')", "");
 
             return transcript;
         }

@@ -17,6 +17,7 @@ namespace RootMotion.FinalIK {
 			public Quaternion stepToRootRot = Quaternion.identity;
 			public bool isStepping { get { return stepProgress < 1f; }}
 			public bool isSupportLeg;
+            public bool relaxFlag;
 
 			public float stepProgress { get; private set; }
 			public Vector3 stepFrom;
@@ -45,6 +46,12 @@ namespace RootMotion.FinalIK {
 			}
 
 			public void StepTo(Vector3 p, Quaternion rootRotation, float stepThreshold) {
+                if (relaxFlag)
+                {
+                    stepThreshold = 0f;
+                    relaxFlag = false;
+                }
+
                 if (Vector3.Magnitude(p - stepTo) < stepThreshold && Quaternion.Angle(rootRotation, stepToRootRot) < 25f) return;
                 stepFrom = position;
 				stepTo = p;

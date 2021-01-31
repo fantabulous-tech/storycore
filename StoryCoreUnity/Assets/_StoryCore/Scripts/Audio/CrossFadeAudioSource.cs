@@ -1,6 +1,6 @@
 using StoryCore.Utils;
 using DG.Tweening;
-using StoryCore.GameVariables;
+using CoreUtils.GameVariables;
 using UnityEngine;
 
 namespace StoryCore.Audio {

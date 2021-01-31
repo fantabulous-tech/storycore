@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CoreUtils;
 using StoryCore.Utils;
 using UnityEngine;
 using VRTK;
@@ -13,6 +14,7 @@ namespace StoryCore {
         [SerializeField] private GameObject m_Label;
         [SerializeField] private Collider m_Collision;
 
+        [SerializeField] private bool m_AlwaysHover;
         private StoryTeller m_StoryTeller;
         private string m_MoveName;
         private readonly List<GameObject> m_Touchers = new List<GameObject>();
@@ -31,7 +33,7 @@ namespace StoryCore {
         public event Action Deactivate;
 
         private void Start() {
-            if (!Globals.IsActive) {
+            if (!Globals.Exists) {
                 return;
             }
 
@@ -63,7 +65,7 @@ namespace StoryCore {
         }
 
         private void OnDestroy() {
-            if (!Globals.IsActive) {
+            if (!Globals.Exists) {
                 return;
             }
 
@@ -128,7 +130,7 @@ namespace StoryCore {
         }
 
         private bool MyChoice(StoryChoice choice) {
-            return choice.IsValidChoice("move") && (m_MoveName.IsNullOrEmpty() || choice.Text.Contains(m_MoveName, StringComparison.OrdinalIgnoreCase));
+            return choice.IsValidChoice("move") && (m_MoveName.IsNullOrEmpty() || choice.Key.Contains(m_MoveName, StringComparison.OrdinalIgnoreCase));
         }
 
         private void UpdateState() {
@@ -136,7 +138,7 @@ namespace StoryCore {
 
             if (m_MoveChoice == null) {
                 m_MoveState = MoveStates.Inactive;
-            } else if (m_Touchers.Count == 0) {
+            } else if (m_Touchers.Count == 0 && !m_AlwaysHover) {
                 m_MoveState = MoveStates.Normal;
             } else {
                 m_MoveState = MoveStates.Hover;

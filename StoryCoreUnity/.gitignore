@@ -45,8 +45,6 @@ ExportedObj/
 *.booproj
 *.svd
 *.pdb
-#!**/PhotonLibs/*.pdb
-!**/PhotonLibs/**/*.pdb
 .vscode/
 
 # Unity3D generated meta files
@@ -77,9 +75,6 @@ Exports/
 
 # Art tool files
 .mayaSwatches/
-
-# Project Preferences
-Assets/Resources/VRTrainingPreferences.*
 
 # SonarQube
 .scannerwork/

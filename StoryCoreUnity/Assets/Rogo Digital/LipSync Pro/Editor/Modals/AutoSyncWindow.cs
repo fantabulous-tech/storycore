@@ -653,7 +653,7 @@ public class AutoSyncWindow : ModalWindow
 		return window;
 	}
 
-	[MenuItem("Window/Rogo Digital/LipSync Pro/Batch Process", false, 12)]
+	[MenuItem("Window/Rogo Digital/LipSync Pro/Batch Process", false, 1012)]
 	private static void OpenFromMenu()
 	{
 		var clipSetup = LipSyncClipSetup.ShowWindow();

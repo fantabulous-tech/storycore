@@ -75,10 +75,11 @@ namespace RootMotion.FinalIK {
 				lastTarget = target;
 			}
 
-			// Smooth weight
-			ik.solver.IKPositionWeight = Mathf.SmoothDamp(ik.solver.IKPositionWeight, (target != null? weight: 0f), ref weightV, weightSmoothTime);
-			if (ik.solver.IKPositionWeight >= 0.999f) ik.solver.IKPositionWeight = 1f;
-			if (ik.solver.IKPositionWeight <= 0.001f) ik.solver.IKPositionWeight = 0f;
+            // Smooth weight
+            float targetWeight = target != null ? weight : 0f;
+			ik.solver.IKPositionWeight = Mathf.SmoothDamp(ik.solver.IKPositionWeight, targetWeight, ref weightV, weightSmoothTime);
+			if (ik.solver.IKPositionWeight >= 0.999f && targetWeight > ik.solver.IKPositionWeight) ik.solver.IKPositionWeight = 1f;
+			if (ik.solver.IKPositionWeight <= 0.001f && targetWeight < ik.solver.IKPositionWeight) ik.solver.IKPositionWeight = 0f;
 
 			if (ik.solver.IKPositionWeight <= 0f) return;
 

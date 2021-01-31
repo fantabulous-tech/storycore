@@ -659,7 +659,7 @@ namespace VRTK
             }
 
             VRTK_SDKManager sdkManager = VRTK_SDKManager.instance;
-            if (sdkManager != null)
+            if (sdkManager != null && sdkManager.loadedSetup != null)
             {
                 if (cachedLeftTrackedObject == null && sdkManager.loadedSetup.actualLeftController)
                 {

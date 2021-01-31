@@ -1,4 +1,5 @@
-﻿using StoryCore.Utils;
+﻿using CoreUtils;
+using StoryCore.Utils;
 using UnityEngine;
 using VRTK;
 
@@ -9,7 +10,7 @@ namespace StoryCore {
         private bool m_Init;
 
         protected void Awake() {
-            if (Globals.IsActive) {
+            if (Globals.Exists) {
                 Globals.CommandRecenter.GenericEvent += OnRecenter;
             } else {
                 Globals.Ready += OnGlobalsReady;
@@ -26,7 +27,7 @@ namespace StoryCore {
 
         private void OnDestroy() {
             if (!AppTracker.IsQuitting) {
-                if (Globals.IsActive) {
+                if (Globals.Exists) {
                     Globals.CommandRecenter.GenericEvent -= OnRecenter;
                 }
                 if (VRTK_SDKManager.instance != null) {

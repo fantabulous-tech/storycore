@@ -271,7 +271,7 @@ public class RDExtensionWindow : EditorWindow
 		ShowWindow((string)startProduct);
 	}
 
-	[MenuItem("Window/Rogo Digital/Get Extensions", false, 0)]
+	[MenuItem("Window/Rogo Digital/Get Extensions", false, 99)]
 	public static void ShowWindow ()
 	{
 		ShowWindow("");

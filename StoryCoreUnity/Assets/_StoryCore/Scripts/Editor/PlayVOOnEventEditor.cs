@@ -1,8 +1,9 @@
+using CoreUtils.Editor;
 using StoryCore.Utils;
 using UnityEditor;
 using UnityEngine;
 
-namespace StoryCore.GameEvents {
+namespace CoreUtils.GameEvents {
     [CustomEditor(typeof(PlayVOOnEvent))]
     public class PlayVOOnEventEditor : Editor<PlayVOOnEvent> {
         public override void OnInspectorGUI() {

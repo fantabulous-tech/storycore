@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-using StoryCore.GameVariables;
+using CoreUtils.GameVariables;
 using TMPro;
 using UnityEngine;
 

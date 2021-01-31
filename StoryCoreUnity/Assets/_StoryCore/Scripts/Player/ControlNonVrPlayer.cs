@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using CoreUtils;
+using StoryCore.Utils;
+using CoreUtils.GameVariables;
+using UnityEngine;
 using VRTK;
 
 namespace StoryCore {
@@ -8,12 +12,6 @@ namespace StoryCore {
         [SerializeField] private float m_SpawnPointForwardBackBound = 1;
         [SerializeField] private float m_SpawnPointUpperBound = 0.5f;
         [SerializeField] private float m_SpawnPointLowerBound = -1;
-
-        private Vector3 m_LeftVelocity;
-        private Vector3 m_RightVelocity;
-
-        private Vector3 m_LeftQVelocity;
-        private Vector3 m_RightQVelocity;
 
         private void FixedUpdate() {
             //Control override to keep near spawnpoint

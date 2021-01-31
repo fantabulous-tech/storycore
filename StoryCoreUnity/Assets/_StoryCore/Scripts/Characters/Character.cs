@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using StoryCore.Locations;
+using CoreUtils;
 using DG.Tweening;
 using RogoDigital;
 using RogoDigital.Lipsync;
@@ -23,31 +23,37 @@ namespace StoryCore.Characters {
         [SerializeField] private EyeController m_EyeController;
         [SerializeField] private LookAtIK m_LookAtIK;
         [SerializeField] private AnimationClip m_IdleAnim;
-        [SerializeField] private Locomotion m_LocomotionController;
  
-        private AnimationMixerPlayable m_ControllerAndClipMixer;
-        private const float kLookAtMaxIntensity = 0.8f;       
         private const float kLookAtTransition = 0.5f;
-        private const float kLocomotionBlendTime = 0.5f;
+        private const float kLastAnimChangeMin = 0.25f;
+        private const float kEmotionTransition = 0.3f;
+        private const string kNeutral = "Neutral";
 
         private PlayableGraph m_Graph;
         private AnimationLayerMixerPlayable m_LayerMixer;
         private AnimationClipPlayable m_LastAnim;
+        private AnimationClipPlayable m_CurrentAnim;
+        private Object m_LastLoopingPerformance;
+
         private Sequence m_Sequence;
         private AnimationMixerPlayable m_TransitionMixer;
         private AnimationClip m_LastIdleAnim;
-        private Transform m_LeftFoot;
-        private Transform m_RightFoot;
-        private Transform m_LeftToes;
-        private Transform m_RightToes;
 
-        private BaseLocation m_FollowTarget;
-        private float m_FollowDistance;
-        private float m_FollowMaxDistance;
-        private DelaySequence m_FollowSequence;
+        private bool m_ChangeEmotions;
 
-        private Transform m_LookCommandTarget;
-        
+        private string m_LastEmotion;
+        private int m_LastEmotionIndex;
+        private float m_LastEmotionStart;
+
+        private string m_CurrentEmotion;
+        private int m_CurrentEmotionIndex;
+        private float m_CurrentEmotionStart;
+        private float m_CurrentEmotionProgress;
+        private float m_CurrentEmotionTarget;
+
+        private float m_TargetTime;
+        private float m_LastAnimChange;
+
         private Transform Target {
             get {
                 if (m_LookAtIK) {
@@ -63,9 +69,19 @@ namespace StoryCore.Characters {
 
         public AnimationClip CurrentAnim => m_LastAnim.IsValid() ? m_LastAnim.GetAnimationClip() : null;
         public bool IsTalking => m_LipSync.IsPlaying;
+        public bool InTransition {
+            get {
+                if (!m_TransitionMixer.IsValid()) {
+                    return false;
+                }
 
-        protected override void Awake() {
-            base.Awake();
+                float weight = m_TransitionMixer.GetInputWeight(1);
+                return weight < 1 && weight > 0;
+            }
+        }
+
+        protected void Awake() {
+            // Avoid changing states at startup
             m_VoiceSource = m_VoiceSource ? m_VoiceSource : GetComponentInChildren<AudioSource>();
             m_Animator = m_Animator ? m_Animator : GetComponent<Animator>();
             m_LipSync = m_LipSync ? m_LipSync : GetComponent<LipSync>();
@@ -73,7 +89,8 @@ namespace StoryCore.Characters {
             SetEmotion(kNeutral, 1);
         }
 
-        private void OnEnable() {
+        protected override void OnEnable() {
+            base.OnEnable();
             if (!m_Animator) {
                 Debug.LogFormat(this, "Note: No Animator found for {0}", name);
                 return;
@@ -90,19 +107,19 @@ namespace StoryCore.Characters {
         private void Update() {
             CheckIdle();
             CheckEmotions();
-            CheckFollowing();
+            CheckAnimTransition();
         }
 
-        private void CheckFollowing() {
-            if (m_FollowTarget != null) {
-                if ((transform.position - m_FollowTarget.Position).magnitude > m_FollowMaxDistance) {
-                    if (m_FollowSequence == null || m_FollowSequence.IsDone) {
-                        m_FollowSequence = MoveTo(m_FollowTarget, 2.0f, m_FollowDistance).ThenWaitFor(0.5f);
-                    }
-                }
+        protected override void OnDisable() {
+            base.OnDisable();
+            if (m_Graph.IsValid()) {
+                m_Graph.Destroy();
+            }
+            if (VRTK_SDKManager.instance != null) {
+                VRTK_SDKManager.instance.LoadedSetupChanged -= OnSetupChanged;
             }
         }
-        
+
         private void CheckIdle() {
             if (m_IdleAnim != m_LastIdleAnim) {
                 m_LastIdleAnim = m_IdleAnim;
@@ -110,13 +127,21 @@ namespace StoryCore.Characters {
             }
         }
 
-        private void OnDisable() {
-            if (m_Graph.IsValid()) {
-                m_Graph.Destroy();
+        private void CheckAnimTransition() {
+            // Make sure last anim == current anim for transition purposes.
+            if (m_CurrentAnim.IsValid() && m_LastAnim.IsValid() && m_LastAnim.GetAnimationClip() == m_CurrentAnim.GetAnimationClip()) {
+                return;
             }
-            if (VRTK_SDKManager.instance != null) {
-                VRTK_SDKManager.instance.LoadedSetupChanged -= OnSetupChanged;
+
+            // If they aren't equal, make sure they are both valid and
+            // Avoid updating the last transition animation until after 0.1 seconds.
+            if (!m_CurrentAnim.IsValid() || !m_LastAnim.IsValid() || m_LastAnimChange + kLastAnimChangeMin > Time.time) {
+                return;
             }
+
+            // Transition has been happening long enough. Allow the last anim to change for transition purposes.
+            // StoryDebug.Log($"Updating last anim @ {Time.time:N2}: {m_LastAnim.GetAnimationClip().name} -> {m_CurrentAnim.GetAnimationClip().name}.");
+            m_LastAnim = m_CurrentAnim;
         }
 
         private static AnimationClipPlayable GetClipPlayable(PlayableGraph graph, AnimationClip clip) {
@@ -132,8 +157,8 @@ namespace StoryCore.Characters {
 
             // Create the starting animation clip.
             m_LastAnim = GetClipPlayable(m_Graph, m_IdleAnim);
-
             m_LastIdleAnim = m_IdleAnim;
+            m_LastLoopingPerformance = m_IdleAnim;
 
             // Create the transition mixer for changing animations over time.
             m_TransitionMixer = AnimationMixerPlayable.Create(m_Graph, 2);
@@ -144,24 +169,25 @@ namespace StoryCore.Characters {
             m_TransitionMixer.SetInputWeight(0, 0);
             m_TransitionMixer.SetInputWeight(1, 1);
 
-            // Create the layer output to handle 'heels'/'barefoot' options.
-            AnimationPlayableOutput playableOutput = AnimationPlayableOutput.Create(m_Graph, "LayerMixer", m_Animator);
-            m_LayerMixer = AnimationLayerMixerPlayable.Create(m_Graph, 2);
+            CharacterAnimOverride[] overrides = GetComponents<CharacterAnimOverride>();
 
-            // Set the 'heels' layer to additive.
-            m_LayerMixer.SetLayerAdditive(1, true);
+            // Create the layer output to handle optional override layers.
+            AnimationPlayableOutput playableOutput = AnimationPlayableOutput.Create(m_Graph, "LayerMixer", m_Animator);
+            m_LayerMixer = AnimationLayerMixerPlayable.Create(m_Graph, 1 + overrides.Length);
             playableOutput.SetSourcePlayable(m_LayerMixer);
 
-            if (m_Animator.runtimeAnimatorController != null) {
-                m_ControllerAndClipMixer = AnimationMixerPlayable.Create(m_Graph, 2);
-                AnimatorControllerPlayable animControllerPlayable = AnimatorControllerPlayable.Create(m_Graph, m_Animator.runtimeAnimatorController);
-                m_Graph.Connect(m_TransitionMixer, 0, m_ControllerAndClipMixer, 0);
-                m_Graph.Connect(animControllerPlayable, 0, m_ControllerAndClipMixer, 1);
-                m_ControllerAndClipMixer.SetInputWeight(0, 1.0f);
-                m_ControllerAndClipMixer.SetInputWeight(1, 0.0f);
-                m_LayerMixer.ConnectInput(0, m_ControllerAndClipMixer, 0, 1);
-            } else {
-                m_LayerMixer.ConnectInput(0, m_TransitionMixer, 0, 1);
+            // Connect the layer mixer up with the transition mixer.
+            m_LayerMixer.ConnectInput(0, m_TransitionMixer, 0, 1);
+
+            for (int i = 0; i < overrides.Length; i++) {
+                int inputIndex = i + 1;
+                CharacterAnimOverride animOverride = overrides[i];
+                AnimationClipPlayable overrideClip = GetClipPlayable(m_Graph, animOverride.OverrideClip);
+                StoryDebug.Log($"Setting '{animOverride.OverrideClip.name}' to layer {inputIndex}.", this);
+                m_LayerMixer.ConnectInput(inputIndex, overrideClip, 0, 1);
+                if (animOverride.Mask != null) {
+                    m_LayerMixer.SetLayerMaskFromAvatarMask((uint) inputIndex, animOverride.Mask);
+                }
             }
 
             m_Graph.Play();
@@ -179,47 +205,18 @@ namespace StoryCore.Characters {
             }
         }
 
-        public override void PauseLookAt() {
-            StoryDebug.Log($"{Name} paused look at", this);
-            if (m_LookAtIK != null) {
-                m_LookAtIK.DOKill();
-                Sequence sequence = DOTween.Sequence();
-                sequence.Append(DOTween.To(m_LookAtIK.solver.GetIKPositionWeight, m_LookAtIK.solver.SetIKPositionWeight, 0f, kLookAtTransition));
-                sequence.AppendCallback(() => m_LookAtIK.solver.target = null);
-                sequence.SetTarget(m_LookAtIK);
-            }
-            if (m_EyeController != null) {
-                m_EyeController.viewTarget = null;
-            }
-        }
-
-        public override void ResumeLookAt() {
-            StoryDebug.Log($"{Name} resumed looking at {m_LookCommandTarget}", this);
-            if (m_LookAtIK != null && m_LookCommandTarget != null) {
-                m_LookAtIK.DOKill();
-                Sequence sequence = DOTween.Sequence();
-                sequence.AppendCallback(() => m_LookAtIK.solver.target = m_LookCommandTarget);
-                sequence.Append(DOTween.To(m_LookAtIK.solver.GetIKPositionWeight, m_LookAtIK.solver.SetIKPositionWeight, kLookAtMaxIntensity, kLookAtTransition));
-                sequence.SetTarget(m_LookAtIK);
-            }
-            if (m_EyeController != null) {
-                m_EyeController.viewTarget = m_LookCommandTarget;
-            }
-        }
-
         public override void LookAt(Transform target) {
             StoryDebug.Log($"{Name} now looking at {target}", this);
-            m_LookCommandTarget = target;
             if (m_LookAtIK != null) {
                 m_LookAtIK.DOKill();
                 Sequence sequence = DOTween.Sequence();
                 sequence.Append(DOTween.To(m_LookAtIK.solver.GetIKPositionWeight, m_LookAtIK.solver.SetIKPositionWeight, 0f, kLookAtTransition));
-                sequence.AppendCallback(() => m_LookAtIK.solver.target = m_LookCommandTarget);
-                sequence.Append(DOTween.To(m_LookAtIK.solver.GetIKPositionWeight, m_LookAtIK.solver.SetIKPositionWeight, kLookAtMaxIntensity, kLookAtTransition));
+                sequence.AppendCallback(() => m_LookAtIK.solver.target = target);
+                sequence.Append(DOTween.To(m_LookAtIK.solver.GetIKPositionWeight, m_LookAtIK.solver.SetIKPositionWeight, 1f, kLookAtTransition));
                 sequence.SetTarget(m_LookAtIK);
             }
             if (m_EyeController != null) {
-                m_EyeController.viewTarget = m_LookCommandTarget;
+                m_EyeController.viewTarget = target;
             }
         }
 
@@ -242,22 +239,6 @@ namespace StoryCore.Characters {
             return DelaySequence.Empty;
         }
 
-        private bool m_ChangeEmotions;
-
-        private string m_LastEmotion;
-        private int m_LastEmotionIndex;
-        private float m_LastEmotionStart;
-
-        private string m_CurrentEmotion;
-        private int m_CurrentEmotionIndex;
-        private float m_CurrentEmotionStart;
-        private float m_CurrentEmotionProgress;
-        private float m_CurrentEmotionTarget;
-
-        private float m_TargetTime;
-        private const float kEmotionTransition = 0.3f;
-        private const string kNeutral = "Neutral";
-
         private void CheckEmotions() {
             if (!m_ChangeEmotions) {
                 return;
@@ -274,16 +255,22 @@ namespace StoryCore.Characters {
         }
 
         public void SetEmotion(string emotionName, float intensity) {
-            m_ChangeEmotions = true;
-
             bool isSame = !m_LastEmotion.IsNullOrEmpty() && Equals(m_LastEmotion, m_CurrentEmotion);
+            
+            m_CurrentEmotionIndex = m_LipSync.emotions.IndexOf(e => Equals(e.emotion, emotionName));
 
+            if (m_CurrentEmotionIndex < 0) {
+                Debug.LogWarning($"Couldn't set emotion. '{emotionName}' doesn't exist on {name}.", this);
+                return;
+            }
+
+            m_ChangeEmotions = true;
             m_LastEmotion = m_CurrentEmotion;
             m_LastEmotionIndex = m_CurrentEmotionIndex;
             m_LastEmotionStart = Mathf.Lerp(m_CurrentEmotionStart, m_CurrentEmotionTarget, m_CurrentEmotionProgress);
 
             m_CurrentEmotion = emotionName;
-            m_CurrentEmotionIndex = m_LipSync.emotions.IndexOf(e => Equals(e.emotion, emotionName));
+
             m_CurrentEmotionStart = isSame ? m_CurrentEmotionProgress : 0;
             m_CurrentEmotionProgress = 0;
             m_CurrentEmotionTarget = m_CurrentEmotion.Equals(kNeutral, StringComparison.OrdinalIgnoreCase) ? 1 : intensity;
@@ -300,6 +287,12 @@ namespace StoryCore.Characters {
         public void JumpToEmotion(string emotionName, float intensity) {
             m_ChangeEmotions = false;
             int emotionIndex = m_LipSync.emotions.IndexOf(e => Equals(e.emotion, emotionName));
+
+            if (emotionIndex < 0) {
+                Debug.LogWarning($"Couldn't set emotion. '{emotionName}' doesn't exist on {name}.", this);
+                return;
+            }
+            
             m_LipSync.ResetDisplayedEmotions();
             m_LipSync.DisplayEmotionPose(emotionIndex, intensity);
         }
@@ -351,14 +344,35 @@ namespace StoryCore.Characters {
             CustomPerformance customPerformance = performance as CustomPerformance;
 
             if (customPerformance != null) {
-                m_FollowTarget = null;
-                return customPerformance.Play(this);
+                DelaySequence customDelay = customPerformance.Play(this);
+
+                if (customPerformance.ChosenAnim) {
+                    if (!customPerformance.ChosenAnim.isLooping) {
+                        // Custom anim exists but is not looping. Trigger a return transition after it's complete.
+                        AddReturnTransition(customPerformance.ChosenAnim.length);
+                    } else {
+                        // Chosen custom clip is looping. Set it as the last looping anim.
+                        m_LastLoopingPerformance = performance;
+                    }
+                }
+
+                return customDelay;
             }
 
             // Handle individual animations.
             AnimationClip animClip = performance as AnimationClip;
             if (animClip != null) {
-                return PlayAnim(animClip);
+                DelaySequence animDelay = PlayAnim(animClip);
+
+                if (!animClip.isLooping) {
+                    // Anim is not looping. Set a return transition once it's complete.
+                    AddReturnTransition(animClip.length);
+                } else {
+                    // Clip is looping. Set it as the last looping anim.
+                    m_LastLoopingPerformance = performance;
+                }
+
+                return animDelay;
             }
 
             LipSyncData lipSyncData = performance as LipSyncData;
@@ -376,27 +390,37 @@ namespace StoryCore.Characters {
             return DelaySequence.Empty;
         }
 
+        private void AddReturnTransition(float animLength) {
+            float delay = animLength > 2 ? animLength - 1 : animLength/2;
+            m_Sequence.Join(DOVirtual.DelayedCall(delay, () => Play(m_LastLoopingPerformance)));
+        }
+
         public DelaySequence PlayAnim(AnimationClip clip, float delay = 0, float transition = -1, AnimationCurve lookWeight = null) {
             if (!m_Animator) {
                 Debug.LogWarningFormat(this, "No animator found.");
                 return DelaySequence.Empty;
             }
 
-            // stop following if you were
-            m_FollowTarget = null;
-                
+            // Avoid transitioning to the same looping clip.
+            if (clip.isLooping && m_CurrentAnim.IsValid() && clip == m_CurrentAnim.GetAnimationClip()) {
+                return DelaySequence.Empty;
+            }
+
             // Creates AnimationClipPlayable and connects them to the mixer.
             if (!m_LastAnim.IsValid()) {
                 m_LastAnim = GetClipPlayable(m_Graph, clip);
             }
 
-            AnimationClipPlayable nextAnim = GetClipPlayable(m_Graph, clip);
+            m_CurrentAnim = GetClipPlayable(m_Graph, clip);
+            
+            // StoryDebug.Log($"Setting last anim change to: {Time.time:N2}");
+            m_LastAnimChange = Time.time;
 
             m_Graph.Disconnect(m_TransitionMixer, 0);
             m_Graph.Disconnect(m_TransitionMixer, 1);
 
             m_Graph.Connect(m_LastAnim, 0, m_TransitionMixer, 0);
-            m_Graph.Connect(nextAnim, 0, m_TransitionMixer, 1);
+            m_Graph.Connect(m_CurrentAnim, 0, m_TransitionMixer, 1);
 
             m_TransitionMixer.SetInputWeight(0, 1);
             m_TransitionMixer.SetInputWeight(1, 0);
@@ -425,15 +449,15 @@ namespace StoryCore.Characters {
                         // Debug.Log("Setting lookAt weight to " + lookAt.IKPositionWeight.ToString("N2"));
                     }, 1, clip.averageDuration)).SetLoops(clip.isLooping ? -1 : 0);
                 } else {
-                    m_Sequence.Join(DOTween.To(() => lookAt.IKPositionWeight, weight => {
-                        lookAt.IKPositionWeight = weight;
-                    }, 1, transition)).SetEase(Ease.InOutSine);
+                    m_Sequence.Join(DOTween.To(() => lookAt.IKPositionWeight, weight => { lookAt.IKPositionWeight = weight; }, 1, transition)).SetEase(Ease.InOutSine);
                 }
             }
 
-            m_LastAnim = nextAnim;
+            if (m_LastLoopingPerformance == null && clip.isLooping) {
+                m_LastLoopingPerformance = clip;
+            }
+
             return DelaySequence.Empty;
-            //return Delay.For(nextAnim.GetAnimationClip().length, this);
         }
 
         public DelaySequence PlayAudio(AudioClip clip, float delay = 0) {
@@ -441,6 +465,16 @@ namespace StoryCore.Characters {
         }
 
         public DelaySequence PlayLipSync(LipSyncData lipSyncData, float delay = 0) {
+            if (!lipSyncData) {
+                Debug.LogWarning("No lipsync data found.", this);
+                return Delay.For(delay, this);
+            }
+
+            if (!m_LipSync) {
+                Debug.LogWarning($"Can't play {lipSyncData.name}. No LipSync component on {name}.", this);
+                return Delay.For(delay, this);
+            }
+
             return Delay.For(delay, this).Then(() => m_LipSync.Play(lipSyncData)).ThenWaitFor(lipSyncData.length);
         }
 
@@ -452,75 +486,5 @@ namespace StoryCore.Characters {
             Debug.LogWarning("PlayPlayable not implemented for Characters.");
             return DelaySequence.Empty;
         }
-
-        public override DelaySequence Follow(ScriptCommandInfo command) {
-            
-            string locatorName = command.Params[0];
-            StoryDebug.LogFormat(this, "Character Command: Follow '" + locatorName + "'");
-
-            m_FollowTarget = Buckets.locations.Get(locatorName);
-            m_FollowDistance = 1.0f;
-            m_FollowMaxDistance = 2.0f;
-            
-            return DelaySequence.Empty;
-        }
-
-
-        public override DelaySequence MoveTo(ScriptCommandInfo command) {
-            
-            // Find the move target, this is a locator name in the scene.
-            string moveTargetName = command.Params.GetFirst();
-            if (moveTargetName.IsNullOrEmpty()) {
-                Debug.LogWarningFormat(this, "No MoveTo target found.");
-                return DelaySequence.Empty;
-            }
-
-            // Find the location object.
-            BaseLocation baseLocation = Buckets.locations.Get(moveTargetName);
-            if (baseLocation == null) {
-                Debug.LogWarningFormat(this, $"MoveTo target {moveTargetName} not found.");
-                return DelaySequence.Empty;
-            }
-            
-            float moveSpeed = 2.0f;
-
-            int speedParamIndex = 1;
-            if (command.Params.Length > speedParamIndex) {
-                string moveSpeedString = command.Params[speedParamIndex];
-                float parsedSpeed;
-                if (!float.TryParse(moveSpeedString, out parsedSpeed)) {
-                    Debug.LogWarningFormat(this, $"MoveTo second parameter needs to be a float, found {moveSpeedString}.");
-                    return DelaySequence.Empty;
-                }
-                moveSpeed = parsedSpeed;
-            }
-            
-            // stop following if you were
-            m_FollowTarget = null;
-            
-            return MoveTo(baseLocation, moveSpeed, 0.0f);
-        }
-
-        public DelaySequence MoveTo(BaseLocation targetLocation, float speed, float minDistance) {
-            // blend in locomotion control
-            BlendAnimControlTo(1.0f, kLocomotionBlendTime);
-            
-            m_LocomotionController.MoveTo(targetLocation, speed, minDistance);
-            return Delay.Until(() => !m_LocomotionController.IsMoving, m_LocomotionController).Then(() => {
-                // blend out locomotion control
-                BlendAnimControlTo(0.0f, kLocomotionBlendTime);
-            });
-        }
-
-        private void BlendAnimControlTo(float animControllerWeight, float duration) {
-            //m_ControllerAndClipMixer.SetInputWeight(0, 1.0f - animControllerWeight);
-            //m_ControllerAndClipMixer.SetInputWeight(1, animControllerWeight);
-            DOTween.To(() => m_ControllerAndClipMixer.GetInputWeight(1), weight => {
-                weight = Mathf.Clamp01(weight);
-                m_ControllerAndClipMixer.SetInputWeight(0, 1.0f - weight);
-                m_ControllerAndClipMixer.SetInputWeight(1, weight);
-            }, animControllerWeight, duration);
-        }
-
     }
 }

@@ -1,3 +1,4 @@
+using CoreUtils;
 using IngameDebugConsole;
 using StoryCore.Utils;
 using UnityEngine;
@@ -10,50 +11,40 @@ namespace StoryCore.Commands {
         private VRTK_HeadsetFade m_Fader;
 
         private VRTK_HeadsetFade Fader => UnityUtils.GetOrSet(ref m_Fader, this.GetOrAddComponent<VRTK_HeadsetFade>);
-        public static float Duration => Instance.m_Duration;
+        public static float Duration => Exists ? Instance.m_Duration : 0;
 
-        private DelaySequence m_CurrentFadeSequence;
-        
         private void Start() {
             m_Fader = this.GetOrAddComponent<VRTK_HeadsetFade>();
-
-            if (VRTK_SDKManager.instance.loadedSetup == null) {
-                VRTK_SDKManager.instance.LoadedSetupChanged += (sender, e) => {
-                    if (e.currentSetup != null) {
-                        FadeIn();
-                    }
-                };
-            } else {
-                FadeIn();
-            }
+            FadeIn();
         }
 
         [ConsoleMethod("fadeDuration", "fadeDuration <duration> - Sets the duration of fade in/out.")]
         private static void SetFadeDuration(float duration) {
-            Instance.m_Duration = duration;
-        }
-
-        private void CancelFading() {
-            if (m_CurrentFadeSequence != null) {
-                m_CurrentFadeSequence.Cancel("New Fade Called", this);
+            if (Exists) {
+                Instance.m_Duration = duration;
+            } else {
+                Debug.LogWarning("Couldn't find HeadsetFade instance.");
             }
         }
-        
+
         public static DelaySequence FadeOut() {
+            if (!Exists) {
+                Debug.LogWarning("Couldn't find HeadsetFade instance.");
+                return DelaySequence.Empty;
+            }
+
             Instance.Fader.Fade(Color.black, Instance.m_Duration);
-            Instance.CancelFading();
-            Instance.m_CurrentFadeSequence = Delay.Until(() => {
-                return Instance.Fader.IsFaded() && !Instance.Fader.IsTransitioning();
-            }, Instance);
-            return Instance.m_CurrentFadeSequence;
+            return Delay.Until(() => Instance && Instance.Fader && Instance.Fader.IsFaded() && !Instance.Fader.IsTransitioning(), Instance);
         }
 
         public static DelaySequence FadeIn() {
+            if (!Exists) {
+                Debug.LogWarning("Couldn't find HeadsetFade instance.");
+                return DelaySequence.Empty;
+            }
+
             Instance.Fader.Unfade(Instance.m_Duration);
-            Instance.CancelFading();
-            return Delay.Until(() => {
-                return !Instance.Fader.IsFaded();
-            }, Instance);
+            return Delay.Until(() => Instance && !Instance.Fader.IsFaded(), Instance);
         }
     }
 }

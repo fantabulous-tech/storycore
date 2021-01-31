@@ -227,8 +227,8 @@ namespace RootMotion.FinalIK {
 		[System.Serializable]
 		public class Range {
 		
-			[HideInInspector][SerializeField] public string name; // Name is composed automatically by InteractionTriggerInspector.cs. Editor only.
-			[HideInInspector][SerializeField] public bool show = true; // Show this range in the Scene view? Editor only.
+			[HideInInspector] public string name; // Name is composed automatically by InteractionTriggerInspector.cs. Editor only.
+			[HideInInspector] public bool show = true; // Show this range in the Scene view? Editor only.
 			
 			/// <summary>
 			/// Defines the interaction object and effectors that will be triggered when calling InteractionSystem.TriggerInteraction().
@@ -279,9 +279,6 @@ namespace RootMotion.FinalIK {
 			}
 		}
 
-		// Just to see the enabled box in the Editor
-		void Start() {}
-		
 		/// <summary>
 		/// The valid ranges of the character's and/or it's camera's position for triggering interaction when the character is in contact with the collider of this trigger.
 		/// </summary>

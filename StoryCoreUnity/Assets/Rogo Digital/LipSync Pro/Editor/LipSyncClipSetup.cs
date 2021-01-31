@@ -2873,7 +2873,7 @@ public class LipSyncClipSetup : ModalParent
 	#endregion
 
 	#region Window Management
-	[MenuItem("Window/Rogo Digital/LipSync Pro/Open Clip Editor %&a", false, 11)]
+	[MenuItem("Window/Rogo Digital/LipSync Pro/Open Clip Editor %&a", false, 1012)]
 	public static LipSyncClipSetup ShowWindow ()
 	{
 		return ShowWindow("", false, "", "", 0, 0);
@@ -3549,7 +3549,7 @@ public class LipSyncClipSetup : ModalParent
 	}
 
 	// Quick Update XML files
-	[MenuItem("Window/Rogo Digital/LipSync Pro/Update All XML Files")]
+	[MenuItem("Window/Rogo Digital/LipSync Pro/Update All XML Files", priority = 1012)]
 	public static void UpdateXMLFiles ()
 	{
 		string[] guids = AssetDatabase.FindAssets("t:TextAsset");

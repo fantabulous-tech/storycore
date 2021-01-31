@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace VRSubtitles {
     [CreateAssetMenu(menuName = "Subtitle Config")]
@@ -25,9 +26,9 @@ namespace VRSubtitles {
         [Space, Header("Stay In FOV Settings")]
         [SerializeField] private float m_DistanceFromCamera = 1.3f;
 
-        [SerializeField, Range(1, 10)] private float m_FovMoveSpeed = 2f;
+        [FormerlySerializedAs("m_FovMoveSpeed"),SerializeField, Range(0, 10)] private float m_SmoothTime = 2f;
 
         public float DistanceFromCamera => m_DistanceFromCamera;
-        public float FOVMoveSpeed => m_FovMoveSpeed;
+        public float SmoothTime => m_SmoothTime;
     }
 }

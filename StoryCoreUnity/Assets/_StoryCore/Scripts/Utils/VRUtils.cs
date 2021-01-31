@@ -1,6 +1,7 @@
 using UnityEngine;
 using VRTK;
 using System.Collections.Generic;
+using CoreUtils;
 
 namespace StoryCore.Utils {
     public static class VRUtils {

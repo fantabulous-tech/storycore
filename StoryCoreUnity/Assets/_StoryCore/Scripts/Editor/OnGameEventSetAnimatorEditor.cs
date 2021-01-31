@@ -1,8 +1,9 @@
 using System;
+using CoreUtils.Editor;
 using StoryCore.Utils;
 using UnityEditor;
 
-namespace StoryCore.GameEvents {
+namespace CoreUtils.GameEvents {
     [CustomEditor(typeof(OnGameEventSetAnimator))]
     public class OnGameEventSetAnimatorEditor : Editor<OnGameEventSetAnimator> {
         public override void OnInspectorGUI() {

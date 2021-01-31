@@ -210,7 +210,7 @@ namespace RogoDigital.Lipsync
 			}
 		}
 
-		[MenuItem("Window/Rogo Digital/LipSync Pro/AutoSync Setup Wizard", priority = 10)]
+		[MenuItem("Window/Rogo Digital/LipSync Pro/AutoSync Setup Wizard", priority = 1010)]
 		public static void ShowWindow ()
 		{
 			AutoSyncSetupWizard window = GetWindow<AutoSyncSetupWizard>(true);

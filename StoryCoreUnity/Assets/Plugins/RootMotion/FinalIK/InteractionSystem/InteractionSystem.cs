@@ -51,7 +51,7 @@ namespace RootMotion.FinalIK {
 		}
 
 		// Link to the Final IK Google Group
-		[ContextMenu("Support Group")]
+		[ContextMenu("Support")]
 		void SupportGroup() {
 			Application.OpenURL("https://groups.google.com/forum/#!forum/final-ik");
 		}
@@ -604,7 +604,7 @@ namespace RootMotion.FinalIK {
 			new InteractionEffector(FullBodyBipedEffector.RightThigh)
 		};
 
-		private bool initiated;
+		public bool initiated { get; private set; }
 		private Collider lastCollider, c;
 
 		// Initiate
@@ -717,7 +717,7 @@ namespace RootMotion.FinalIK {
 			for (int i = 0; i < inContact.Count; i++) {
 				int bestRangeIndex = -1;
 
-				if (inContact[i] != null && inContact[i].gameObject.activeInHierarchy && inContact[i].enabled && ContactIsInRange(i, out bestRangeIndex)) {
+				if (inContact[i] != null && inContact[i].gameObject.activeInHierarchy && ContactIsInRange(i, out bestRangeIndex)) {
 					triggersInRange.Add(inContact[i]);
 					bestRangeIndexes.Add(bestRangeIndex);
 				}

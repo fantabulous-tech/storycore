@@ -131,7 +131,7 @@ namespace RogoDigital.Lipsync
 			EditorGUI.EndDisabledGroup();
 		}
 
-		[MenuItem("Window/Rogo Digital/LipSync Pro/Preprocess Data")]
+		[MenuItem("Window/Rogo Digital/LipSync Pro/Preprocess Data", priority = 1012)]
 		public static void ShowWindow()
 		{
 			GetWindow<LipSyncDataPreprocessor>(true, "Preprocessor");

@@ -1,6 +1,7 @@
-﻿using StoryCore.GameEvents;
+﻿using CoreUtils;
+using CoreUtils.GameEvents;
 using StoryCore.UI;
-using StoryCore.GameVariables;
+using CoreUtils.GameVariables;
 using StoryCore.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;

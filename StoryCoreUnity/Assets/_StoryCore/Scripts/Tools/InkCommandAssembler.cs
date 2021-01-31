@@ -1,4 +1,3 @@
-using StoryCore.Characters;
 using UnityEngine;
 
 namespace StoryCore {

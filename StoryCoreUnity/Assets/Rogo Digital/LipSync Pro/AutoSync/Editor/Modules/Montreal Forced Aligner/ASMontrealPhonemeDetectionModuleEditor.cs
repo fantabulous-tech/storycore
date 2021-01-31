@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using CoreUtils;
 using StoryCore.Utils;
 
 namespace RogoDigital.Lipsync.AutoSync

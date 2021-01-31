@@ -256,9 +256,11 @@ namespace RootMotion.FinalIK {
 
 				if (leg.isGrounded) isGrounded = true;
 			}
-			
-			// Precess pelvis
-			pelvis.Process(-lowestOffset * lowerPelvisWeight, -highestOffset * liftPelvisWeight, isGrounded);
+
+            // Precess pelvis
+            lowestOffset = Mathf.Max(lowestOffset, 0f);
+            highestOffset = Mathf.Min(highestOffset, 0f);
+            pelvis.Process(-lowestOffset * lowerPelvisWeight, -highestOffset * liftPelvisWeight, isGrounded);
 		}
 
 		// Calculate the normal of the plane defined by leg positions, so we know how to rotate the body

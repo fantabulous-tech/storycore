@@ -31,19 +31,52 @@ namespace RootMotion.Demos {
 
 				Inspector.SphereCap(0, script.pivot.position, Quaternion.identity, size);
 
-				Vector3 twistAxisWorld = script.pivot.rotation * script.twistAxis.normalized * size * 40;
-				Handles.DrawLine(script.pivot.position, script.pivot.position + twistAxisWorld);
-				Inspector.SphereCap(0, script.pivot.position + twistAxisWorld, Quaternion.identity, size);
+                if (script.rotationMode == InteractionTarget.RotationMode.TwoDOF)
+                {
+                    Vector3 twistAxisWorld = script.pivot.rotation * script.twistAxis.normalized * size * 40;
+                    Handles.DrawLine(script.pivot.position, script.pivot.position + twistAxisWorld);
+                    Inspector.SphereCap(0, script.pivot.position + twistAxisWorld, Quaternion.identity, size);
 
-				Inspector.CircleCap(0, script.pivot.position, Quaternion.LookRotation(twistAxisWorld), size * 20);
-				Handles.Label(script.pivot.position + twistAxisWorld, twistAxisLabel);
+                    Inspector.CircleCap(0, script.pivot.position, Quaternion.LookRotation(twistAxisWorld), size * 20);
+                    Handles.Label(script.pivot.position + twistAxisWorld, twistAxisLabel);
+                }
 			}
 
 			Handles.color = Color.white;
 			GUI.color = Color.white;
 		}
 
-		private void DrawChildrenRecursive(Transform t) {
+        public override void OnInspectorGUI()
+        {
+            serializedObject.Update();
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("effectorType"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("multipliers"), true);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("interactionSpeedMlp"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("pivot"));
+
+            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("rotationMode"));
+
+            int rotationMode = serializedObject.FindProperty("rotationMode").enumValueIndex;
+            if (rotationMode == 0)
+            {
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("twistAxis"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("twistWeight"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("swingWeight"));
+            } else if (rotationMode == 1)
+            {
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("threeDOFWeight"));
+            }
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("rotateOnce"));
+
+            if (serializedObject.ApplyModifiedProperties())
+            {
+                EditorUtility.SetDirty(script);
+            }
+        }
+
+        private void DrawChildrenRecursive(Transform t) {
 			for (int i = 0; i < t.childCount; i++) {
 
 				Handles.DrawLine(t.position, t.GetChild(i).position);

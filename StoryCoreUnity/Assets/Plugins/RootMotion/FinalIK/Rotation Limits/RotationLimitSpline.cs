@@ -55,7 +55,7 @@ namespace RootMotion.FinalIK {
         /*
 		 * The AnimationCurve orthogonally mapped onto a sphere that defines the swing limits
 		 * */
-        [SerializeField][HideInInspector] public AnimationCurve spline;
+        [HideInInspector] public AnimationCurve spline;
 
         #endregion Main Interface
 

@@ -1,4 +1,5 @@
-﻿using StoryCore.GameVariables;
+﻿using CoreUtils;
+using CoreUtils.GameVariables;
 using StoryCore.Utils;
 using UnityEngine;
 

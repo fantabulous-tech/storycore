@@ -106,7 +106,7 @@ namespace RootMotion.FinalIK {
 			leg.heelPositionOffset += heelOffset;
 			
 			leg.PreSolve ();
-			leg.ApplyOffsets( );
+			leg.ApplyOffsets(1f);
 			leg.Solve (true);
 			leg.ResetOffsets ();
 		}

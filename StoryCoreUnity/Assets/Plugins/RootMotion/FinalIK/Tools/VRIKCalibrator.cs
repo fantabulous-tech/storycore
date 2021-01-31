@@ -36,18 +36,6 @@ namespace RootMotion.FinalIK
             public Vector3 headTrackerUp = Vector3.up;
 
             /// <summary>
-			/// Local axis of the body tracker towards the player's forward direction.
-            /// </summary>
-			[Tooltip("Local axis of the body tracker towards the player's forward direction.")]
-            public Vector3 bodyTrackerForward = Vector3.forward;
-
-            /// <summary>
-            /// Local axis of the body tracker towards the up direction.
-            /// </summary>
-            [Tooltip("Local axis of the body tracker towards the up direction.")]
-            public Vector3 bodyTrackerUp = Vector3.up;
-
-            /// <summary>
             /// Local axis of the hand trackers pointing from the wrist towards the palm.
             /// </summary>
             [Tooltip("Local axis of the hand trackers pointing from the wrist towards the palm.")]
@@ -113,14 +101,39 @@ namespace RootMotion.FinalIK
             /// </summary>
             [Range(0f, 1f)] public float pelvisRotationWeight = 1f;
         }
+        
+        /// <summary>
+        /// Recalibrates only the avatar scale, updates CalibrationData to the new scale value
+        /// </summary>
+        public static void RecalibrateScale(VRIK ik, CalibrationData data, Settings settings)
+        {
+            RecalibrateScale(ik, data, settings.scaleMlp);
+        }
 
         /// <summary>
-        /// Recalibrates only the avatar scale. Can be called only if the avatar has already been calibrated.
+        /// Recalibrates only the avatar scale, updates CalibrationData to the new scale value
         /// </summary>
-        public static void RecalibrateScale(VRIK ik, Settings settings)
+        public static void RecalibrateScale(VRIK ik, CalibrationData data, float scaleMlp)
+        {
+            CalibrateScale(ik, scaleMlp);
+            data.scale = ik.references.root.localScale.y;
+        }
+
+        /// <summary>
+        /// Calibrates only the avatar scale.
+        /// </summary>
+        private static void CalibrateScale(VRIK ik, Settings settings)
+        {
+            CalibrateScale(ik, settings.scaleMlp);
+        }
+
+        /// <summary>
+        /// Calibrates only the avatar scale.
+        /// </summary>
+        private static void CalibrateScale(VRIK ik, float scaleMlp = 1f)
         {
             float sizeF = (ik.solver.spine.headTarget.position.y - ik.references.root.position.y) / (ik.references.head.position.y - ik.references.root.position.y);
-            ik.references.root.localScale *= sizeF * settings.scaleMlp;
+            ik.references.root.localScale *= sizeF * scaleMlp;
         }
 
         /// <summary>
@@ -380,7 +393,7 @@ namespace RootMotion.FinalIK
             ik.references.root.localScale = data.scale * Vector3.one;
 
             // Body
-            if (bodyTracker != null)
+            if (bodyTracker != null && data.pelvis != null)
             {
                 Transform pelvisTarget = ik.solver.spine.pelvisTarget == null ? (new GameObject("Pelvis Target")).transform : ik.solver.spine.pelvisTarget;
                 pelvisTarget.parent = bodyTracker;
@@ -455,6 +468,9 @@ namespace RootMotion.FinalIK
 
         private static void CalibrateLeg(CalibrationData data, Transform tracker, IKSolverVR.Leg leg, Transform lastBone, Vector3 rootForward, bool isLeft)
         {
+            if (isLeft && data.leftFoot == null) return;
+            if (!isLeft && data.rightFoot == null) return;
+
             string name = isLeft ? "Left" : "Right";
             Transform target = leg.target == null ? (new GameObject(name + " Foot Target")).transform : leg.target;
 
@@ -477,6 +493,136 @@ namespace RootMotion.FinalIK
 
             leg.bendGoal = bendGoal;
             leg.bendGoalWeight = 1f;
+        }
+
+        /// <summary>
+        /// Simple calibration to head and hands using predefined anchor position and rotation offsets.
+        /// </summary>
+        /// <param name="ik">The VRIK component.</param>
+        /// <param name="centerEyeAnchor">HMD.</param>
+        /// <param name="leftHandAnchor">Left hand controller.</param>
+        /// <param name="rightHandAnchor">Right hand controller.</param>
+        /// <param name="centerEyePositionOffset">Position offset of the camera from the head bone (root space).</param>
+        /// <param name="centerEyeRotationOffset">Rotation offset of the camera from the head bone (root space).</param>
+        /// <param name="handPositionOffset">Position offset of the hand controller from the hand bone (controller space).</param>
+        /// <param name="handRotationOffset">Rotation offset of the hand controller from the hand bone (controller space).</param>
+        /// <param name="scaleMlp">Multiplies the scale of the root.</param>
+        /// <returns></returns>
+        public static CalibrationData Calibrate(VRIK ik, Transform centerEyeAnchor, Transform leftHandAnchor, Transform rightHandAnchor, Vector3 centerEyePositionOffset, Vector3 centerEyeRotationOffset, Vector3 handPositionOffset, Vector3 handRotationOffset, float scaleMlp = 1f)
+        {
+            CalibrateHead(ik, centerEyeAnchor, centerEyePositionOffset, centerEyeRotationOffset);
+            CalibrateHands(ik, leftHandAnchor, rightHandAnchor, handPositionOffset, handRotationOffset);
+            CalibrateScale(ik, scaleMlp);
+
+            // Fill in Calibration Data
+            CalibrationData data = new CalibrationData();
+            data.scale = ik.references.root.localScale.y;
+            data.head = new CalibrationData.Target(ik.solver.spine.headTarget);
+            data.leftHand = new CalibrationData.Target(ik.solver.leftArm.target);
+            data.rightHand = new CalibrationData.Target(ik.solver.rightArm.target);
+            
+            return data;
+        }
+
+        /// <summary>
+        /// Calibrates head IK target to specified anchor position and rotation offset independent of avatar bone orientations.
+        /// </summary>
+        public static void CalibrateHead(VRIK ik, Transform centerEyeAnchor, Vector3 anchorPositionOffset, Vector3 anchorRotationOffset)
+        {
+            if (ik.solver.spine.headTarget == null) ik.solver.spine.headTarget = new GameObject("Head IK Target").transform;
+
+            Vector3 forward = Quaternion.Inverse(ik.references.head.rotation) * ik.references.root.forward;
+            Vector3 up = Quaternion.Inverse(ik.references.head.rotation) * ik.references.root.up;
+            Quaternion headSpace = Quaternion.LookRotation(forward, up);
+
+            Vector3 anchorPos = ik.references.head.position + ik.references.head.rotation * headSpace * anchorPositionOffset;
+            Quaternion anchorRot = ik.references.head.rotation * headSpace * Quaternion.Euler(anchorRotationOffset);
+            Quaternion anchorRotInverse = Quaternion.Inverse(anchorRot);
+
+            ik.solver.spine.headTarget.parent = centerEyeAnchor;
+            ik.solver.spine.headTarget.localPosition = anchorRotInverse * (ik.references.head.position - anchorPos);
+            ik.solver.spine.headTarget.localRotation = anchorRotInverse * ik.references.head.rotation;
+        }
+
+        /// <summary>
+        /// Calibrates body target to avatar pelvis position and position/rotation offsets in character root space.
+        /// </summary>
+        public static void CalibrateBody(VRIK ik, Transform pelvisTracker, Vector3 trackerPositionOffset, Vector3 trackerRotationOffset)
+        {
+            if (ik.solver.spine.pelvisTarget == null) ik.solver.spine.pelvisTarget = new GameObject("Pelvis IK Target").transform;
+
+            ik.solver.spine.pelvisTarget.position = ik.references.pelvis.position + ik.references.root.rotation * trackerPositionOffset;
+            ik.solver.spine.pelvisTarget.rotation = ik.references.root.rotation * Quaternion.Euler(trackerRotationOffset);
+            ik.solver.spine.pelvisTarget.parent = pelvisTracker;
+        }
+
+        /// <summary>
+        /// Calibrates hand IK targets to specified anchor position and rotation offsets independent of avatar bone orientations.
+        /// </summary>
+        public static void CalibrateHands(VRIK ik, Transform leftHandAnchor, Transform rightHandAnchor, Vector3 anchorPositionOffset, Vector3 anchorRotationOffset)
+        {
+            if (ik.solver.leftArm.target == null) ik.solver.leftArm.target = new GameObject("Left Hand IK Target").transform;
+            if (ik.solver.rightArm.target == null) ik.solver.rightArm.target = new GameObject("Right Hand IK Target").transform;
+
+            CalibrateHand(ik.references.leftHand, ik.references.leftForearm, ik.solver.leftArm.target, leftHandAnchor, anchorPositionOffset, anchorRotationOffset, true);
+            CalibrateHand(ik.references.rightHand, ik.references.rightForearm, ik.solver.rightArm.target, rightHandAnchor, anchorPositionOffset, anchorRotationOffset, false);
+        }
+
+        private static void CalibrateHand(Transform hand, Transform forearm, Transform target, Transform anchor, Vector3 positionOffset, Vector3 rotationOffset, bool isLeft)
+        {
+            if (isLeft)
+            {
+                positionOffset.x = -positionOffset.x;
+                rotationOffset.y = -rotationOffset.y;
+                rotationOffset.z = -rotationOffset.z;
+            }
+
+            Vector3 forward = VRIKCalibrator.GuessWristToPalmAxis(hand, forearm);
+            Vector3 up = VRIKCalibrator.GuessPalmToThumbAxis(hand, forearm);
+            Quaternion handSpace = Quaternion.LookRotation(forward, up);
+            Vector3 anchorPos = hand.position + hand.rotation * handSpace * positionOffset;
+            Quaternion anchorRot = hand.rotation * handSpace * Quaternion.Euler(rotationOffset);
+            Quaternion anchorRotInverse = Quaternion.Inverse(anchorRot);
+
+            target.parent = anchor;
+            target.localPosition = anchorRotInverse * (hand.position - anchorPos);
+            target.localRotation = anchorRotInverse * hand.rotation;
+        }
+
+        public static Vector3 GuessWristToPalmAxis(Transform hand, Transform forearm)
+        {
+            Vector3 toForearm = forearm.position - hand.position;
+            Vector3 axis = AxisTools.ToVector3(AxisTools.GetAxisToDirection(hand, toForearm));
+            if (Vector3.Dot(toForearm, hand.rotation * axis) > 0f) axis = -axis;
+            return axis;
+        }
+
+        public static Vector3 GuessPalmToThumbAxis(Transform hand, Transform forearm)
+        {
+            if (hand.childCount == 0)
+            {
+                Debug.LogWarning("Hand " + hand.name + " does not have any fingers, VRIK can not guess the hand bone's orientation. Please assign 'Wrist To Palm Axis' and 'Palm To Thumb Axis' manually for both arms in VRIK settings.", hand);
+                return Vector3.zero;
+            }
+
+            float closestSqrMag = Mathf.Infinity;
+            int thumbIndex = 0;
+
+            for (int i = 0; i < hand.childCount; i++)
+            {
+                float sqrMag = Vector3.SqrMagnitude(hand.GetChild(i).position - hand.position);
+                if (sqrMag < closestSqrMag)
+                {
+                    closestSqrMag = sqrMag;
+                    thumbIndex = i;
+                }
+            }
+
+            Vector3 handNormal = Vector3.Cross(hand.position - forearm.position, hand.GetChild(thumbIndex).position - hand.position);
+            Vector3 toThumb = Vector3.Cross(handNormal, hand.position - forearm.position);
+            Vector3 axis = AxisTools.ToVector3(AxisTools.GetAxisToDirection(hand, toThumb));
+            if (Vector3.Dot(toThumb, hand.rotation * axis) < 0f) axis = -axis;
+            return axis;
         }
     }
 }

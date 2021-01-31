@@ -4,7 +4,8 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -12,7 +13,7 @@ MonoBehaviour:
   m_Name: Subtitle Director Config
   m_EditorClassIdentifier: 
   m_Template: {fileID: 114257541039715604, guid: 9b6d42dbe8693084592a9832c3005240,
-    type: 2}
+    type: 3}
   m_WordsPerMinute: 200
   m_MinimumDuration: 3
   m_FadeIn: 0.2
@@ -65,9 +66,5 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
-  m_MaxSubtitleWidth: 800
-  m_MaxPortraitWidth: 200
-  m_MaxPortraitHeight: 200
   m_DistanceFromCamera: 0.5
-  m_FovMoveSpeed: 2
-  m_FovAngle: 40
+  m_SmoothTime: 0.5

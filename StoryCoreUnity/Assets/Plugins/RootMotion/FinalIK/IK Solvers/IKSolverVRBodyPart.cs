@@ -19,7 +19,7 @@ namespace RootMotion.FinalIK {
 			protected abstract void OnRead(Vector3[] positions, Quaternion[] rotations, bool hasChest, bool hasNeck, bool hasShoulders, bool hasToes, bool hasLegs, int rootIndex, int index);
 			public abstract void PreSolve();
 			public abstract void Write(ref Vector3[] solvedPositions, ref Quaternion[] solvedRotations);
-			public abstract void ApplyOffsets();
+			public abstract void ApplyOffsets(float scale);
 			public abstract void ResetOffsets();
 
 			public float sqrMag { get; private set; }

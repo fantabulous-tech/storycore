@@ -115,6 +115,7 @@ namespace RootMotion.FinalIK {
 		private Vector3 bone1Axis;
 		private Vector3 tipAxis;
         private Vector3 bone1TwistAxis;
+        private Vector3 defaultBendNormal;
 
 		// Initiates the LimbIK solver
 		public void Initiate(Transform hand, int index) {
@@ -131,8 +132,10 @@ namespace RootMotion.FinalIK {
 			solver.IKPositionWeight = weight;
 			solver.bendModifier = IKSolverLimb.BendModifier.Target;
 			solver.bendModifierWeight = 1f;
+            defaultBendNormal = -Vector3.Cross(tip.position - bone1.position, bone2.position - bone1.position).normalized;
+            solver.bendNormal = defaultBendNormal;
 
-			Vector3 axisWorld = Vector3.Cross(bone2.position - bone1.position, tip.position - bone1.position);
+            Vector3 axisWorld = Vector3.Cross(bone2.position - bone1.position, tip.position - bone1.position);
 			bone1Axis = Quaternion.Inverse(bone1.rotation) * axisWorld;
 			tipAxis = Quaternion.Inverse(tip.rotation) * axisWorld;
 
@@ -208,12 +211,9 @@ namespace RootMotion.FinalIK {
 				}
 			}
 
-            // Update the LimbIK solver
-            solver.bendNormal = -Vector3.Cross(tip.position - bone1.position, bone2.position - bone1.position);
             solver.IKPositionWeight = w;
 			solver.IKRotationWeight = rotationWeight;
-			solver.bendModifierWeight = rotationWeight;
-			solver.Update();
+            solver.Update();
 
             if (fixBone1Twist)
             {

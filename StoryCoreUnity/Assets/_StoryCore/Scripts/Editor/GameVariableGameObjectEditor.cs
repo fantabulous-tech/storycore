@@ -1,4 +1,5 @@
-﻿using StoryCore.GameVariables;
+﻿using CoreUtils.Editor;
+using CoreUtils.GameVariables;
 using StoryCore.Utils;
 using UnityEditor;
 using UnityEngine;

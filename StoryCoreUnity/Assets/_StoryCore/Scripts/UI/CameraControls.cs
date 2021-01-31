@@ -1,4 +1,5 @@
-﻿using StoryCore.Utils;
+﻿using CoreUtils;
+using StoryCore.Utils;
 using UnityEngine;
 using UnityEngine.EventSystems;
 

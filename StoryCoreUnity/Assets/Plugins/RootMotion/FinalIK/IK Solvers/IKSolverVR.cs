@@ -47,19 +47,19 @@ namespace RootMotion.FinalIK {
 			}
 			
 			if (leftArm.wristToPalmAxis == Vector3.zero || !onlyIfZero) {
-				leftArm.wristToPalmAxis = GuessWristToPalmAxis(references.leftHand, references.leftForearm);
+				leftArm.wristToPalmAxis = VRIKCalibrator.GuessWristToPalmAxis(references.leftHand, references.leftForearm);
 			}
 			
 			if (leftArm.palmToThumbAxis == Vector3.zero || !onlyIfZero) {
-				leftArm.palmToThumbAxis = GuessPalmToThumbAxis(references.leftHand, references.leftForearm);
+				leftArm.palmToThumbAxis = VRIKCalibrator.GuessPalmToThumbAxis(references.leftHand, references.leftForearm);
 			}
 			
 			if (rightArm.wristToPalmAxis == Vector3.zero || !onlyIfZero) {
-				rightArm.wristToPalmAxis = GuessWristToPalmAxis(references.rightHand, references.rightForearm);
+				rightArm.wristToPalmAxis = VRIKCalibrator.GuessWristToPalmAxis(references.rightHand, references.rightForearm);
 			}
 			
 			if (rightArm.palmToThumbAxis == Vector3.zero || !onlyIfZero) {
-				rightArm.palmToThumbAxis = GuessPalmToThumbAxis(references.rightHand, references.rightForearm);
+				rightArm.palmToThumbAxis = VRIKCalibrator.GuessPalmToThumbAxis(references.rightHand, references.rightForearm);
 			}
 		}
 
@@ -235,38 +235,7 @@ namespace RootMotion.FinalIK {
 			
 			return normal;
 		}
-
-		private Vector3 GuessWristToPalmAxis(Transform hand, Transform forearm) {
-			Vector3 toForearm = forearm.position -hand.position;
-			Vector3 axis = AxisTools.ToVector3(AxisTools.GetAxisToDirection(hand, toForearm));
-			if (Vector3.Dot(toForearm, hand.rotation * axis) > 0f) axis = -axis;
-			return axis;
-		}
-
-		private Vector3 GuessPalmToThumbAxis(Transform hand, Transform forearm) {
-			if (hand.childCount == 0) {
-				Debug.LogWarning("Hand " + hand.name + " does not have any fingers, VRIK can not guess the hand bone's orientation. Please assign 'Wrist To Palm Axis' and 'Palm To Thumb Axis' manually for both arms in VRIK settings.", hand);
-				return Vector3.zero;
-			}
-
-			float closestSqrMag = Mathf.Infinity;
-			int thumbIndex = 0;
-
-			for (int i = 0; i < hand.childCount; i++) {
-				float sqrMag = Vector3.SqrMagnitude(hand.GetChild(i).position -hand.position);
-				if (sqrMag < closestSqrMag) {
-					closestSqrMag = sqrMag;
-					thumbIndex = i;
-				}
-			}
-
-			Vector3 handNormal = Vector3.Cross(hand.position - forearm.position, hand.GetChild(thumbIndex).position - hand.position);
-			Vector3 toThumb = Vector3.Cross(handNormal, hand.position -forearm.position);
-			Vector3 axis = AxisTools.ToVector3(AxisTools.GetAxisToDirection(hand, toThumb));
-			if (Vector3.Dot(toThumb, hand.rotation * axis) < 0f) axis = -axis;
-			return axis;
-		}
-
+        
 		private static Keyframe[] GetSineKeyframes(float mag) {
 			Keyframe[] keys = new Keyframe[3];
 			keys[0].time = 0f;
@@ -288,7 +257,7 @@ namespace RootMotion.FinalIK {
 		}
 
 		protected override void OnInitiate() {
-			UpdateSolverTransforms();
+            UpdateSolverTransforms();
 			Read(readPositions, readRotations, hasChest, hasNeck, hasShoulders, hasToes, hasLegs);
 		}
 
@@ -419,7 +388,7 @@ namespace RootMotion.FinalIK {
 				if (hasLegs) legs = new Leg[2] { leftLeg, rightLeg };
 				arms = new Arm[2] { leftArm, rightArm };
 
-				if (hasLegs) locomotion.Initiate(positions, rotations, hasToes);
+				if (hasLegs) locomotion.Initiate(positions, rotations, hasToes, scale);
 				raycastOriginPelvis = spine.pelvis.readPosition;
 				spine.faceDirection = readRotations[0] * Vector3.forward;
 			}
@@ -428,6 +397,12 @@ namespace RootMotion.FinalIK {
         private int lastLOD;
 
 		private void Solve() {
+            if (scale <= 0f)
+            {
+                Debug.LogError("VRIK solver scale <= 0, can not solve!");
+                return;
+            }
+
             spine.SetLOD(LOD);
             foreach (Arm arm in arms) arm.SetLOD(LOD);
             if (hasLegs) foreach (Leg leg in legs) leg.SetLOD(LOD);
@@ -438,11 +413,11 @@ namespace RootMotion.FinalIK {
 			if (hasLegs) foreach (Leg leg in legs) leg.PreSolve();
 
 			// Applying spine and arm offsets
-			foreach (Arm arm in arms) arm.ApplyOffsets();
-			spine.ApplyOffsets();
+			foreach (Arm arm in arms) arm.ApplyOffsets(scale);
+			spine.ApplyOffsets(scale);
 
 			// Spine
-			spine.Solve(rootBone, legs, arms);
+			spine.Solve(rootBone, legs, arms, scale);
 
 			if (hasLegs && spine.pelvisPositionWeight > 0f && plantFeet) {
 				Warning.Log("If VRIK 'Pelvis Position Weight' is > 0, 'Plant Feet' should be disabled to improve performance and stability.", root);
@@ -459,7 +434,7 @@ namespace RootMotion.FinalIK {
 				float leftHeelOffset = 0f;
 				float rightHeelOffset = 0f;
 
-				locomotion.Solve(rootBone, spine, leftLeg, rightLeg, leftArm, rightArm, supportLegIndex, out leftFootPosition, out rightFootPosition, out leftFootRotation, out rightFootRotation, out leftFootOffset, out rightFootOffset, out leftHeelOffset, out rightHeelOffset);
+				locomotion.Solve(rootBone, spine, leftLeg, rightLeg, leftArm, rightArm, supportLegIndex, out leftFootPosition, out rightFootPosition, out leftFootRotation, out rightFootRotation, out leftFootOffset, out rightFootOffset, out leftHeelOffset, out rightHeelOffset, scale);
 
 				leftFootPosition += root.up * leftFootOffset;
 				rightFootPosition += root.up * rightFootOffset;
@@ -489,8 +464,8 @@ namespace RootMotion.FinalIK {
 				rootVelocity += (footPositionC - rootBone.solverPosition) * Time.deltaTime * 10f;
 				Vector3 rootVelocityV = V3Tools.ExtractVertical(rootVelocity, root.up, 1f);
 				rootVelocity -= rootVelocityV;
-
-				float bodyYOffset = leftFootOffset + rightFootOffset;
+                
+				float bodyYOffset = Mathf.Min(leftFootOffset + rightFootOffset, locomotion.maxBodyYOffset * scale);
 				bodyOffset = Vector3.Lerp(bodyOffset, root.up * bodyYOffset, Time.deltaTime * 3f);
 				bodyOffset = Vector3.Lerp(Vector3.zero, bodyOffset, locomotion.weight);
 			}
@@ -500,7 +475,7 @@ namespace RootMotion.FinalIK {
             {
                 foreach (Leg leg in legs)
                 {
-                    leg.ApplyOffsets();
+                    leg.ApplyOffsets(scale);
                 }
                 if (!plantFeet || LOD > 0)
                 {
@@ -585,6 +560,12 @@ namespace RootMotion.FinalIK {
         /// LOD 0: Full quality solving. LOD 1: Shoulder solving, stretching plant feet disabled, spine solving quality reduced. This provides about 30% of performance gain. LOD 2: Culled, but updating root position and rotation if locomotion is enabled.
         /// </summary>
         [Range(0, 2)] public int LOD = 0;
+
+        [Tooltip("Scale of the character. Value of 1 means normal adult human size.")]
+        /// <summary>
+        /// Scale of the character. Value of 1 means normal adult human size.
+        /// </summary>
+        public float scale = 1f;
 
 		[Tooltip("If true, will keep the toes planted even if head target is out of reach, so this can cause the camera to exit the head if it is too high for the model to reach. Enabling this increases the cost of the solver as the legs will have to be solved multiple times.")]
         /// <summary>

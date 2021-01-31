@@ -7,7 +7,6 @@ namespace RootMotion.FinalIK {
 	/// <summary>
 	/// Ragdoll Utility controls switching characters in and out of ragdoll mode. It also enables you to use IK effects on top of ragdoll simulation.
 	/// </summary>
-	[RequireComponent(typeof(Animator))]
 	public class RagdollUtility : MonoBehaviour {
 
 		#region Main Interface

@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
+using CoreUtils;
 using StoryCore.Utils;
 using UnityEngine;
 
 namespace StoryCore.UI {
-    public class CrosshairTarget : MonoBehaviour {
+    public class CrosshairTarget : Singleton<CrosshairTarget> {
         [SerializeField] private List<Collider> m_IgnoredColliders;
         [SerializeField] private LayerMask m_LayerMask;
 
-        public GameObject Target { get; private set; }
-        public float Distance { get; private set; }
-        public Vector3 Point { get; private set; }
+        public static GameObject Target { get; private set; }
+        public static float Distance { get; private set; }
+        public static Vector3 Point { get; private set; }
 
         private void Update() {
             RaycastHit[] hits = new RaycastHit[10];

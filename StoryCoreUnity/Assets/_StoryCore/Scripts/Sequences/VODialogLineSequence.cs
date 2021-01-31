@@ -1,28 +1,32 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using CoreUtils;
 using Ink.Runtime;
+using Polyglot;
 using RogoDigital.Lipsync;
 using StoryCore.Utils;
 using UnityEngine;
 
 namespace StoryCore {
-    public class VODialogLineSequence : DialogLineSequence {
+    public class VODialogLineSequence : DialogLineSequence, ILocalize {
         private readonly LipSyncData m_Clip;
+        private readonly string m_OriginalText;
         private readonly string m_LineId;
-
+        private readonly string m_LocalizationKey;
         private IPerformLipSync m_Character;
 
-        protected override bool UseSubtitles => !m_Clip || m_StoryTeller.UseSubtitles && base.UseSubtitles;
+        protected override bool UseSubtitles => !m_Clip || Localization.Instance.SelectedLanguage != Language.English || m_StoryTeller.UseSubtitles && base.UseSubtitles;
         private readonly Regex m_NumberRegex = new Regex(@"^[0-9]+$");
         public string LineId => m_LineId;
 
         public VODialogLineSequence(StoryTeller storyTeller, string text, string section) : base(storyTeller, text, section) {
             Story story = storyTeller.Story;
+            m_OriginalText = text;
             m_Text = text;
 
             if (story.currentTags.Count == 0) {
-                Debug.LogWarning($"Untagged line found in {section}: {m_Text}");
+                Debug.LogWarning($"Untagged line found in {section}: {m_OriginalText}");
                 return;
             }
 
@@ -39,12 +43,20 @@ namespace StoryCore {
 
             m_LineId = section + prefix;
             m_Clip = Globals.VO.Get(m_LineId);
+            m_LocalizationKey = m_Clip ? section + m_Clip.name.ReplaceRegex("-[0-9]+$", "") : m_LineId;
+            OnLocalize();
+            Localization.Instance.AddOnLocalizeEvent(this);
         }
 
         public VODialogLineSequence(StoryTeller storyTeller, string text, string section, string lineId)
             : base(storyTeller, text, section) {
             m_LineId = lineId;
+            Story story = storyTeller.Story;
             m_Clip = Globals.VO.Get(m_LineId);
+        }
+
+        ~VODialogLineSequence() {
+            Localization.Instance.RemoveOnLocalizeEvent(this);
         }
 
         public override void Start() {
@@ -53,6 +65,10 @@ namespace StoryCore {
             if (m_Clip != null) {
                 Play(m_Clip, m_Section);
             } else {
+                if (m_StoryTeller.FocusedCharacter is IPerformLipSync lipSyncCharacter) {
+                    lipSyncCharacter.StopLipSync();
+                }
+
                 Debug.LogWarning($"No lipsync VO file found for {m_LineId}: {m_Text}");
             }
         }
@@ -63,7 +79,9 @@ namespace StoryCore {
 
         public override void Interrupt() {
             base.Interrupt();
-            Stop(m_Clip, m_Section);
+            if (m_Clip != null) {
+                Stop(m_Clip, m_Section);
+            }
         }
 
         protected override void OnComplete() {
@@ -83,18 +101,30 @@ namespace StoryCore {
                 m_Character = lipSyncCharacter;
                 lipSyncCharacter.PlayLipSync(clip);
             } else {
-                Debug.LogWarning("No audio source found for VO. Playing as a '2D' sound.");
+                Debug.LogWarning("No audio source found for VO. Playing from camera's position.");
                 clip.clip.PlayOneShot();
             }
         }
 
         private void Stop(LipSyncData clip, string section) {
-            Log($"STOPPING VO: {section}.{clip.name}", clip);
+            Log($"STOPPING VO: {section}.{(clip ? clip.name : "null")}", clip);
             
             if (m_Character != null) {
                 m_Character.StopLipSync();
+            } else if (clip && clip.clip) {
+                // TODO: Stop one-shot clip here.
+                // clip.clip.StopOneShot();
+            }
+        }
+
+        public void OnLocalize() {
+            string localizationText = Localization.Get(m_LocalizationKey); // text;
+
+            if (!Globals.Exists || !Localization.KeyExist(m_LocalizationKey) || localizationText.IsNullOrEmpty()) {
+                Debug.LogWarning($"Could not find localization text for {m_LocalizationKey}: {m_OriginalText}");
+                m_Text = m_OriginalText;
             } else {
-                clip.clip.StopOneShot();
+                m_Text = Globals.TextReplacementConfig.Convert(localizationText);
             }
         }
 

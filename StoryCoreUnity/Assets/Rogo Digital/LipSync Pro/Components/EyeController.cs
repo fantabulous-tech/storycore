@@ -318,20 +318,6 @@ namespace RogoDigital
 			}
 		}
 
-		protected override void OnDestroy() 
-		{
-			base.OnDestroy();
-			if (leftEyeDummy != null) {
-				Destroy(leftEyeDummy.gameObject);
-				leftEyeDummy = null;
-			}
-			if (rightEyeDummy != null) {
-				Destroy(rightEyeDummy.gameObject);
-				rightEyeDummy = null;
-			}
-		}
-
-
 		void LateUpdate ()
 		{
 			if (!leftEyeDummy || !rightEyeDummy)

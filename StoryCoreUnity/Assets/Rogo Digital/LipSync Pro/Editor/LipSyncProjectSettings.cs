@@ -165,7 +165,7 @@ public class LipSyncProjectSettings : Editor {
 
 #if UNITY_2018_3_OR_NEWER
 #else
-	[MenuItem("Window/Rogo Digital/LipSync Pro/LipSync Project Settings", false, 12)]
+	[MenuItem("Window/Rogo Digital/LipSync Pro/LipSync Project Settings", false, 1012)]
 #endif
 	public static void ShowWindow () {
 		var settings = LipSyncEditorExtensions.GetProjectFile();

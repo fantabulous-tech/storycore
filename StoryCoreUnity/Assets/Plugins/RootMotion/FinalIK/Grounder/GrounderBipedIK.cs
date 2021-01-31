@@ -154,6 +154,8 @@ namespace RootMotion.FinalIK {
 				// Revert the upper arms
 				ik.references.leftUpperArm.rotation = leftArmRotation;
 				ik.references.rightUpperArm.rotation = rightArmRotation;
+
+                ik.solvers.lookAt.SetDirty();
 			}
 
 			if (OnPostGrounder != null) OnPostGrounder();

@@ -348,7 +348,7 @@ namespace RootMotion.FinalIK {
 		/// Gets the InteractionTarget of the specified effector type and InteractionSystem tag.
 		/// </summary>
 		public InteractionTarget GetTarget(FullBodyBipedEffector effectorType, InteractionSystem interactionSystem) {
-			if (interactionSystem.tag == string.Empty || interactionSystem.tag == "") {
+			if (interactionSystem.CompareTag(string.Empty) || interactionSystem.CompareTag("")) {
 				foreach (InteractionTarget target in targets) {
 					if (target.effectorType == effectorType) return target;
 				}
@@ -357,7 +357,7 @@ namespace RootMotion.FinalIK {
 			}
 
 			foreach (InteractionTarget target in targets) {
-				if (target.effectorType == effectorType && target.tag == interactionSystem.tag) return target;
+				if (target.effectorType == effectorType && target.CompareTag(interactionSystem.tag)) return target;
 			}
 			
 			return null;
@@ -386,7 +386,7 @@ namespace RootMotion.FinalIK {
 			if (tag == string.Empty || tag == "") return GetTarget(effectorType);
 			
 			for (int i = 0; i < targets.Length; i++) {
-				if (targets[i].effectorType == effectorType && targets[i].tag == tag) return targets[i].transform;
+				if (targets[i].effectorType == effectorType && targets[i].CompareTag(tag)) return targets[i].transform;
 			}
 
 			return transform;

@@ -1,7 +1,7 @@
 ﻿using StoryCore.Utils;
 using UnityEngine;
 
-namespace StoryCore.GameEvents {
+namespace CoreUtils.GameEvents {
     public class PlayAudioOnEvent : MonoBehaviour {
         [SerializeField] private AudioClip[] m_AudioClips;
         [SerializeField] private GameEvent m_Event;
