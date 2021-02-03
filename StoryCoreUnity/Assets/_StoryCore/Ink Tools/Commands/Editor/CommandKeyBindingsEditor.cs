@@ -4,12 +4,12 @@ using StoryCore.Utils;
 using UnityEditor;
 
 namespace StoryCore {
-    [CustomEditor(typeof(CommandKeyBindings))]
-    public class CommandKeyBindingsEditor : Editor<CommandKeyBindings> {
-        private ReorderableListGUI<CommandKeyBindings.CommandBinding> m_List;
+    [CustomEditor(typeof(CommandBucket))]
+    public class CommandKeyBindingsEditor : Editor<CommandBucket> {
+        private ReorderableListGUI<CommandBucket.CommandBinding> m_List;
 
         private void OnEnable() {
-            m_List = new ReorderableListGUI<CommandKeyBindings.CommandBinding>(serializedObject, "m_CommandBindings");
+            m_List = new ReorderableListGUI<CommandBucket.CommandBinding>(serializedObject, "m_CommandBindings");
             m_List.AddColumn("CommandName", "Command", 100);
             m_List.AddColumn("CommandHandler", "Command Handler");
         }

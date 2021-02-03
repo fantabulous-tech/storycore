@@ -151,7 +151,6 @@ namespace StoryCore.InkTodo {
             string fileName = Path.GetFileNameWithoutExtension(voFilePath);
             string id = fileName;
             int dashIndex = fileName.IndexOf('-');
-            string postFix = null;
 
             if (dashIndex > 0) {
                 id = fileName.Substring(0, fileName.IndexOf('-'));

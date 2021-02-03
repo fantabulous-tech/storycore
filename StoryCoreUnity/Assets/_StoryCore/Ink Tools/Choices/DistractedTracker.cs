@@ -1,15 +1,13 @@
 ﻿using System;
 using CoreUtils;
-using CoreUtils.GameEvents;
-using StoryCore.Utils;
 using UnityEngine;
 using VRTK;
 
 namespace StoryCore.Choices {
-    public class DistractedChoice : MonoBehaviour {
+    public class DistractedTracker : MonoBehaviour {
         [SerializeField] private StoryTeller m_StoryTeller;
-        [SerializeField] private GameEvent m_DistractedEvent;
-        [SerializeField] private GameEvent m_AttentionEvent;
+        [SerializeField, AutoFillAsset] private ChoiceHandler m_DistractedChoice;
+        [SerializeField, AutoFillAsset] private ChoiceHandler m_AttentionChoice;
         [SerializeField] private float m_DistractedDelay = 1;
         [SerializeField] private float m_AttentionDelay = 1;
 
@@ -20,11 +18,11 @@ namespace StoryCore.Choices {
         private Camera PlayerCamera => UnityUtils.GetOrSet(ref m_PlayerCamera, () => VRTK_DeviceFinder.HeadsetCamera()?.GetComponent<Camera>());
 
         private Transform Target => m_StoryTeller.AttentionPoint;
-        private bool DistractedChoiceReady => m_DistractedEvent && m_StoryTeller.IsValidChoice(m_DistractedEvent);
-        private bool AttentionChoiceReady => m_AttentionEvent && m_StoryTeller.IsValidChoice(m_AttentionEvent);
+        private bool DistractedChoiceReady => m_DistractedChoice && ChoiceManager.IsValidChoice(m_DistractedChoice);
+        private bool AttentionChoiceReady => m_AttentionChoice && ChoiceManager.IsValidChoice(m_AttentionChoice);
         private bool DistractedDelayComplete => DateTime.Now >= m_LastAttention + TimeSpan.FromSeconds(m_DistractedDelay);
         private bool AttentionDelayComplete => DateTime.Now >= m_LastDistraction + TimeSpan.FromSeconds(m_AttentionDelay);
-        private bool CanRaisePayingAttention => IsPayingAttention && m_AttentionEvent && AttentionChoiceReady && AttentionDelayComplete;
+        private bool CanRaisePayingAttention => IsPayingAttention && m_AttentionChoice && AttentionChoiceReady && AttentionDelayComplete;
         private bool CanRaiseDistracted => !IsPayingAttention && !Globals.IsJournalOpen.Value && DistractedChoiceReady && DistractedDelayComplete;
 
         public bool IsPayingAttention { get; private set; }
@@ -32,7 +30,7 @@ namespace StoryCore.Choices {
         public event Action AttentionChanged;
 
         private void Start() {
-            if (!m_StoryTeller || !m_DistractedEvent || !m_AttentionEvent) {
+            if (!m_StoryTeller || !m_DistractedChoice || !m_AttentionChoice) {
                 Debug.LogErrorFormat(this, "DistractionChoice is missing object references.");
             }
 
@@ -63,9 +61,9 @@ namespace StoryCore.Choices {
             }
 
             if (CanRaiseDistracted) {
-                m_DistractedEvent.Raise();
+                m_DistractedChoice.Choose();
             } else if (CanRaisePayingAttention) {
-                m_AttentionEvent.Raise();
+                m_AttentionChoice.Choose();
             }
         }
 

@@ -11,7 +11,6 @@ using CoreUtils.GameEvents;
 using CoreUtils.GameVariables;
 using StoryCore.Characters;
 using StoryCore.SaveLoad;
-using StoryCore.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VRSubtitles;
@@ -22,13 +21,14 @@ namespace StoryCore {
         [SerializeField] private SubtitleUI m_PromptUI;
         [SerializeField, AutoFillAsset] private GameVariableBool m_OptionSubtitles;
         [SerializeField, AutoFillAsset(DefaultName = "Restart")] private GameEvent m_RestartEvent;
-        [SerializeField] private string m_RestartStoryPath = "load_game";
+        [SerializeField] private string m_RestartStoryPath = "game_start";
         [SerializeField, AutoFillAsset] private GameVariableChoice m_CurrentChoice;
         [SerializeField, AutoFillAsset] private GameVariableString m_FocusedCharacterName;
         [SerializeField, AutoFillAsset] private CharacterBucket m_CharacterBucket;
         [SerializeField, AutoFillAsset] private TextReplacementConfig m_TextReplacement;
         [SerializeField, AutoFillAsset] private StoryTellerLocator m_StoryTellerLocator;
         [SerializeField] private AbstractLineSequenceProvider m_CustomDialogLineProvider;
+        [SerializeField] private bool m_StartStoryOnEnable = true;
 
         private readonly LinkedList<ISequence> m_SequenceQueue = new LinkedList<ISequence>();
         private ISequence m_CurrentSequence;
@@ -148,7 +148,6 @@ namespace StoryCore {
                 File.WriteAllText(OverrideInstructionsPath, "Place a _game.json file here to override the default _game.json.");
             }
 
-            ChoiceManager.ChoiceEvent += TryChoice;
             if (m_RestartEvent) {
                 m_RestartEvent.GenericEvent += RestartStory;
             }
@@ -159,7 +158,10 @@ namespace StoryCore {
                 m_CharacterBucket.Added += OnCharacterAdded;
             }
             SceneManager.sceneLoaded += OnSceneLoaded;
-            StartStory();
+
+            if (m_StartStoryOnEnable) {
+                StartStory();
+            }
         }
 
         private void OnDisable() {
@@ -167,7 +169,6 @@ namespace StoryCore {
                 return;
             }
             
-            ChoiceManager.ChoiceEvent -= TryChoice;
             AllChoices.Clear();
             CurrentChoices.Clear();
             Story = null;
@@ -209,23 +210,7 @@ namespace StoryCore {
             RaiseOnNext();
         }
 
-        private void TryChoice(string choiceKey) {
-            if (CurrentChoices.Count == 0) {
-                StoryDebug.Log($"StoryTeller: No choices currently available, so we can't try '{choiceKey}'");
-                return;
-            }
-
-            StoryChoice choice = CurrentChoices.FirstOrDefault(c => c.Key.Contains(choiceKey, StringComparison.OrdinalIgnoreCase));
-            if (choice != null) {
-                StoryDebug.Log($"Choosing '{choice.Key}' match found for '{choiceKey}'");
-                choice.Choose();
-                return;
-            }
-
-            Debug.LogWarning(string.Format("No choice matching '{0}' found. (options = {1})", choiceKey, CurrentChoices.AggregateToString(c => c.Key)));
-        }
-
-        private void StartStory() {
+        public void StartStory() {
             if (!m_InkJson && !File.Exists(OverrideInkPath)) {
                 Debug.LogErrorFormat(this, "Cannot start story. No Ink JSON text file assigned.");
                 return;
@@ -355,7 +340,7 @@ namespace StoryCore {
 
             LinkedListNode<ISequence> blockNode = m_SequenceQueue.Last;
 
-            while (blockNode != null && AllowsChoices(blockNode.Value, lastLine)) {
+            while (blockNode != null && blockNode.Value.AllowsChoices) {
                 blockNode = blockNode.Previous;
             }
 
@@ -480,16 +465,13 @@ namespace StoryCore {
             StoryChoice choice = m_NextChoice;
             m_NextChoice = null;
             SubtitleDirector.FadeOut();
-
-            // TODO: Figure out a way for choices to supply their own DelaySequences
-            // so responses to choices wait for any appropriate choice events to finish.
-            // ChoiceManager.GetChoiceDelay(choice).Then(() => {
-            StoryDebug.Log($"Choosing {choice}!");
-            Story.ChooseChoiceIndex(choice.Index);
-            m_CurrentChoice.Value = choice;
-            RaiseOnChosen();
-            GetNextQueue($"Choice {choice} made. (index {choice.Index})");
-            // });
+            ChoiceManager.GetChoiceDelay(choice).Then(() => {
+                StoryDebug.Log($"Choosing {choice}!");
+                Story.ChooseChoiceIndex(choice.Index);
+                m_CurrentChoice.Value = choice;
+                RaiseOnChosen();
+                GetNextQueue($"Choice {choice} made. (index {choice.Index})");
+            });
         }
 
         public void EndStory() {
@@ -528,18 +510,10 @@ namespace StoryCore {
             OnEnd?.Invoke();
         }
 
-        public bool IsValidChoice(BaseGameEvent gameEvent) {
-            return ChoiceManager.Exists && CurrentChoices.Any(c => c.IsValidChoice(ChoiceManager.Choices[gameEvent]));
-        }
-
         private string ChoiceInfo {
             get {
                 return CurrentChoices.AggregateToString(c => c.Key);
             }
-        }
-
-        public StoryChoice GetChoice(BaseGameEvent choiceEvent) {
-            return CurrentChoices.FirstOrDefault(c => c.IsValidChoice(ChoiceManager.Choices[choiceEvent]));
         }
 
         private void OnFocusChanged(string characterName) {

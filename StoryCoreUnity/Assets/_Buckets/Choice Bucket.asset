@@ -14,31 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BucketName: Choices
   m_Bindings:
-  - GameEvent: {fileID: 11400000, guid: abd7407920389c245b60750988031430, type: 2}
+  - ChoiceHandler: {fileID: 11400000, guid: 94917db786c991d43aa82c4aa4325838, type: 2}
     ChoiceKey: yes
-    Delay: 0
-  - GameEvent: {fileID: 11400000, guid: e3ec33d26c8da9f409309a2f53b8d70f, type: 2}
+  - ChoiceHandler: {fileID: 11400000, guid: 8ee1ba23fc0a69e46b63ec26995bf6b4, type: 2}
     ChoiceKey: no
-    Delay: 0
-  - GameEvent: {fileID: 11400000, guid: f13fa2d20c82b7b4699da1c77f6eda7e, type: 2}
+  - ChoiceHandler: {fileID: 11400000, guid: 97a489ec53798e14b9158b9bdcbf1104, type: 2}
     ChoiceKey: timeout
-    Delay: 0
-  - GameEvent: {fileID: 11400000, guid: e78cd81a8ebe8e946919fffe611895af, type: 2}
+  - ChoiceHandler: {fileID: 11400000, guid: 37f3f18547c491842842b43a370a6079, type: 2}
     ChoiceKey: move
-    Delay: 0
-  - GameEvent: {fileID: 11400000, guid: 26fa686b20ee11249998326857f298e7, type: 2}
+  - ChoiceHandler: {fileID: 11400000, guid: 6f5e89706b06b964789a0280f5c988b0, type: 2}
     ChoiceKey: continue
-    Delay: 0
-  - GameEvent: {fileID: 11400000, guid: 6c5dbe4f494993744a47c63ce6dbe63a, type: 2}
+  - ChoiceHandler: {fileID: 11400000, guid: 202d6d0c290802f4c9d4139c1992e133, type: 2}
     ChoiceKey: wait
-    Delay: 0
-  - GameEvent: {fileID: 11400000, guid: aa4d47a11c283774281e75ede6c5fbc0, type: 2}
+  - ChoiceHandler: {fileID: 11400000, guid: 829e1e71f5b0b01439e3eade1b582715, type: 2}
     ChoiceKey: restart
-    Delay: 0
-  - GameEvent: {fileID: 11400000, guid: 5aeaafaeb26f4084a946b2e9049b8e3a, type: 2}
+  - ChoiceHandler: {fileID: 11400000, guid: fd3d661f2e4a9e54cb3b778180e413c7, type: 2}
     ChoiceKey: distracted
-    Delay: 0
-  - GameEvent: {fileID: 11400000, guid: 4cdb28e929357974ca7336d3b3f276fb, type: 2}
+  - ChoiceHandler: {fileID: 11400000, guid: 0aaf4602f625ba948b0e006584abf59e, type: 2}
     ChoiceKey: pay-attention
-    Delay: 0
-  m_ChoiceEvent: {fileID: 11400000, guid: 36e7972f70e1d5d42bbad77331e9853e, type: 2}

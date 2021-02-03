@@ -5,8 +5,8 @@ using UnityEditor;
 using UnityEngine;
 
 namespace StoryCore.Choices {
-    [CustomEditor(typeof(DistractedChoice))]
-    public class DistractedChoiceEditor : Editor<DistractedChoice> {
+    [CustomEditor(typeof(DistractedTracker))]
+    public class DistractedChoiceEditor : Editor<DistractedTracker> {
         private void OnEnable() {
             if (Target != null) {
                 Target.AttentionChanged += Repaint;

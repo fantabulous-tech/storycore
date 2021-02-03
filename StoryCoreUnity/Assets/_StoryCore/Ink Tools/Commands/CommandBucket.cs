@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace StoryCore.Commands {
     [CreateAssetMenu(menuName = "Buckets/Command Key Bindings")]
-    public class CommandKeyBindings : BaseBucket {
+    public class CommandBucket : BaseBucket {
         [SerializeField] private CommandScriptGameEvent m_CommandEvent;
         [SerializeField, HideInInspector] private CommandBinding[] m_CommandBindings;
 

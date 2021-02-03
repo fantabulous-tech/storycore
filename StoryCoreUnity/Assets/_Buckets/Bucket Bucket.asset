@@ -16,9 +16,6 @@ MonoBehaviour:
   m_Sources:
   - {fileID: 102900000, guid: aaf7feadce2c8c34c8063c68dcd4e5fb, type: 3}
   m_AssetRefs:
-  - Name: location bucket
-    Guid: 05f8e604985b9004caa672c4662df705
-    Asset: {fileID: 11400000, guid: 05f8e604985b9004caa672c4662df705, type: 2}
   - Name: performance tool bucket
     Guid: 10cbe4ee809d4a74abc23273b8795b2c
     Asset: {fileID: 11400000, guid: 10cbe4ee809d4a74abc23273b8795b2c, type: 2}

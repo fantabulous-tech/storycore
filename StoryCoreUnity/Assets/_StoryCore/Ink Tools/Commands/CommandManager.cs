@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace StoryCore {
     public class CommandManager : Singleton<CommandManager> {
-        [SerializeField] private CommandKeyBindings m_Commands;
+        [SerializeField] private CommandBucket m_Commands;
 
         public override void OnEnable() {
             base.OnEnable();

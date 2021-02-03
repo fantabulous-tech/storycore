@@ -2175,9 +2175,6 @@ GameObject:
   m_Component:
   - component: {fileID: 560178651}
   - component: {fileID: 560178649}
-  - component: {fileID: 560178655}
-  - component: {fileID: 560178654}
-  - component: {fileID: 560178653}
   - component: {fileID: 560178652}
   - component: {fileID: 560178650}
   m_Layer: 0
@@ -2199,6 +2196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25d2f33629a4497e8e7912b851ee2a2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_StoryTeller: {fileID: 1590457926}
   m_Choices: {fileID: 11400000, guid: feadd879ef741db49804b624d617d9a4, type: 2}
 --- !u!114 &560178650
 MonoBehaviour:
@@ -2216,8 +2214,8 @@ MonoBehaviour:
   m_HeadGesture: {fileID: 1159772800}
   m_SayYesEvent: {fileID: 11400000, guid: 6eadf868fbf14624abef1492c2661c39, type: 2}
   m_SayNoEvent: {fileID: 11400000, guid: 2a5c14aa4ed885e4789c70bf1a919405, type: 2}
-  m_YesEvent: {fileID: 11400000, guid: abd7407920389c245b60750988031430, type: 2}
-  m_NoEvent: {fileID: 11400000, guid: e3ec33d26c8da9f409309a2f53b8d70f, type: 2}
+  m_YesChoice: {fileID: 11400000, guid: 94917db786c991d43aa82c4aa4325838, type: 2}
+  m_NoChoice: {fileID: 11400000, guid: 8ee1ba23fc0a69e46b63ec26995bf6b4, type: 2}
   m_ResponseDelay: 1
 --- !u!4 &560178651
 Transform:
@@ -2246,55 +2244,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_StoryTeller: {fileID: 1590457926}
-  m_DistractedEvent: {fileID: 11400000, guid: 5aeaafaeb26f4084a946b2e9049b8e3a, type: 2}
-  m_AttentionEvent: {fileID: 11400000, guid: 4cdb28e929357974ca7336d3b3f276fb, type: 2}
+  m_DistractedChoice: {fileID: 11400000, guid: fd3d661f2e4a9e54cb3b778180e413c7, type: 2}
+  m_AttentionChoice: {fileID: 11400000, guid: 0aaf4602f625ba948b0e006584abf59e, type: 2}
   m_DistractedDelay: 1
   m_AttentionDelay: 1
---- !u!114 &560178653
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 560178648}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e95f4fb12494a91b0b0a79ff388820c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_StoryTeller: {fileID: 1590457926}
-  m_ChoiceEvent: {fileID: 11400000, guid: 26fa686b20ee11249998326857f298e7, type: 2}
-  m_DefaultDuration: 0
---- !u!114 &560178654
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 560178648}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e95f4fb12494a91b0b0a79ff388820c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_StoryTeller: {fileID: 1590457926}
-  m_ChoiceEvent: {fileID: 11400000, guid: 6c5dbe4f494993744a47c63ce6dbe63a, type: 2}
-  m_DefaultDuration: 1
---- !u!114 &560178655
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 560178648}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e95f4fb12494a91b0b0a79ff388820c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_StoryTeller: {fileID: 1590457926}
-  m_ChoiceEvent: {fileID: 11400000, guid: f13fa2d20c82b7b4699da1c77f6eda7e, type: 2}
-  m_DefaultDuration: 7
 --- !u!1 &626858811
 GameObject:
   m_ObjectHideFlags: 0

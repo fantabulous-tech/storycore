@@ -1,23 +1,24 @@
 ﻿using CoreUtils;
 using StoryCore;
+using StoryCore.Choices;
 using StoryCore.HeadGesture;
 using StoryCore.Utils;
 using UnityEngine;
 
 namespace CoreUtils.GameEvents {
-    public class HeadGestureChoice : MonoBehaviour {
+    public class HeadGestureTracker : MonoBehaviour {
         [SerializeField] private StoryTeller m_StoryTeller;
-        [SerializeField] private HeadGestureTracker m_HeadGesture;
-        [SerializeField] private BaseGameEvent m_SayYesEvent;
-        [SerializeField] private BaseGameEvent m_SayNoEvent;
-        [SerializeField] private BaseGameEvent m_YesEvent;
-        [SerializeField] private BaseGameEvent m_NoEvent;
+        [SerializeField] private StoryCore.HeadGesture.HeadGestureTracker m_HeadGesture;
+        [SerializeField, AutoFillAsset] private BaseGameEvent m_SayYesEvent;
+        [SerializeField, AutoFillAsset] private BaseGameEvent m_SayNoEvent;
+        [SerializeField, AutoFillAsset] private ChoiceHandler m_YesChoice;
+        [SerializeField, AutoFillAsset] private ChoiceHandler m_NoChoice;
         [SerializeField] private float m_ResponseDelay = 1;
 
         private DelaySequence m_Delay;
 
-        private bool CanRespondYes => (m_Delay == null || m_Delay.IsDone) && m_StoryTeller.IsValidChoice(m_YesEvent);
-        private bool CanRespondNo => (m_Delay == null || m_Delay.IsDone) && m_StoryTeller.IsValidChoice(m_NoEvent);
+        private bool CanRespondYes => (m_Delay == null || m_Delay.IsDone) && ChoiceManager.IsValidChoice(m_YesChoice);
+        private bool CanRespondNo => (m_Delay == null || m_Delay.IsDone) && ChoiceManager.IsValidChoice(m_NoChoice);
 
         private void Start() {
             m_HeadGesture.OnYes.AddListener(OnYes);
@@ -40,14 +41,14 @@ namespace CoreUtils.GameEvents {
         private void OnYes() {
             if (CanRespondYes) {
                 m_SayYesEvent.Raise();
-                m_Delay = Delay.For(m_ResponseDelay, this).Then(m_YesEvent.Raise);
+                m_Delay = Delay.For(m_ResponseDelay, this).Then(m_YesChoice.Choose);
             }
         }
 
         private void OnNo() {
             if (CanRespondNo) {
                 m_SayNoEvent.Raise();
-                m_Delay = Delay.For(m_ResponseDelay, this).Then(m_NoEvent.Raise);
+                m_Delay = Delay.For(m_ResponseDelay, this).Then(m_NoChoice.Choose);
             }
         }
     }

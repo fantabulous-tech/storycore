@@ -1,10 +1,10 @@
 ﻿using System.Linq;
-using CoreUtils.GameEvents;
+using StoryCore.Choices;
 using UnityEngine;
 
 namespace StoryCore.Commands {
     public class OnChoiceAvailableSetActive : MonoBehaviour {
-        [SerializeField] private BaseGameEvent[] m_ChoiceEvents;
+        [SerializeField] private ChoiceHandler[] m_Choices;
         [SerializeField] private StoryTeller m_StoryTeller;
 
         private void Start() {
@@ -18,7 +18,7 @@ namespace StoryCore.Commands {
         }
 
         private void OnChoicesReady() {
-            gameObject.SetActive(m_ChoiceEvents.Any(c => m_StoryTeller.IsValidChoice(c)));
+            gameObject.SetActive(m_Choices.Any(ChoiceManager.IsValidChoice));
         }
     }
 }
