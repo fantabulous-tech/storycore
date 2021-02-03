@@ -5,7 +5,7 @@ using VRTK;
 
 namespace StoryCore.Choices {
     public class DistractedTracker : MonoBehaviour {
-        [SerializeField] private StoryTeller m_StoryTeller;
+        [SerializeField, AutoFillFromScene] private StoryTeller m_StoryTeller;
         [SerializeField, AutoFillAsset] private ChoiceHandler m_DistractedChoice;
         [SerializeField, AutoFillAsset] private ChoiceHandler m_AttentionChoice;
         [SerializeField] private float m_DistractedDelay = 1;

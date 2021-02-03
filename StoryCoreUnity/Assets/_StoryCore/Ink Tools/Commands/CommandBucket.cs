@@ -9,7 +9,7 @@ using StoryCore.Utils;
 using UnityEngine;
 
 namespace StoryCore.Commands {
-    [CreateAssetMenu(menuName = "Buckets/Command Key Bindings")]
+    [CreateAssetMenu(menuName = "Buckets/Command Bucket")]
     public class CommandBucket : BaseBucket {
         [SerializeField] private CommandScriptGameEvent m_CommandEvent;
         [SerializeField, HideInInspector] private CommandBinding[] m_CommandBindings;

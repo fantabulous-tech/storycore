@@ -6,8 +6,8 @@ using UnityEngine;
 
 namespace StoryCore.Choices {
     public class ChoiceManager : Singleton<ChoiceManager> {
-        [SerializeField] private StoryTeller m_StoryTeller;
-        [SerializeField] private ChoiceBucket m_Choices;
+        [SerializeField, AutoFillFromScene] private StoryTeller m_StoryTeller;
+        [SerializeField, AutoFillAsset] private ChoiceBucket m_Choices;
 
         public static event EventHandler AllChoicesReady; 
 

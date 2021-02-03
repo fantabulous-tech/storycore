@@ -316,8 +316,8 @@ namespace StoryCore {
                     CommandSequence commandSequence = new CommandSequence(text, Story.currentTags);
                     m_SequenceQueue.AddLast(commandSequence);
 
-                    // Only track the 'last line' if it comes after all commands.
-                    if (commandSequence.AllowsChoices) {
+                    // Only track the 'last line' if it comes after all non 'AllowChoices' commands.
+                    if (!commandSequence.AllowsChoices) {
                         lastLineNode = null;
                     }
 
