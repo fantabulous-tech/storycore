@@ -88,4 +88,4 @@ MonoBehaviour:
   - Name: scenario_test.06
     Guid: fca0f637014daba4a8cff140aec6e45f
     Asset: {fileID: 11400000, guid: fca0f637014daba4a8cff140aec6e45f, type: 2}
-  m_ManualUpdate: 0
+  m_ManualUpdate: 1
