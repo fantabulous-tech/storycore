@@ -26,7 +26,6 @@ namespace StoryCore.UI {
             string localizationTag = tags?.FirstOrDefault(t => t.StartsWith("note", StringComparison.OrdinalIgnoreCase));
             m_TitleTag = localizationTag != null ? $"{localizationTag.ToUpper()}_TITLE" : null;
             m_TextTag = localizationTag != null ? $"{localizationTag.ToUpper()}_TEXT" : null;
-            OnLocalize();
             Localization.Instance.AddOnLocalizeEvent(this);
 
             // Automatically close the notification if there's a defined delay, otherwise wait until the next choice occurs.

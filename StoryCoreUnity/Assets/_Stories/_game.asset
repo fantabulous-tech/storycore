@@ -16,87 +16,68 @@ MonoBehaviour:
   m_VOSearch:
     m_Name: 
     m_Bucket: {fileID: 11400000, guid: f6f62ea56bb9d8940a4e822feb9a18ab, type: 2}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
   m_MissingTagSearch:
     m_Name: Untagged Lines
     m_Bucket: {fileID: 0}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
   m_Searches:
   - m_Name: Todos
     m_Bucket: {fileID: 0}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
     m_Search: ^.*(TODO.*|<<.*>>)\s*$
     m_Result: $1
+    m_Exclusions: []
   - m_Name: Commands
     m_Bucket: {fileID: 11400000, guid: 4c5dbad53e5169447ab461d3e38969b3, type: 2}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
     m_Search: ^[\s-]*(\([^\)]+\))?[\s-]*\/(\w+).*$
     m_Result: $2
+    m_Exclusions: []
   - m_Name: Choices
     m_Bucket: {fileID: 11400000, guid: feadd879ef741db49804b624d617d9a4, type: 2}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
     m_Search: ^(?!\/\/).*\[\s*([\w-]+).*$
     m_Result: $1
+    m_Exclusions: []
   - m_Name: Actions
     m_Bucket: {fileID: 11400000, guid: a8f06b58613585a47aa19a0dc590eae6, type: 2}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
     m_Search: ^[\s-]*(\([^\)]+\))?[\s-]*\/action\s+([\w-]+)\s*$
     m_Result: $2
+    m_Exclusions: []
   - m_Name: Characters
     m_Bucket: {fileID: 11400000, guid: a79bc9320dbf273409548a8a0740c55d, type: 2}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
     m_Search: ^[\s-]*(\([^\)]+\))?[\s-]*\/character\s+(\w+).*$
     m_Result: $2
+    m_Exclusions: []
   - m_Name: Performances
     m_Bucket: {fileID: 11400000, guid: 2f3310cf6841a2f41a4de3155ef81ecb, type: 2}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
     m_Search: ^[\s-]*(\([^\)]+\))?[\s-]*(\/perform|\/character\s+\w+)\s+(\w+).*$
     m_Result: $3
+    m_Exclusions: []
   - m_Name: Emotions
     m_Bucket: {fileID: 11400000, guid: a5660a945a0f79c4daaa512c830ffebc, type: 2}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
     m_Search: ^[\s-]*(\([^\)]+\))?[\s-]*(\/emotion|\/perform\s+\w+|\/character\s+\w+\s+\w+)\s+(\w+).*$
     m_Result: $3
+    m_Exclusions: []
   - m_Name: Scenes
     m_Bucket: {fileID: 11400000, guid: 62a253973a22d09488c16b0dbad723cf, type: 2}
-    m_ShowGUI: 1
-    m_ShowOptions: 0
     m_Search: ^[\s-]*(\([^\)]+\))?[\s-]*\/scene\s+([\w\.]+).*$
     m_Result: $2
+    m_Exclusions: []
   - m_Name: Look Targets
     m_Bucket: {fileID: 0}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
     m_Search: ^\s*/lookat\s+(\w+)
     m_Result: $1
+    m_Exclusions: []
   - m_Name: Variables
     m_Bucket: {fileID: 0}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
     m_Search: ^\s*([~{]|VAR)\s*(temp)?\s*([\w]+)\s*[<>+\-=]+.*$
     m_Result: $3
+    m_Exclusions: []
   - m_Name: Knots
     m_Bucket: {fileID: 0}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
     m_Search: ^\s*=[=]+\s*(\w+).*$
     m_Result: $1
+    m_Exclusions: []
   - m_Name: Stitches
     m_Bucket: {fileID: 0}
-    m_ShowGUI: 0
-    m_ShowOptions: 0
     m_Search: ^\s*=\s*(\w+).*$
     m_Result: $1
-  m_MissingOnly: 0
-  m_ShowSummaryByFile: 0
-  m_ShowExcludes: 0
+    m_Exclusions: []
   m_Excluded: []

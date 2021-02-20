@@ -6,7 +6,6 @@ using RogoDigital;
 using RogoDigital.Lipsync;
 using RootMotion.FinalIK;
 using StoryCore.Commands;
-using StoryCore.Utils;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
@@ -16,21 +15,21 @@ using Object = UnityEngine.Object;
 
 namespace StoryCore.Characters {
     public class Character : BaseCharacter, IPerformAnim, IPerformLipSync, IPerformPlayable, IPerformAudio {
-        [SerializeField] private AudioSource m_VoiceSource;
+        [SerializeField, AutoFill] protected Animator m_Animator;
+        [SerializeField, AutoFill] private LipSync m_LipSync;
+        [SerializeField, AutoFill] private EyeController m_EyeController;
+        [SerializeField, AutoFill] private LookAtIK m_LookAtIK;
+        [SerializeField, AutoFillFromChildren] private AudioSource m_VoiceSource;
         [SerializeField] private Transform m_SubtitlePoint;
-        [SerializeField] private Animator m_Animator;
-        [SerializeField] private LipSync m_LipSync;
-        [SerializeField] private EyeController m_EyeController;
-        [SerializeField] private LookAtIK m_LookAtIK;
-        [SerializeField] private AnimationClip m_IdleAnim;
- 
+        [SerializeField, AutoFillAsset] private AnimationClip m_IdleAnim;
+
         private const float kLookAtTransition = 0.5f;
         private const float kLastAnimChangeMin = 0.25f;
         private const float kEmotionTransition = 0.3f;
         private const string kNeutral = "Neutral";
 
-        private PlayableGraph m_Graph;
-        private AnimationLayerMixerPlayable m_LayerMixer;
+        protected PlayableGraph m_Graph;
+        protected AnimationLayerMixerPlayable m_LayerMixer;
         private AnimationClipPlayable m_LastAnim;
         private AnimationClipPlayable m_CurrentAnim;
         private Object m_LastLoopingPerformance;
@@ -80,7 +79,7 @@ namespace StoryCore.Characters {
             }
         }
 
-        protected void Awake() {
+        protected virtual void Awake() {
             // Avoid changing states at startup
             m_VoiceSource = m_VoiceSource ? m_VoiceSource : GetComponentInChildren<AudioSource>();
             m_Animator = m_Animator ? m_Animator : GetComponent<Animator>();
@@ -104,7 +103,7 @@ namespace StoryCore.Characters {
             }
         }
 
-        private void Update() {
+        protected virtual void Update() {
             CheckIdle();
             CheckEmotions();
             CheckAnimTransition();
@@ -144,7 +143,7 @@ namespace StoryCore.Characters {
             m_LastAnim = m_CurrentAnim;
         }
 
-        private static AnimationClipPlayable GetClipPlayable(PlayableGraph graph, AnimationClip clip) {
+        protected static AnimationClipPlayable GetClipPlayable(PlayableGraph graph, AnimationClip clip) {
             AnimationClipPlayable playable = AnimationClipPlayable.Create(graph, clip);
             playable.SetApplyFootIK(true);
             playable.SetApplyPlayableIK(true);
@@ -256,7 +255,7 @@ namespace StoryCore.Characters {
 
         public void SetEmotion(string emotionName, float intensity) {
             bool isSame = !m_LastEmotion.IsNullOrEmpty() && Equals(m_LastEmotion, m_CurrentEmotion);
-            
+
             m_CurrentEmotionIndex = m_LipSync.emotions.IndexOf(e => Equals(e.emotion, emotionName));
 
             if (m_CurrentEmotionIndex < 0) {
@@ -292,7 +291,7 @@ namespace StoryCore.Characters {
                 Debug.LogWarning($"Couldn't set emotion. '{emotionName}' doesn't exist on {name}.", this);
                 return;
             }
-            
+
             m_LipSync.ResetDisplayedEmotions();
             m_LipSync.DisplayEmotionPose(emotionIndex, intensity);
         }
@@ -412,7 +411,7 @@ namespace StoryCore.Characters {
             }
 
             m_CurrentAnim = GetClipPlayable(m_Graph, clip);
-            
+
             // StoryDebug.Log($"Setting last anim change to: {Time.time:N2}");
             m_LastAnimChange = Time.time;
 
@@ -449,7 +448,8 @@ namespace StoryCore.Characters {
                         // Debug.Log("Setting lookAt weight to " + lookAt.IKPositionWeight.ToString("N2"));
                     }, 1, clip.averageDuration)).SetLoops(clip.isLooping ? -1 : 0);
                 } else {
-                    m_Sequence.Join(DOTween.To(() => lookAt.IKPositionWeight, weight => { lookAt.IKPositionWeight = weight; }, 1, transition)).SetEase(Ease.InOutSine);
+                    m_Sequence.Join(DOTween.To(() => lookAt.IKPositionWeight, weight =>
+                                                   lookAt.IKPositionWeight = weight, 1, transition)).SetEase(Ease.InOutSine);
                 }
             }
 

@@ -138,11 +138,11 @@ namespace StoryCore.Choices {
         }
 
         public static bool IsValidChoice(ChoiceHandler handler) {
-            return Instance.m_CurrentChoiceHandlers.Values.Contains(handler);
+            return Exists && Instance.m_CurrentChoiceHandlers.Values.Contains(handler);
         }
 
         public static DelaySequence GetChoiceDelay(StoryChoice choice) {
-            if (Instance.m_CurrentChoiceHandlers.TryGetValue(choice, out ChoiceHandler handler)) {
+            if (Exists && Instance.m_CurrentChoiceHandlers.TryGetValue(choice, out ChoiceHandler handler)) {
                 return handler.ChoiceDelay;
             }
 

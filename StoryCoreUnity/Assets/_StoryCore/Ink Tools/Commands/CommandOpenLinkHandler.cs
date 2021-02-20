@@ -1,6 +1,5 @@
 using System.Linq;
 using CoreUtils;
-using StoryCore.Utils;
 using UnityEngine;
 
 namespace StoryCore.Commands {
@@ -8,13 +7,18 @@ namespace StoryCore.Commands {
     public class CommandOpenLinkHandler : CommandHandler {
         public override DelaySequence Run(ScriptCommandInfo info) {
             string url = info.Params.ElementAtOrDefault(0);
+
             if (!url.ContainsRegex(@"^https?://")) {
                 url = "http://" + url;
             }
 
-            Application.OpenURL(url);
+            OpenLink(url);
             Raise(url);
             return DelaySequence.Empty;
+        }
+
+        protected virtual void OpenLink(string url) {
+            Application.OpenURL(url);
         }
     }
 }

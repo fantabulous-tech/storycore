@@ -27,12 +27,19 @@ namespace VRSubtitles.Utils {
         }
 
         private void SetZTestMode(CanvasRenderer r) {
-            if (r.materialCount == 0) {
+            if (!r || r.materialCount == 0) {
                 return;
             }
-            Material mat = new Material(r.GetMaterial(0));
-            mat.SetInt(s_UnityGuizTestMode, (int) (enabled ? CompareFunction.Always : CompareFunction.LessEqual));
-            r.SetMaterial(mat, 0);
+
+            Material oldMat = r.GetMaterial(0);
+
+            if (!oldMat) {
+                return;
+            }
+
+            Material newMat = new Material(oldMat);
+            newMat.SetInt(s_UnityGuizTestMode, (int) (enabled ? CompareFunction.Always : CompareFunction.LessEqual));
+            r.SetMaterial(newMat, 0);
         }
     }
 }

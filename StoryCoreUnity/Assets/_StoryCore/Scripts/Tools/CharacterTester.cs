@@ -2,14 +2,11 @@
 using CoreUtils;
 using CoreUtils.AssetBuckets;
 using StoryCore.Characters;
-using StoryCore.Commands;
-using StoryCore.Utils;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace StoryCore {
-    public class PerformanceTester : MonoBehaviour {
+    public class CharacterTester : MonoBehaviour {
         [SerializeField, AutoFillAsset] private PerformanceBucket m_AnimBucket;
         [SerializeField] private bool m_Loop;
         [SerializeField] private TMP_Dropdown m_Dropdown;
@@ -19,8 +16,10 @@ namespace StoryCore {
         private Object[] m_AnimList;
         private Character[] m_Characters;
 
+        public Character[] Characters => m_Characters;
+
         public int Index { get; set; }
-        public int Max => m_AnimList == null ? 0 : m_AnimList.Length;
+        public int Max => m_AnimList?.Length ?? 0;
         public bool Loop {
             get => m_Loop;
             set => m_Loop = value;

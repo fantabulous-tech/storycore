@@ -40,6 +40,7 @@ namespace StoryCore.Editor {
             StoryCoreSettings.UseDebugInInk = EditorGUILayout.Toggle("Set 'debug' in Ink", StoryCoreSettings.UseDebugInInk);
             StoryCoreSettings.ForceSimulationMode = EditorGUILayout.Toggle("Force VR Simulator Mode", StoryCoreSettings.ForceSimulationMode);
             StoryCoreSettings.EnableLogging = EditorGUILayout.Toggle("Enable StoryDebug.Log()", StoryCoreSettings.EnableLogging);
+            StoryCoreSettings.DebugJump = EditorGUILayout.TextField("Debug Jump on Start", StoryCoreSettings.DebugJump);
         }
     }
 }

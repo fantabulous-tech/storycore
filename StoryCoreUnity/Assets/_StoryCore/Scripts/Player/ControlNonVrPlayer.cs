@@ -1,8 +1,4 @@
-﻿using System;
-using CoreUtils;
-using StoryCore.Utils;
-using CoreUtils.GameVariables;
-using UnityEngine;
+﻿using UnityEngine;
 using VRTK;
 
 namespace StoryCore {
@@ -16,7 +12,7 @@ namespace StoryCore {
         private void FixedUpdate() {
             //Control override to keep near spawnpoint
 
-            Transform t = m_InputSimulator.m_Player.transform;
+            Transform t = transform;
             Vector3 pos = t.localPosition;
 
             if (m_InputSimulator.KeyPressedUp && pos.y < m_SpawnPointUpperBound) {

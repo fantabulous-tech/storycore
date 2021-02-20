@@ -228,6 +228,10 @@ namespace StoryCore {
 
             // Now that initial variable notifications have run, we can subscribe to future events.
             SaveLoadVariables.SubscribeAll();
+            
+            if (Application.isEditor && StoryCoreSettings.UseDebugInInk && !StoryCoreSettings.DebugJump.IsNullOrEmpty()) {
+                JumpStory(StoryCoreSettings.DebugJump);
+            }
         }
 
         public void RestartStory() {
@@ -259,9 +263,18 @@ namespace StoryCore {
         }
 
         public void JumpStory(string storyPath) {
+            string save = m_Story.state.ToJson();
+            try {
+                m_Story.ChoosePathString(storyPath);
+            }
+            catch (Exception e) {
+                StoryDebug.Log($"Can't choose {storyPath} because {e.Message}");
+                m_Story.state.LoadJson(save);
+                return;
+            }
+            
             StoryDebug.Log($"Jumping story to {storyPath}.", this);
             CancelQueue();
-            m_Story.ChoosePathString(storyPath);
             
             // Add loading an empty scene as the first command.
             CommandSceneHandler.LoadScene("none").Then(() => {
@@ -339,9 +352,11 @@ namespace StoryCore {
             }
 
             LinkedListNode<ISequence> blockNode = m_SequenceQueue.Last;
+            bool first = true;
 
-            while (blockNode != null && blockNode.Value.AllowsChoices) {
+            while (blockNode != null && (blockNode.Value.AllowsChoices || blockNode.Value is DialogLineSequence && first)) {
                 blockNode = blockNode.Previous;
+                first = false;
             }
 
             if (blockNode == null) {

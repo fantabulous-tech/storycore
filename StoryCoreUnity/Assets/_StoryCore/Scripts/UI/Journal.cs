@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-using CoreUtils;
+﻿using CoreUtils;
 using CoreUtils.GameEvents;
 using CoreUtils.GameVariables;
-using StoryCore.Utils;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -11,46 +8,35 @@ using VRTK;
 
 namespace StoryCore.UI {
     public class Journal : MonoBehaviour {
-        public enum PageState {
+        private enum JournalState {
             Unset,
             Closed,
-            ChoiceMenu,
-            MainMenu,
-            SceneMenu,
-            LanguageMenu,
-            ProfileMenu
-        }
-
-        [Serializable]
-        public class PageSet {
-            public PageState PageState;
-            public GameObject RightPage;
-            public GameObject LeftPage;
-            public JournalBookmark Bookmark;
-            public bool PauseTime;
+            Open
         }
 
         [SerializeField] private Transform m_LeftSide;
         [SerializeField] private Transform m_RightSide;
-        [SerializeField] private PageSet[] m_Pages;
         [SerializeField] private GameEvent m_OpenJournalEvent;
         [SerializeField] private GameEvent m_CloseJournalEvent;
         [SerializeField] private GameEvent m_ToggleMainMenu;
+        [SerializeField] private StateMachine m_MenuStates;
+        [SerializeField] private State m_MainMenuState;
+        [SerializeField] private State m_ChoiceMenuState;
         [SerializeField] private float m_AutoCloseDistance = 2f;
         [SerializeField, AutoFillAsset] private ToggleMenuLocator m_ToggleMenuLocator;
 
         public UnityEvent PageSelected;
-        private PageState m_PageState;
+        private JournalState m_JournalState;
         private Transform m_Hmd;
 
         private Transform Hmd => UnityUtils.GetOrSet(ref m_Hmd, VRTK_DeviceFinder.HeadsetTransform);
-        public PageSet[] Pages => m_Pages;
 
         private void Awake() {
             m_OpenJournalEvent.GenericEvent += OnOpenJournal;
             m_CloseJournalEvent.GenericEvent += OnCloseJournal;
             m_ToggleMainMenu.GenericEvent += OnToggleMainMenu;
             SceneManager.sceneUnloaded += OnSceneLoaded;
+            m_MenuStates.Exit();
             gameObject.SetActive(false);
         }
 
@@ -64,16 +50,16 @@ namespace StoryCore.UI {
         private void OnEnable() {
             m_LeftSide.localRotation = Quaternion.AngleAxis(90, Vector3.up);
             m_RightSide.localRotation = Quaternion.AngleAxis(-90, Vector3.up);
-            ShowChoiceMenu();
+            ShowPage(m_ChoiceMenuState);
             Physics.autoSimulation = false;
         }
 
         private void OnDisable() {
             m_LeftSide.localRotation = Quaternion.AngleAxis(90, Vector3.up);
             m_RightSide.localRotation = Quaternion.AngleAxis(-90, Vector3.up);
-            m_PageState = PageState.Closed;
+            m_JournalState = JournalState.Closed;
             Physics.autoSimulation = true;
-            UpdatePages();
+            m_MenuStates.Exit();
         }
 
         private void Update() {
@@ -93,11 +79,11 @@ namespace StoryCore.UI {
         }
 
         private void OnToggleMainMenu() {
-            if (gameObject.activeSelf && m_PageState == PageState.MainMenu) {
+            if (gameObject.activeSelf && m_JournalState == JournalState.Open) {
                 OnCloseJournal();
             } else {
                 OnOpenJournal();
-                ShowMainMenu();
+                ShowPage(m_MainMenuState);
             }
         }
 
@@ -107,56 +93,20 @@ namespace StoryCore.UI {
 
         private void OnCloseJournal() {
             m_ToggleMenuLocator.Value.Close();
-            m_PageState = PageState.Closed;
-            UpdatePages();
+            m_JournalState = JournalState.Closed;
+            m_MenuStates.Exit();
         }
 
         private void OnSceneLoaded(Scene scene) {
             m_ToggleMenuLocator.Value.Close();
-            m_PageState = PageState.Closed;
-            UpdatePages();
+            m_MenuStates.Exit();
+            m_JournalState = JournalState.Closed;
         }
 
-        public void ShowMainMenu() {
-            ShowPage(PageState.MainMenu);
-        }
-
-        public void ShowChoiceMenu() {
-            ShowPage(PageState.ChoiceMenu);
-        }
-
-        public void ShowSceneMenu() {
-            ShowPage(PageState.SceneMenu);
-        }
-
-        public void ShowLanguageMenu() {
-            ShowPage(PageState.LanguageMenu);
-        }
-
-        public void ShowProfileMenu() {
-            ShowPage(PageState.ProfileMenu);
-        }
-
-        public void ShowPage(PageState page) {
-            m_PageState = page;
-            UpdatePages();
+        private void ShowPage(State page) {
+            m_JournalState = JournalState.Open;
+            page.SetState();
             PageSelected.Invoke();
-        }
-
-        private void UpdatePages() {
-            PageSet openPage = null;
-
-            foreach (PageSet pageSet in m_Pages) {
-                bool isSelected = pageSet.PageState == m_PageState;
-                pageSet.RightPage.SetActive(isSelected);
-                pageSet.LeftPage.SetActive(isSelected);
-                pageSet.Bookmark.Selected = isSelected;
-                if (isSelected) {
-                    openPage = pageSet;
-                }
-            }
-
-            Time.timeScale = openPage != null && openPage.PauseTime ? 0.0001f : 1;
         }
     }
 }

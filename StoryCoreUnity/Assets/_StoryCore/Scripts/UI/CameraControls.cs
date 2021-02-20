@@ -55,10 +55,10 @@ namespace StoryCore {
 
         private static float GetVertical() {
             float up = 0.0f;
-            if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.R)) {
+            if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.R) || Input.GetKey(KeyCode.E)) {
                 up += 1.0f;
             }
-            if (Input.GetKey(KeyCode.C) || Input.GetKey(KeyCode.F)) {
+            if (Input.GetKey(KeyCode.C) || Input.GetKey(KeyCode.F) || Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.LeftShift)) {
                 up -= 1.0f;
             }
             return up;

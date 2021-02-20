@@ -34,7 +34,7 @@ namespace StoryCore.Commands {
             }
 
             Instance.Fader.Fade(Color.black, Instance.m_Duration);
-            return Delay.Until(() => Instance && Instance.Fader && Instance.Fader.IsFaded() && !Instance.Fader.IsTransitioning(), Instance);
+            return Delay.Until(() => !Exists || Instance && Instance.Fader && Instance.Fader.IsFaded() && !Instance.Fader.IsTransitioning(), Instance);
         }
 
         public static DelaySequence FadeIn() {

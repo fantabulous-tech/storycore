@@ -56,7 +56,7 @@ namespace StoryCore.InkTodo {
 
             string rootInkFilePath = AssetDatabase.GetAssetPath(m_RootInkFile);
 
-            m_InkFiles = InkUtils.GetInkFiles(rootInkFilePath);
+            m_InkFiles = InkEditorUtils.GetInkFiles(rootInkFilePath);
             m_VOSearch.Reset();
             m_MissingTagSearch.Reset();
             m_Searches.ForEach(s => s.Reset());

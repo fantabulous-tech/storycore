@@ -11,7 +11,6 @@ namespace StoryCore {
 
         public void Fill(StoryChoice choice) {
             m_Choice = choice;
-            OnLocalize();
             Localization.Instance.AddOnLocalizeEvent(this);
         }
 

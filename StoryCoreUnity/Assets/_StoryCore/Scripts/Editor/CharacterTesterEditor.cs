@@ -1,11 +1,10 @@
 using CoreUtils.Editor;
-using StoryCore.Utils;
 using UnityEditor;
 using UnityEngine;
 
 namespace StoryCore.Editor {
-    [CustomEditor(typeof(PerformanceTester))]
-    public class AnimTesterEditor : Editor<PerformanceTester> {
+    [CustomEditor(typeof(CharacterTester))]
+    public class CharacterTesterEditor : Editor<CharacterTester> {
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
 

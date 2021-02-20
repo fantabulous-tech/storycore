@@ -12,11 +12,10 @@ namespace StoryCore {
         protected readonly string m_Section;
 
         private DelaySequence m_Delay;
-        private Subtitle m_Subtitle;
         private bool m_Interrupted;
 
         public bool IsComplete { get; protected set; }
-        public bool AllowsChoices => true;
+        public bool AllowsChoices => false;
 
         public bool DisplayChoicePrompt { private get; set; }
 
@@ -41,7 +40,7 @@ namespace StoryCore {
             float duration = GetDuration();
 
             if (UseSubtitles) {
-                m_Subtitle = SubtitleDirector.ShowNow(
+                SubtitleDirector.ShowNow(
                     m_Text,
                     template: DisplayChoicePrompt ? m_StoryTeller.PromptUI : null,
                     speaker: m_StoryTeller.SubtitlePoint,

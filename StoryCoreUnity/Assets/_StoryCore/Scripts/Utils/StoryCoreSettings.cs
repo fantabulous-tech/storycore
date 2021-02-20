@@ -1,20 +1,21 @@
-﻿using System;
-using StoryCore.Utils;
+﻿using CoreUtils;
 using UnityEngine;
 using VRTK;
 
 namespace StoryCore {
-    public class StoryCoreSettings : MonoBehaviour {
+    public class StoryCoreSettings : Singleton<StoryCoreSettings> {
 
         #region Global Settings
 
         private static string kUseDebugInInkKey = "StoryCore-UseDebugInInk";
         private static string kForceSimulationKey = "StoryCore-ForceSimulationMode";
         private const string kEnableLoggingKey = "StoryCore-LoggingEnabled";
+        private const string kDebugJumpKey = "StoryCore-DebugJump";
 
         private static int s_UseDebugInInk = -1;
         private static int s_ForceSimulationMode = -1;
         private static int s_EnableLogging = -1;
+        private static string s_DebugJump;
 
         public static bool UseDebugInInk {
             get {
@@ -67,6 +68,18 @@ namespace StoryCore {
 
                 s_EnableLogging = value ? 1 : 0;
                 PlayerPrefs.SetInt(kEnableLoggingKey, s_EnableLogging);
+            }
+        }
+
+        public static string DebugJump {
+            get => s_DebugJump ?? (s_DebugJump = PlayerPrefs.GetString(kDebugJumpKey, ""));
+            set {
+                if (s_DebugJump == value) {
+                    return;
+                }
+
+                s_DebugJump = value;
+                PlayerPrefs.SetString(kDebugJumpKey, s_DebugJump);
             }
         }
 
