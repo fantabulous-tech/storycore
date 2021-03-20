@@ -31,7 +31,11 @@ namespace CoreUtils {
             }
 
             if (Application.isPlaying) {
-                Object.Destroy(go, life);
+                if (life > 0) {
+                    Object.Destroy(go, life);
+                } else {
+                    Object.Destroy(go);
+                }
             } else {
                 Object.DestroyImmediate(go);
             }
@@ -61,7 +65,7 @@ namespace CoreUtils {
             }
 #endif
             // Application.Quit();
-            
+
             // Work around for crash on quit.
             System.Diagnostics.Process.GetCurrentProcess().Kill();
         }

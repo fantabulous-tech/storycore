@@ -41,6 +41,7 @@ namespace CoreUtils.AssetBuckets {
         public abstract void EDITOR_Sort(Comparison<Object> comparer);
         public abstract bool EDITOR_CanAdd(Object asset);
         public abstract void EDITOR_TryAdd(Object asset);
+        public abstract void EDITOR_ForceAdd(HashSet<Object> newObjects);
         public abstract bool EDITOR_IsMissing(string path);
         public abstract string EDITOR_GetAssetName(Object asset);
 
@@ -137,6 +138,14 @@ namespace CoreUtils.AssetBuckets {
                 string path = UnityEditor.AssetDatabase.GetAssetPath(asset);
                 string guid = UnityEditor.AssetDatabase.AssetPathToGUID(path);
                 AssetRefs.Add(new AssetReference(typedAsset, EDITOR_GetAssetName(typedAsset), guid));
+            }
+        }
+
+        public override void EDITOR_ForceAdd(HashSet<Object> newObjects) {
+            foreach (Object asset in newObjects) {
+                string path = UnityEditor.AssetDatabase.GetAssetPath(asset);
+                string guid = UnityEditor.AssetDatabase.AssetPathToGUID(path);
+                AssetRefs.Add(new AssetReference(asset, EDITOR_GetAssetName(asset), guid));
             }
         }
 
