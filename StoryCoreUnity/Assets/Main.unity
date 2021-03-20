@@ -769,6 +769,7 @@ MonoBehaviour:
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
+  m_ShouldActivateOnSelect: 1
 --- !u!224 &78505365
 RectTransform:
   m_ObjectHideFlags: 0

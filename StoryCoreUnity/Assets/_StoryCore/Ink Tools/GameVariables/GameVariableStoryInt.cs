@@ -1,8 +1,5 @@
-﻿using CoreUtils;
-using Ink.Runtime;
-using CoreUtils.GameEvents;
+﻿using Ink.Runtime;
 using StoryCore;
-using StoryCore.Utils;
 using UnityEngine;
 
 namespace CoreUtils.GameVariables {
@@ -31,7 +28,7 @@ namespace CoreUtils.GameVariables {
             if (!StoryTeller) {
                 return;
             }
-            
+
             StoryTeller.OnStoryReady -= UpdateStory;
 
             if (!Story) {
@@ -50,21 +47,21 @@ namespace CoreUtils.GameVariables {
         }
 
         protected override int GetValue() {
-            if (Story == null) {
+            object storyValue = Story?.variablesState[name];
+
+            if (storyValue == null) {
                 return base.GetValue();
             }
-
-            object storyValue = Story.variablesState[Name];
 
             if (storyValue is int intValue) {
                 return intValue;
             }
 
-            if (int.TryParse(Story.variablesState[Name].ToString(), out int parseIntValue)) {
+            if (int.TryParse(storyValue.ToString(), out int parseIntValue)) {
                 return parseIntValue;
             }
 
-            Debug.LogWarning($"Couldn't get int value of '{Name}': {storyValue}");
+            Debug.LogWarning($"Couldn't get int value of '{name}': {storyValue}");
             return base.GetValue();
         }
 
@@ -72,9 +69,9 @@ namespace CoreUtils.GameVariables {
             base.SetValue(value);
 
             if (Story != null) {
-                Story.variablesState[Name] = value;
+                Story.variablesState[name] = value;
             } else {
-                Debug.LogError($"Cannot set variable {Name} because Story is unavailable.");
+                Debug.LogError($"Cannot set variable {name} because Story is unavailable.");
             }
         }
 
@@ -84,11 +81,11 @@ namespace CoreUtils.GameVariables {
         }
 
         public void Subscribe() {
-            Story.ObserveVariable(Name, OnVariableChanged);
+            Story.ObserveVariable(name, OnVariableChanged);
         }
 
         public void Unsubscribe() {
-            Story.RemoveVariableObserver(OnVariableChanged, Name);
+            Story.RemoveVariableObserver(OnVariableChanged, name);
         }
 
         private void OnVariableChanged(string varName, object value) {

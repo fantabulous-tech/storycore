@@ -1,8 +1,5 @@
-﻿using CoreUtils;
-using Ink.Runtime;
-using CoreUtils.GameEvents;
+﻿using Ink.Runtime;
 using StoryCore;
-using StoryCore.Utils;
 using UnityEngine;
 
 namespace CoreUtils.GameVariables {
@@ -50,16 +47,17 @@ namespace CoreUtils.GameVariables {
         }
 
         protected override string GetValue() {
-            return Story == null ? base.GetValue() : Story.variablesState[Name].ToString();
+            object storyValue = Story?.variablesState[name];
+            return storyValue == null ? base.GetValue() : storyValue.ToString();
         }
 
         protected override void SetValue(string value) {
             base.SetValue(value);
 
             if (Story != null) {
-                Story.variablesState[Name] = value;
+                Story.variablesState[name] = value;
             } else {
-                Debug.LogError($"Cannot set variable {Name} because Story is unavailable.");
+                Debug.LogError($"Cannot set variable {name} because Story is unavailable.");
             }
         }
 
@@ -69,11 +67,11 @@ namespace CoreUtils.GameVariables {
         }
 
         public void Subscribe() {
-            Story.ObserveVariable(Name, OnVariableChanged);
+            Story.ObserveVariable(name, OnVariableChanged);
         }
 
         public void Unsubscribe() {
-            Story.RemoveVariableObserver(OnVariableChanged, Name);
+            Story.RemoveVariableObserver(OnVariableChanged, name);
         }
 
         private void OnVariableChanged(string varName, object value) {
