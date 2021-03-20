@@ -1,6 +1,5 @@
 ﻿using System;
 using CoreUtils;
-using StoryCore.Utils;
 using UnityEngine;
 
 namespace StoryCore.HeadGesture {

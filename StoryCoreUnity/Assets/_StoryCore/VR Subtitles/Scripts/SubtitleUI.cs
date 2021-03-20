@@ -33,7 +33,7 @@ namespace VRSubtitles {
 
         private void UpdateScale() {
             if (m_Target != null) {
-                transform.localScale = m_InitialScale*Mathf.Clamp(transform.position.DistanceTo(m_Target.position), 1f, 3f);
+                transform.localScale = m_InitialScale*Mathf.Clamp(transform.position.DistanceTo(m_Target.position), 1f, 30f);
             }
         }
 
@@ -109,13 +109,14 @@ namespace VRSubtitles {
         }
 
         public DelaySequence FadeOut(Subtitle item) {
-            return m_Current != item ? DelaySequence.Empty : FadeOut();
+            return !AppTracker.IsPlaying || m_Current != item ? DelaySequence.Empty : FadeOut();
         }
 
         private void Complete(Subtitle item, Action callback = null) {
-            if (m_Current != item) {
+            if (m_Current != item || !AppTracker.IsPlaying) {
                 return;
             }
+ 
             m_Current = null;
             m_FadingOut = false;
             callback?.Invoke();

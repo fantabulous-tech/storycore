@@ -138,7 +138,12 @@ namespace StoryCore.Choices {
         }
 
         public static bool IsValidChoice(ChoiceHandler handler) {
-            return Exists && Instance.m_CurrentChoiceHandlers.Values.Contains(handler);
+            if (!AppTracker.IsPlaying) {
+                return false;
+            }
+
+            StoryChoice[] choices = Instance.m_CurrentChoiceHandlers.Where(kvp => kvp.Value == handler).Select(kvp => kvp.Key).ToArray();
+            return Exists && choices.Any(c => Instance.StoryTeller.CurrentChoices.Contains(c));
         }
 
         public static DelaySequence GetChoiceDelay(StoryChoice choice) {

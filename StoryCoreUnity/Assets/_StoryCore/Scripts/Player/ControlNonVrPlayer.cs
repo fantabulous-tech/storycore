@@ -8,18 +8,18 @@ namespace StoryCore {
         [SerializeField] private float m_SpawnPointForwardBackBound = 1;
         [SerializeField] private float m_SpawnPointUpperBound = 0.5f;
         [SerializeField] private float m_SpawnPointLowerBound = -1;
-
-        private void FixedUpdate() {
+        
+        private void LateUpdate() {
             //Control override to keep near spawnpoint
 
             Transform t = transform;
             Vector3 pos = t.localPosition;
 
             if (m_InputSimulator.KeyPressedUp && pos.y < m_SpawnPointUpperBound) {
-                t.Translate(Time.fixedDeltaTime*m_InputSimulator.playerMoveMultiplier*Vector3.up);
+                t.Translate(Time.unscaledDeltaTime*m_InputSimulator.playerMoveMultiplier*Vector3.up);
             }
             if (m_InputSimulator.KeyPressedDown && pos.y > m_SpawnPointLowerBound) {
-                t.Translate(Time.fixedDeltaTime*m_InputSimulator.playerMoveMultiplier*Vector3.down);
+                t.Translate(Time.unscaledDeltaTime*m_InputSimulator.playerMoveMultiplier*Vector3.down);
             }
 
             pos = t.localPosition;
@@ -28,16 +28,16 @@ namespace StoryCore {
             Vector3 forward = parent.InverseTransformDirection(t.forward);
 
             if (m_InputSimulator.KeyPressedForward) {
-                pos += Time.fixedDeltaTime*m_InputSimulator.playerMoveMultiplier*forward;
+                pos += Time.unscaledDeltaTime*m_InputSimulator.playerMoveMultiplier*forward;
             }
             if (m_InputSimulator.KeyPressedBackward) {
-                pos += Time.fixedDeltaTime*m_InputSimulator.playerMoveMultiplier*-forward;
+                pos += Time.unscaledDeltaTime*m_InputSimulator.playerMoveMultiplier*-forward;
             }
             if (m_InputSimulator.KeyPressedLeft) {
-                pos += Time.fixedDeltaTime*m_InputSimulator.playerMoveMultiplier*-right;
+                pos += Time.unscaledDeltaTime*m_InputSimulator.playerMoveMultiplier*-right;
             }
             if (m_InputSimulator.KeyPressedRight) {
-                pos += Time.fixedDeltaTime*m_InputSimulator.playerMoveMultiplier*right;
+                pos += Time.unscaledDeltaTime*m_InputSimulator.playerMoveMultiplier*right;
             }
 
             if (pos.z > m_SpawnPointLeftRightBound) {

@@ -17,7 +17,7 @@ namespace StoryCore {
         }
 
         public void Start() {
-            Log($"RUN COMMAND: {m_Text}");
+            StoryDebug.Log($"RUN COMMAND: {m_Text}");
             CommandManager.RunCommand(m_Text, m_StoryTags, () => IsComplete = true, () => IsComplete = true);
         }
 
@@ -27,10 +27,6 @@ namespace StoryCore {
 
         public void Cancel() {
             // Required for interface.
-        }
-
-        private void Log(string log) {
-            StoryDebug.Log(log);
         }
 
         public override string ToString() {

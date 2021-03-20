@@ -111,7 +111,7 @@ namespace StoryCore.Choices {
 
         protected virtual void ChooseInternal() { }
 
-        private void RaiseChosen() {
+        protected void RaiseChosen() {
             m_Evaluating = false;
             OnChosen.Invoke();
             ChoiceChosen?.Invoke(this);

@@ -99,12 +99,12 @@ namespace StoryCore {
                 return;
             }
 
-            Log("Audio clip '" + Clip.name + "' duration complete.", Clip);
+            // Log("Audio clip '" + Clip.name + "' duration complete.", Clip);
             IsComplete = true;
         }
 
         private void Play(LipSyncData clip, string section) {
-            Log($"PLAYING VO: {section}.{clip.name}", clip);
+            Log($"PLAYING VO: {section}.{clip.name}: \"{m_Text}\"", clip);
 
             if (m_StoryTeller.FocusedCharacter is IPerformLipSync lipSyncCharacter) {
                 m_Character = lipSyncCharacter;
@@ -168,6 +168,10 @@ namespace StoryCore {
                 default:
                     return 0.4f;
             }
+        }
+
+        public override string ToString() {
+            return $"{base.ToString()} ({m_LineId})";
         }
     }
 }

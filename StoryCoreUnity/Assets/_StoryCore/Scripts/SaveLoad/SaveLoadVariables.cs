@@ -41,7 +41,7 @@ namespace StoryCore.SaveLoad {
             string value = PlayerPrefs.GetString(variable.name);
 
             if (!value.IsNullOrEmpty()) {
-                Debug.Log($"Loading {variable} to {value}", variable);
+                // StoryDebug.Log($"Loading {variable} to {value}", variable);
                 variable.ValueString = PlayerPrefs.GetString(variable.name);
             }
         }

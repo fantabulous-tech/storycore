@@ -15,7 +15,7 @@ namespace StoryCore.Commands {
         [SerializeField] private LogType m_Type;
 
         public override DelaySequence Run(ScriptCommandInfo info) {
-            string message = "INK LOG: " + info.Text.Substring(info.Text.IndexOf(' '));
+            string message = "<color=green>INK LOG:</color> " + info.Text.Substring(info.Text.IndexOf(' '));
 
             switch (m_Type) {
                 case LogType.Error:

@@ -1,6 +1,5 @@
 ﻿using CoreUtils;
 using CoreUtils.GameVariables;
-using StoryCore.Utils;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -117,16 +116,12 @@ namespace StoryCore.HeadGesture {
 
             transform.position = Head.position;
             m_UI.gameObject.SetActive(false);
-            if (m_YesWatcher != null) {
-                m_YesWatcher.Update();
-            }
-            if (m_NoWatcher != null) {
-                m_NoWatcher.Update();
-            }
+            m_YesWatcher?.Update();
+            m_NoWatcher?.Update();
         }
 
         private void OnYesGesture(DirectionEdge edge) {
-            Debug.Log("Yes!");
+            StoryDebug.Log("Yes!", this);
             OnYes.Invoke();
             m_LastSuccessTime = Time.unscaledTime;
             Transform edgeTransform = edge.transform;
@@ -137,7 +132,7 @@ namespace StoryCore.HeadGesture {
         }
 
         private void OnNoGesture(DirectionEdge edge) {
-            Debug.Log("No!");
+            StoryDebug.Log("No!", this);
             OnNo.Invoke();
             m_LastSuccessTime = Time.unscaledTime;
             Transform edgeTransform = edge.transform;
@@ -152,13 +147,13 @@ namespace StoryCore.HeadGesture {
                 return;
             }
 
-            m_YesWatcher.ResetNod();
-            m_NoWatcher.ResetNod();
+            m_YesWatcher?.ResetNod();
+            m_NoWatcher?.ResetNod();
             m_UI.gameObject.SetActive(false);
         }
 
 #if UNITY_EDITOR
-        private void OnDrawGizmosSelected() {
+        private void OnDrawGizmos() {
             m_Edges.ForEach(e => e.OnDrawEdgeGizmo());
         }
 #endif

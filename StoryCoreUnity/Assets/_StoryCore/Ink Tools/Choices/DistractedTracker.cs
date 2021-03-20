@@ -23,7 +23,7 @@ namespace StoryCore.Choices {
         private bool DistractedDelayComplete => DateTime.Now >= m_LastAttention + TimeSpan.FromSeconds(m_DistractedDelay);
         private bool AttentionDelayComplete => DateTime.Now >= m_LastDistraction + TimeSpan.FromSeconds(m_AttentionDelay);
         private bool CanRaisePayingAttention => IsPayingAttention && m_AttentionChoice && AttentionChoiceReady && AttentionDelayComplete;
-        private bool CanRaiseDistracted => !IsPayingAttention && !Globals.IsJournalOpen.Value && DistractedChoiceReady && DistractedDelayComplete;
+        private bool CanRaiseDistracted => AppTracker.IsPlaying && !IsPayingAttention && !Globals.IsJournalOpen.Value && DistractedChoiceReady && DistractedDelayComplete && ChoiceManager.Instance;
 
         public bool IsPayingAttention { get; private set; }
 
@@ -42,7 +42,7 @@ namespace StoryCore.Choices {
         }
 
         private void Update() {
-            if (!Target) {
+            if (!Target || !this || !AppTracker.IsPlaying) {
                 return;
             }
 

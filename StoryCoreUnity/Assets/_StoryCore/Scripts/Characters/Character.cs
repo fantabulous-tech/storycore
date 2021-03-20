@@ -335,6 +335,10 @@ namespace StoryCore.Characters {
         }
 
         public DelaySequence Play(Object performance) {
+            if (!this) {
+                return DelaySequence.Empty;
+            }
+
             if (!gameObject.activeInHierarchy) {
                 Debug.LogWarning($"Character {name} disabled. Can't play {performance.name}", this);
                 return DelaySequence.Empty;
@@ -461,7 +465,11 @@ namespace StoryCore.Characters {
         }
 
         public DelaySequence PlayAudio(AudioClip clip, float delay = 0) {
-            return Delay.For(delay, this).Then(() => m_VoiceSource.PlayOneShot(clip)).ThenWaitFor(clip.length);
+            return Delay.For(delay, this).Then(() => {
+                if (m_VoiceSource) {
+                    m_VoiceSource.PlayOneShot(clip);
+                }
+            }).ThenWaitFor(clip.length);
         }
 
         public DelaySequence PlayLipSync(LipSyncData lipSyncData, float delay = 0) {
@@ -475,7 +483,11 @@ namespace StoryCore.Characters {
                 return Delay.For(delay, this);
             }
 
-            return Delay.For(delay, this).Then(() => m_LipSync.Play(lipSyncData)).ThenWaitFor(lipSyncData.length);
+            return Delay.For(delay, this).Then(() => {
+                if (m_LipSync) {
+                    m_LipSync.Play(lipSyncData);
+                }
+            }).ThenWaitFor(lipSyncData.length);
         }
 
         public void StopLipSync() {

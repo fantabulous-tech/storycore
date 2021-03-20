@@ -1,4 +1,5 @@
 ﻿using System;
+using CoreUtils;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -11,43 +12,34 @@ namespace StoryCore.HeadGesture {
         [SerializeField] private GameObject m_LeftUI;
         [SerializeField] private GameObject m_RightUI;
         [SerializeField] private CanvasGroup m_Fader;
+        [SerializeField, ReadOnly] private bool m_AtLimit;
 
         private HeadGestureTracker m_Tracker;
-        private Vector3 m_CenterDirection;
+        private Vector3 m_CenterOffDirection;
         private GameObject m_UI;
         private Vector3 m_Axis;
         private Vector3 m_OffAxis;
         private bool m_Init;
         private float m_FadeStart;
+        private float m_Angle;
+        private float m_OffAngle;
 
-        [SerializeField] private bool m_AtLimit;
 
         public event Action<DirectionEdge> LimitReached;
         public event Action<DirectionEdge> OffCentered;
 
         public bool AtLimit => m_AtLimit;
 
-        private Vector3 GlobalAxis => Head.TransformDirection(m_Axis);
-        private Vector3 GlobalOffAxis => Head.TransformDirection(m_OffAxis);
+        private Vector3 GlobalAxis => Head ? Head.TransformDirection(m_Axis) : m_Axis;
+        private Vector3 GlobalOffAxis => Head ? Head.TransformDirection(m_OffAxis) : m_OffAxis;
         private Transform Head => HeadGestureTracker.Head;
         private Vector3 Offset => m_Tracker.Offset;
 
         // TODO: Optimize Angle/OffAngle into a head-space euler angle Vector2 calculated once per frame.
 
-        private float Angle {
-            get {
-                Vector3 direction = Vector3.ProjectOnPlane(transform.position - Head.position, GlobalAxis);
-                return -Vector3.SignedAngle(Head.forward, direction, GlobalAxis);
-            }
-        }
+        private float Angle => m_Angle;
 
-        private float OffAngle {
-            get {
-                Vector3 direction = Vector3.ProjectOnPlane(transform.position - Head.position, GlobalOffAxis);
-                Vector3 centerDirection = Vector3.ProjectOnPlane(m_CenterDirection, GlobalOffAxis);
-                return Vector3.Angle(centerDirection, direction);
-            }
-        }
+        private float OffAngle => m_OffAngle;
 
         public DirectionEdge Init(HeadGestureTracker tracker, Direction direction) {
             name = direction + " Edge";
@@ -93,6 +85,7 @@ namespace StoryCore.HeadGesture {
                 return;
             }
 
+            UpdateAngles();
             m_Fader.alpha = 1 - Mathf.Clamp01((Time.unscaledTime - m_FadeStart)/m_Tracker.MaxDuration);
 
             // Check to see if angle is too far off.
@@ -112,9 +105,18 @@ namespace StoryCore.HeadGesture {
                 m_AtLimit = false;
                 //Debug.LogFormat(this, "{0} NOT at limit anymore.", name);
             }
+            
+            UpdateAngles();
 
             // Finally, update to the new position.
             UpdatePosition();
+        }
+
+        private void UpdateAngles() {
+            Vector3 axis = GlobalAxis;
+            Vector3 direction = Vector3.ProjectOnPlane(transform.position - Head.position, axis);
+            m_Angle = -Vector3.SignedAngle(Head.forward, direction, axis);
+            m_OffAngle = Vector3.Angle(axis, m_CenterOffDirection);
         }
 
         private void OffCenter() {
@@ -142,9 +144,10 @@ namespace StoryCore.HeadGesture {
 
         public void Recenter() {
             m_AtLimit = false;
-            m_CenterDirection = Head.forward;
+            m_CenterOffDirection = GlobalAxis;
             transform.position = Head.position + Head.TransformDirection(Offset);
             m_UI.SetActive(false);
+            UpdateAngles();
         }
 
         public void SetSprite(bool showSprite) {
@@ -153,11 +156,18 @@ namespace StoryCore.HeadGesture {
 
 #if UNITY_EDITOR
         public void OnDrawEdgeGizmo() {
-            if (Application.isPlaying) {
-                Vector3 position = transform.position;
-                Handles.Label(position + GlobalAxis*0.25f, $"Degrees: {Angle:N0}\nOff Degrees: {OffAngle:N0}");
-                Handles.DoPositionHandle(position + GlobalAxis*0.25f, Head.rotation);
+            if (!Application.isPlaying || !gameObject.activeInHierarchy) {
+                return;
             }
+
+            Vector3 position = transform.position + GlobalOffAxis*0.25f;
+            Handles.Label(position, $"{name}\nDegrees: {Angle:N0}\nOff Degrees: {OffAngle:N0}");
+            Handles.DoPositionHandle(position, Head.rotation);
+
+            // Handles.color = Color.green;
+            // Handles.DrawSolidDisc(position, GlobalAxis, 0.05f);
+            // Handles.color = Color.red;
+            // Handles.DrawSolidDisc(position, GlobalOffAxis, 0.05f);
         }
 #endif
 

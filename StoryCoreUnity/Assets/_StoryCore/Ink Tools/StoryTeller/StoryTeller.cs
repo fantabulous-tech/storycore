@@ -39,6 +39,7 @@ namespace StoryCore {
         private string m_LastFocusedCharacterName;
         private string m_LastSection;
         private string m_LastPath;
+        private bool m_Loading = true;
 
         public SubtitleUI PromptUI => m_PromptUI;
         public string CurrentStoryPath => m_LastPath;
@@ -159,7 +160,7 @@ namespace StoryCore {
             }
             SceneManager.sceneLoaded += OnSceneLoaded;
 
-            if (m_StartStoryOnEnable) {
+            if (AppTracker.IsPlaying && m_StartStoryOnEnable) {
                 StartStory();
             }
         }
@@ -175,7 +176,7 @@ namespace StoryCore {
         }
 
         private void Update() {
-            if (m_Complete || AppTracker.IsQuitting) {
+            if (m_Loading || m_Complete || AppTracker.IsQuitting) {
                 return;
             }
 
@@ -224,14 +225,19 @@ namespace StoryCore {
             // Load up all the saved variables (story variables should get set in the story too).
             Story.variablesState["debug"] = Application.isEditor && StoryCoreSettings.UseDebugInInk;
 
-            GetNextQueue("Starting story.");
-
+            if (Application.isEditor && StoryCoreSettings.UseDebugInInk && !StoryCoreSettings.DebugJump.IsNullOrEmpty()) {
+                try {
+                    JumpStory(StoryCoreSettings.DebugJump);
+                }
+                catch (Exception) {
+                    GetNextQueue("Starting story. (Jump didn't work.)");
+                }
+            } else {
+                GetNextQueue("Starting story.");
+            }
+            
             // Now that initial variable notifications have run, we can subscribe to future events.
             SaveLoadVariables.SubscribeAll();
-            
-            if (Application.isEditor && StoryCoreSettings.UseDebugInInk && !StoryCoreSettings.DebugJump.IsNullOrEmpty()) {
-                JumpStory(StoryCoreSettings.DebugJump);
-            }
         }
 
         public void RestartStory() {
@@ -268,14 +274,17 @@ namespace StoryCore {
                 m_Story.ChoosePathString(storyPath);
             }
             catch (Exception e) {
-                StoryDebug.Log($"Can't choose {storyPath} because {e.Message}");
+                Debug.LogWarning($"Can't choose {storyPath} because {e.Message}");
                 m_Story.state.LoadJson(save);
-                return;
+                throw;
             }
             
             StoryDebug.Log($"Jumping story to {storyPath}.", this);
             CancelQueue();
-            
+
+            // Pause Update loop until empty scene loads.
+            m_Loading = true;
+
             // Add loading an empty scene as the first command.
             CommandSceneHandler.LoadScene("none").Then(() => {
                 m_Complete = false;
@@ -289,15 +298,16 @@ namespace StoryCore {
         }
 
         private void GetNextQueue(string reason) {
+
             if (!CanContinue) {
-                Debag.LogErrorOnce($"StoryTeller can't get new sequences yet. This shouldn't happen. (Still have choices left?) Queue reason: {reason}", this);
-                return;
+                Debug.LogWarning($"StoryTeller can't get new sequences. This shouldn't happen. Story Queue Updating: {reason}", this);
+                // return;
+            } else {
+                StoryDebug.Log("Story Queue Updating: " + reason);
             }
 
-            StoryDebug.Log("Story Queue Updating: " + reason);
-
             CancelQueue();
-
+            m_Loading = false;
             m_SequenceQueue.AddLast(new ActionSequence(EnableInterruptChoices));
             
             DialogLineSequence lastLine = null;
@@ -352,11 +362,14 @@ namespace StoryCore {
             }
 
             LinkedListNode<ISequence> blockNode = m_SequenceQueue.Last;
-            bool first = true;
+            bool firstDialog = true;
 
-            while (blockNode != null && (blockNode.Value.AllowsChoices || blockNode.Value is DialogLineSequence && first)) {
+            while (blockNode != null && (blockNode.Value.AllowsChoices || blockNode.Value is DialogLineSequence && firstDialog)) {
+                if (blockNode.Value is DialogLineSequence) {
+                    firstDialog = false;
+                }
+
                 blockNode = blockNode.Previous;
-                first = false;
             }
 
             if (blockNode == null) {
@@ -376,6 +389,19 @@ namespace StoryCore {
         }
 
         private void CancelQueue() {
+            // Also cancel any choices.
+            RaiseOnChosen();
+            m_Loading = true;
+
+            List<ISequence> cancelList = new List<ISequence>(m_SequenceQueue);
+            if (m_CurrentSequence != null && !(m_CurrentSequence is WaitForChoiceSequence)) {
+                cancelList.Insert(0, m_CurrentSequence);
+            }
+
+            if (cancelList.Any()) {
+                StoryDebug.Log($"Queue cancelling {cancelList.Count} items:\n{cancelList.AggregateToString("\n")}");
+            }
+            
             if (m_CurrentSequence != null) {
                 m_CurrentSequence.Cancel();
                 m_CurrentSequence = null;
@@ -385,10 +411,6 @@ namespace StoryCore {
                 m_SequenceQueue.First().Cancel();
                 m_SequenceQueue.RemoveFirst();
             }
-        }
-
-        private static bool AllowsChoices(ISequence sequence, DialogLineSequence lastLine) {
-            return sequence == lastLine || sequence.AllowsChoices && !(sequence is DialogLineSequence);
         }
 
         private void RaiseUpdatingQueue() {

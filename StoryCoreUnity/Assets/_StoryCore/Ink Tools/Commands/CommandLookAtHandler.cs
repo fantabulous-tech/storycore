@@ -35,7 +35,7 @@ namespace StoryCore.Commands {
             // TODO: Support non-character and 'idle' points of interest.
 
             if (FocusedCharacter) {
-                Debug.Log($"/lookat: {FocusedCharacter.Name} --> {targetName} ({target})");
+                StoryDebug.Log($"/lookat: {FocusedCharacter.Name} --> {targetName} ({target})", this);
                 FocusedCharacter.LookAt(target);
             } else {
                 Debug.LogWarning($"/lookat: No focused character found. Cannot look at '{targetName}'");

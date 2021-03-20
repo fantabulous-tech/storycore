@@ -34,6 +34,9 @@ namespace CoreUtils.AssetBuckets {
         }
 
         public static bool IsMatch(string text, string prefix) {
+            if (text.IsNullOrEmpty() || prefix.IsNullOrEmpty()) {
+                return false;
+            }
             return text.Equals(prefix, StringComparison.OrdinalIgnoreCase) || text.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && !char.IsLetterOrDigit(text[prefix.Length]);
         }
 

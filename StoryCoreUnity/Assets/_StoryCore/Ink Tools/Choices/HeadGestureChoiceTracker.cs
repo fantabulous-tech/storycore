@@ -1,14 +1,12 @@
-﻿using CoreUtils;
-using StoryCore;
+﻿using StoryCore;
 using StoryCore.Choices;
 using StoryCore.HeadGesture;
-using StoryCore.Utils;
 using UnityEngine;
 
 namespace CoreUtils.GameEvents {
     public class HeadGestureChoiceTracker : MonoBehaviour {
         [SerializeField, AutoFillFromScene] private StoryTeller m_StoryTeller;
-        [SerializeField] private StoryCore.HeadGesture.HeadGestureTracker m_HeadGesture;
+        [SerializeField] private HeadGestureTracker m_HeadGesture;
         [SerializeField, AutoFillAsset] private BaseGameEvent m_SayYesEvent;
         [SerializeField, AutoFillAsset] private BaseGameEvent m_SayNoEvent;
         [SerializeField, AutoFillAsset] private ChoiceHandler m_YesChoice;
@@ -30,8 +28,21 @@ namespace CoreUtils.GameEvents {
             m_HeadGesture.enabled = false;
         }
 
+        private void OnDestroy() {
+            if (m_HeadGesture) {
+                m_HeadGesture.OnYes.RemoveListener(OnYes);
+                m_HeadGesture.OnNo.RemoveListener(OnNo);
+            }
+
+            if (m_StoryTeller) {
+                m_StoryTeller.OnChoicesReady -= OnChoicesReady;
+                m_StoryTeller.OnChosen -= OnChosen;
+            }
+        }
+
         private void OnChosen() {
             m_HeadGesture.enabled = CanRespondYes || CanRespondNo;
+            m_Delay?.Cancel("A choice was chosen.", this);
         }
 
         private void OnChoicesReady() {
@@ -39,17 +50,29 @@ namespace CoreUtils.GameEvents {
         }
 
         private void OnYes() {
-            if (CanRespondYes) {
-                m_SayYesEvent.Raise();
-                m_Delay = Delay.For(m_ResponseDelay, this).Then(m_YesChoice.Choose);
+            if (!CanRespondYes) {
+                return;
             }
+
+            m_SayYesEvent.Raise();
+            m_Delay = Delay.For(m_ResponseDelay, this).Then(() => {
+                if (m_YesChoice) {
+                    m_YesChoice.Choose();
+                }
+            });
         }
 
         private void OnNo() {
-            if (CanRespondNo) {
-                m_SayNoEvent.Raise();
-                m_Delay = Delay.For(m_ResponseDelay, this).Then(m_NoChoice.Choose);
+            if (!CanRespondNo) {
+                return;
             }
+
+            m_SayNoEvent.Raise();
+            m_Delay = Delay.For(m_ResponseDelay, this).Then(() => {
+                if (m_NoChoice) {
+                    m_NoChoice.Choose();
+                }
+            });
         }
     }
 }
