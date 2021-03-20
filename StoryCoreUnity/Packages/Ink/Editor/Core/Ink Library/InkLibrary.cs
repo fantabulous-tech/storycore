@@ -11,52 +11,86 @@ using Debug = UnityEngine.Debug;
 /// <summary>
 /// Holds a reference to an InkFile object for every .ink file detected in the Assets folder.
 /// Provides helper functions to easily obtain these files.
-
-/// Some notes on using a scriptable object instance:
-/// The goal here is to have a scriptable object that persists across compiles/entering or exiting play mode
-/// This class doesn't need to be saved to disk any more but we have the functionality because it gives us a way of getting access to the instance.
-/// ScriptableObject.FindObjectsOfType does not seem to find non-
-
-
-/// We should investigate the Unity ScriptableSingleton class added for 2020.
-/// https://docs.unity3d.com/2020.2/Documentation/ScriptReference/ScriptableSingleton_1.html
-
 /// </summary>
 namespace Ink.UnityIntegration {
+    #if UNITY_2020_1_OR_NEWER
+    [FilePath("Library/InkLibrary.asset", FilePathAttribute.Location.ProjectFolder)]
+	public class InkLibrary : ScriptableSingleton<InkLibrary>, IEnumerable<InkFile> {
+    #else
 	public class InkLibrary : ScriptableObject, IEnumerable<InkFile> {
-		public static System.Version versionCurrent = new System.Version(0,9,71);
-		public static bool created {
-			get {
-				// If it's null, there's no InkLibrary asset in the project
-				return (_Instance != (Object) null);
-			}
-		}
+    #endif
+        // Ink version. This should really come from the core ink code.
+		public static System.Version inkVersionCurrent = new System.Version(1,0,0);
+		public static System.Version unityIntegrationVersionCurrent = new System.Version(1,0,2);
 
 		static string absoluteSavePath {
 			get {
 				return System.IO.Path.GetFullPath(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(),"Library","InkLibrary.asset"));
-				// return System.IO.Path.GetFullPath(System.IO.Path.Combine(Application.dataPath,"..","Library","InkLibrary.asset"));
 			}
 		}
 		
-		private static InkLibrary _Instance;
-		public static InkLibrary Instance {
+		#if !UNITY_2020_1_OR_NEWER
+		public static bool created {
+			get {
+				// If it's null, there's no InkLibrary loaded
+				return (_instance != (Object) null);
+			}
+		}
+		private static InkLibrary _instance;
+		public static InkLibrary instance {
 			get {
 				if(!created)
                 	LoadOrCreateInstance();
-				return _Instance;
+				return _instance;
 			} private set {
-				if(_Instance == value) return;
-				_Instance = value;
+				if(_instance == value) return;
+				_instance = value;
             }
 		}
+        
+		
+		// This occurs on recompile, creation and load (note that data has not necessarily been loaded at this point!)
+		protected InkLibrary () {
+			if (created)
+				Debug.LogError((object) "ScriptableSingleton already exists. Did you query the singleton in a constructor?");
+			else {
+				instance = this;
+			}
+		}
+
+		public static void LoadOrCreateInstance () {
+			InternalEditorUtility.LoadSerializedFileAndForget(absoluteSavePath);
+			if(created) {
+				if(InkEditorUtils.isFirstCompile) {
+					Validate();
+				}
+			} else {
+				instance = ScriptableObject.CreateInstance<InkLibrary>();
+				instance.hideFlags = HideFlags.HideAndDontSave;
+				Rebuild();
+				instance.Save(true);
+			}
+		}
+		
+		public void Save (bool saveAsText) {
+			if(!created) return;			
+			InternalEditorUtility.SaveToSerializedFileAndForget((Object[]) new InkLibrary[1] {instance}, absoluteSavePath, saveAsText);
+		}
+
+		static void EnsureCreated () {
+			if(!created) LoadOrCreateInstance();
+		}
+        #endif
+        
+        public class AssetSaver : UnityEditor.AssetModificationProcessor {
+            static string[] OnWillSaveAssets(string[] paths) {
+                instance.Save(true);
+                return paths;
+            }
+        }
+
 		public List<InkFile> inkLibrary = new List<InkFile>();
 		Dictionary<DefaultAsset, InkFile> inkLibraryDictionary;
-		// If InkSettings' delayInPlayMode option is true, dirty files are added here when they're changed in play mode
-		// This ensures they're remembered when you exit play mode and can be compiled
-		public List<string> pendingCompilationStack = new List<string>();
-		// The state of files currently being compiled.
-		public List<InkCompiler.CompilationStackItem> compilationStack = new List<InkCompiler.CompilationStackItem>();
 		
         public int Count {
             get {
@@ -77,60 +111,32 @@ namespace Ink.UnityIntegration {
         IEnumerator IEnumerable.GetEnumerator() {
             return inkLibrary.GetEnumerator();
         }
-		
-		// This occurs on recompile, creation and load (note that data has not been loaded at this point!)
-		protected InkLibrary () {
-			if (created)
-				Debug.LogError((object) "ScriptableSingleton already exists. Did you query the singleton in a constructor?");
-			else {
-				Instance = this;
-			}
-		}
 
+		void OnValidate () {
+            BuildLookupDictionary();
+            Validate();
+        }
 		// After recompile, the data associated with the object is fetched (or whatever happens to it) by this point. 
 		void OnEnable () {
 			// Deletes the persistent version of this asset that we used to use prior to 0.9.71
 			if(!Application.isPlaying && EditorUtility.IsPersistent(this)) {
 				var path = AssetDatabase.GetAssetPath(this);
 				if(!string.IsNullOrEmpty(path)) {
-					if(_Instance == this) _Instance = null;
+					#if !UNITY_2020_1_OR_NEWER
+                    if(_instance == this) _instance = null;
+					#endif
 					AssetDatabase.DeleteAsset(path);
 					AssetDatabase.Refresh();
 					return;
 				}
 			}
-			
-			BuildLookupDictionary();
-		}
-
-		public static void LoadOrCreateInstance () {
-			InternalEditorUtility.LoadSerializedFileAndForget(absoluteSavePath);
-			if(created) {
-				BuildLookupDictionary();
-                Validate();
-				InkLibrary.ClearCompilationStacks();
-			} else {
-				Instance = ScriptableObject.CreateInstance<InkLibrary>();
-				Instance.hideFlags = HideFlags.HideAndDontSave;
-				Rebuild();
-				SaveToFile();
-			}
-		}
-		
-		public static void SaveToFile () {
-			if(!created) return;			
-			InternalEditorUtility.SaveToSerializedFileAndForget((Object[]) new InkLibrary[1] {_Instance}, absoluteSavePath, true);
-		}
-
-		static void EnsureCreated () {
-			if(!created) LoadOrCreateInstance();
 		}
 
         static void BuildLookupDictionary () {
-            if(Instance.inkLibraryDictionary == null) Instance.inkLibraryDictionary = new Dictionary<DefaultAsset, InkFile>();
-            else Instance.inkLibraryDictionary.Clear();
-			foreach(var inkFile in Instance.inkLibrary) {
-                Instance.inkLibraryDictionary.Add(inkFile.inkAsset, inkFile);
+            if(instance.inkLibraryDictionary == null) instance.inkLibraryDictionary = new Dictionary<DefaultAsset, InkFile>();
+            else instance.inkLibraryDictionary.Clear();
+			foreach(var inkFile in instance.inkLibrary) {
+                instance.inkLibraryDictionary.Add(inkFile.inkAsset, inkFile);
             }
         }
         
@@ -154,15 +160,17 @@ namespace Ink.UnityIntegration {
         /// This is a fairly performant check.
 		/// </summary>
         static bool RequiresRebuild () {
+            #if !UNITY_2020_1_OR_NEWER
 			EnsureCreated();
-			foreach(var inkFile in Instance.inkLibrary) {
+            #endif
+			foreach(var inkFile in instance.inkLibrary) {
                 if(inkFile == null) {
                     return true;
                 }
                 if(inkFile.inkAsset == null) {
                     return true;
                 }
-                if(!Instance.inkLibraryDictionary.ContainsKey(inkFile.inkAsset)) {
+                if(!instance.inkLibraryDictionary.ContainsKey(inkFile.inkAsset)) {
                     return true;
                 }
                 if(inkFile.inkAsset == null) {
@@ -172,7 +180,7 @@ namespace Ink.UnityIntegration {
                     if(include == null) {
                         return true;
                     }
-                    if(!Instance.inkLibraryDictionary.ContainsKey(include)) {
+                    if(!instance.inkLibraryDictionary.ContainsKey(include)) {
                         return true;
                     }
                 } 
@@ -185,8 +193,8 @@ namespace Ink.UnityIntegration {
 		/// </summary>
 		public static bool Clean () {
             bool wasDirty = false;
-			for (int i = InkLibrary.Instance.Count - 1; i >= 0; i--) {
-				InkFile inkFile = InkLibrary.Instance[i];
+			for (int i = instance.Count - 1; i >= 0; i--) {
+				InkFile inkFile = InkLibrary.instance[i];
 				if (inkFile.inkAsset == null) {
 					InkLibrary.RemoveAt(i);
                     wasDirty = true;
@@ -196,17 +204,17 @@ namespace Ink.UnityIntegration {
 		}
 
         public static void Add (InkFile inkFile) {
-            Instance.inkLibrary.Add(inkFile);
+            instance.inkLibrary.Add(inkFile);
 			SortInkLibrary();
-			Instance.inkLibraryDictionary.Add(inkFile.inkAsset, inkFile);
+			instance.inkLibraryDictionary.Add(inkFile.inkAsset, inkFile);
         }
         public static void RemoveAt (int index) {
-            var inkFile = Instance.inkLibrary[index];
-            Instance.inkLibrary.RemoveAt(index);
-            Instance.inkLibraryDictionary.Remove(inkFile.inkAsset);
+            var inkFile = instance.inkLibrary[index];
+            instance.inkLibrary.RemoveAt(index);
+            instance.inkLibraryDictionary.Remove(inkFile.inkAsset);
         }
 		static void SortInkLibrary () {
-            Instance.inkLibrary = Instance.inkLibrary.OrderBy(x => x.filePath).ToList();
+            instance.inkLibrary = instance.inkLibrary.OrderBy(x => x.filePath).ToList();
 		}
 
 		/// <summary>
@@ -221,7 +229,7 @@ namespace Ink.UnityIntegration {
             Clean();
 
 			// Reset the asset name
-			Instance.name = "Ink Library "+versionCurrent.ToString();
+			instance.name = "Ink Library "+unityIntegrationVersionCurrent.ToString();
             
 			// Add any new file connections (if any are found it replaces the old library entirely)
 			string[] inkFilePaths = GetAllInkFilePaths();
@@ -248,15 +256,15 @@ namespace Ink.UnityIntegration {
 				newInkLibrary.Add(inkFile);
 			}
 			if(inkLibraryChanged) {
-				Instance.inkLibrary = newInkLibrary;
+				instance.inkLibrary = newInkLibrary;
 				SortInkLibrary();
 			}
             BuildLookupDictionary();
 
 			RebuildInkFileConnections();
 
-			foreach (InkFile inkFile in Instance.inkLibrary) inkFile.FindCompiledJSONAsset();
-			SaveToFile();
+			foreach (InkFile inkFile in instance.inkLibrary) inkFile.FindCompiledJSONAsset();
+			instance.Save(true);
 			
 			// Re-enable the ink asset post processor
 			InkPostProcessor.disabled = false;
@@ -289,8 +297,8 @@ namespace Ink.UnityIntegration {
 
 		// All the master files
 		public static IEnumerable<InkFile> GetMasterInkFiles () {
-			if(Instance.inkLibrary == null) yield break;
-			foreach (InkFile inkFile in Instance.inkLibrary) {
+			if(instance.inkLibrary == null) yield break;
+			foreach (InkFile inkFile in instance.inkLibrary) {
 				if(inkFile.isMaster) 
 					yield return inkFile;
 			}
@@ -299,7 +307,7 @@ namespace Ink.UnityIntegration {
 		// All the master files which are dirty and are set to compile
 		public static IEnumerable<InkFile> GetFilesRequiringRecompile () {
 			foreach(InkFile inkFile in InkLibrary.GetMasterInkFiles ()) {
-				if(inkFile.requiresCompile && (InkSettings.Instance.compileAutomatically || inkFile.compileAutomatically)) 
+				if(inkFile.requiresCompile && (InkSettings.instance.compileAutomatically || inkFile.compileAutomatically)) 
 					yield return inkFile;
 			}
 		}
@@ -307,7 +315,7 @@ namespace Ink.UnityIntegration {
 		// All the master files which are set to compile
 		public static IEnumerable<InkFile> FilesCompiledByRecompileAll () {
 			foreach(InkFile inkFile in InkLibrary.GetMasterInkFiles ()) {
-				if(InkSettings.Instance.compileAutomatically || inkFile.compileAutomatically) 
+				if(InkSettings.instance.compileAutomatically || inkFile.compileAutomatically) 
 					yield return inkFile;
 			}
 		}
@@ -319,18 +327,18 @@ namespace Ink.UnityIntegration {
 		/// <param name="file">File asset.</param>
 		/// <param name="addIfMissing">Adds the file if missing from inkLibrary.</param>
 		public static InkFile GetInkFileWithFile (DefaultAsset file, bool addIfMissing = false) {
-			if(InkLibrary.Instance.inkLibrary == null) return null;
-
+			if(instance.inkLibrary == null) return null;
+			
 			if (!file) {
 				Debug.LogError("Can't add null file.");
 				return null;
 			}
 
-            if(Instance.inkLibraryDictionary == null) {
+            if(instance.inkLibraryDictionary == null) {
 				Debug.LogWarning("GetInkFileWithFile: inkLibraryDictionary was null! This should never occur, but is handled following a user reported bug. If this has never been seen long after 12/08/2020, it can be safely removed");
 				BuildLookupDictionary();
 			}
-			foreach(InkFile inkFile in Instance.inkLibrary) {
+			foreach(InkFile inkFile in instance.inkLibrary) {
 				if(inkFile.inkAsset == file) {
 					return inkFile;
 				}
@@ -338,13 +346,13 @@ namespace Ink.UnityIntegration {
 
 			if (addIfMissing) {
 				InkFile newFile = new InkFile(file);
-				Instance.inkLibrary.Add(newFile);
+				instance.inkLibrary.Add(newFile);
 				Debug.Log(file + " missing from ink library. Adding it now.");
 				return newFile;
 			}
 
 			System.Text.StringBuilder listOfFiles = new System.Text.StringBuilder();
-			foreach(InkFile inkFile in Instance.inkLibrary) {
+			foreach(InkFile inkFile in instance.inkLibrary) {
 				listOfFiles.AppendLine(inkFile.ToString());
 			}
 			Debug.LogWarning (file + " missing from ink library. Please rebuild.\n"+listOfFiles);
@@ -357,8 +365,8 @@ namespace Ink.UnityIntegration {
 		/// <returns>The ink file with path.</returns>
 		/// <param name="path">Path.</param>
 		public static InkFile GetInkFileWithPath (string path) {
-			if(Instance.inkLibrary == null) return null;
-			foreach(InkFile inkFile in Instance.inkLibrary) {
+			if(instance.inkLibrary == null) return null;
+			foreach(InkFile inkFile in instance.inkLibrary) {
 				if(inkFile.filePath == path) {
 					return inkFile;
 				}
@@ -372,8 +380,8 @@ namespace Ink.UnityIntegration {
 		/// <returns>The ink file with path.</returns>
 		/// <param name="path">Path.</param>
 		public static InkFile GetInkFileWithAbsolutePath (string absolutePath) {
-			if(InkLibrary.Instance.inkLibrary == null) return null;
-			foreach(InkFile inkFile in Instance.inkLibrary) {
+			if(instance.inkLibrary == null) return null;
+			foreach(InkFile inkFile in instance.inkLibrary) {
 				if(inkFile.absoluteFilePath == absolutePath) {
 					return inkFile;
 				}
@@ -386,7 +394,7 @@ namespace Ink.UnityIntegration {
 		/// Rebuilds which files are master files and the connections between the files.
 		/// </summary>
 		public static void RebuildInkFileConnections () {
-			Queue<InkFile> inkFileQueue = new Queue<InkFile>(InkLibrary.Instance.inkLibrary);
+			Queue<InkFile> inkFileQueue = new Queue<InkFile>(instance.inkLibrary);
 			while (inkFileQueue.Count > 0) {
 				InkFile inkFile = inkFileQueue.Dequeue();
 				inkFile.parents = new List<DefaultAsset>();
@@ -403,10 +411,10 @@ namespace Ink.UnityIntegration {
 
 			// We now set the master file for ink files. As a file can be in an include hierarchy, we need to do this in two passes.
 			// First, we set the master file to the file that includes an ink file.
-			foreach (InkFile inkFile in InkLibrary.Instance.inkLibrary) {
+			foreach (InkFile inkFile in instance.inkLibrary) {
 				if(inkFile.includes.Count == 0) 
 					continue;
-				foreach (InkFile otherInkFile in InkLibrary.Instance.inkLibrary) {
+				foreach (InkFile otherInkFile in instance.inkLibrary) {
 					if(inkFile == otherInkFile) 
 						continue;
 					if(inkFile.includes.Contains(otherInkFile.inkAsset)) {
@@ -418,7 +426,7 @@ namespace Ink.UnityIntegration {
 			}
 			// Next, we create a list of all the files owned by the actual master file, which we obtain by travelling up the parent tree from each file.
 			Dictionary<InkFile, List<InkFile>> masterChildRelationships = new Dictionary<InkFile, List<InkFile>>();
-			foreach (InkFile inkFile in InkLibrary.Instance.inkLibrary) {
+			foreach (InkFile inkFile in instance.inkLibrary) {
 				foreach(var parentInkFile in inkFile.parentInkFiles) {
 					InkFile lastMasterInkFile = parentInkFile;
 					InkFile masterInkFile = parentInkFile;
@@ -456,78 +464,12 @@ namespace Ink.UnityIntegration {
 					} else {
 						Debug.LogWarning("Child file already contained master file reference! This is weird!");
 					}
-					if(InkSettings.Instance.handleJSONFilesAutomatically && childInkFile.jsonAsset != null) {
+					if(InkSettings.instance.handleJSONFilesAutomatically && childInkFile.jsonAsset != null) {
 						AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(childInkFile.jsonAsset));
 						childInkFile.jsonAsset = null;
 					}
 				}
 			}
-		}
-
-
-		
-
-
-        public static void AddToCompilationStack (InkCompiler.CompilationStackItem compilationStackItem) {
-			if(!InkLibrary.Instance.compilationStack.Contains(compilationStackItem)) {
-				InkLibrary.Instance.compilationStack.Add(compilationStackItem);
-				SaveToFile();
-			}
-		}
-
-        public static void ClearCompilationStack () {
-			if(InkLibrary.Instance.compilationStack.Count != 0) {
-				InkLibrary.Instance.compilationStack.Clear();
-				SaveToFile();
-			}
-        }
-
-
-        public static void AddToPendingCompilationStack (string filePath) {
-			if(!InkLibrary.Instance.pendingCompilationStack.Contains(filePath)) {
-				InkLibrary.Instance.pendingCompilationStack.Add(filePath);
-				SaveToFile();
-			}
-		}
-
-        public static void RemoveFromPendingCompilationStack (InkFile inkFile) {
-            bool anyChange = false;
-			anyChange = InkLibrary.Instance.pendingCompilationStack.Remove(inkFile.filePath) || anyChange;
-            foreach(var includeFile in inkFile.inkFilesInIncludeHierarchy) {
-                anyChange = InkLibrary.Instance.pendingCompilationStack.Remove(includeFile.filePath) || anyChange;
-            }
-			if(anyChange)
-				InkLibrary.SaveToFile();
-        }
-        public static void ClearCompilationStacks () {
-            InkLibrary.Instance.compilationStack.Clear();
-            InkLibrary.Instance.pendingCompilationStack.Clear();
-			InkLibrary.SaveToFile();
-        }
-
-		public static int NumFilesInCompilingStackInState (InkCompiler.CompilationStackItem.State state) {
-			int count = 0;
-			foreach(var x in Instance.compilationStack) {
-				if(x.state == state) 
-					count++;
-			}
-			return count;
-		}
-		public static List<InkCompiler.CompilationStackItem> FilesInCompilingStackInState (InkCompiler.CompilationStackItem.State state) {
-			List<InkCompiler.CompilationStackItem> items = new List<InkCompiler.CompilationStackItem>();
-			foreach(var x in Instance.compilationStack) {
-				if(x.state == state) 
-					items.Add(x);
-			}
-			return items;
-		}
-
-		public static InkCompiler.CompilationStackItem GetCompilationStackItem (InkFile inkFile) {
-			foreach(var x in Instance.compilationStack) {
-				if(x.inkFile == inkFile) 
-					return x;
-			}
-			return null;
 		}
 	}
 }
