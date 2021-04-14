@@ -760,10 +760,6 @@ PlayerSettings:
       daydreamIconForeground: {fileID: 0}
       daydreamIconBackground: {fileID: 0}
   cloudServicesEnabled:
-    Build: 1
-    Collab: 0
-    ErrorHub: 0
-    Hub: 0
     UNet: 1
   luminIcon:
     m_Name: 
@@ -777,10 +773,10 @@ PlayerSettings:
     m_VersionCode: 1
     m_VersionName: 
   apiCompatibilityLevel: 6
-  cloudProjectId: edc5ce5d-3faf-4e15-9db8-867dba4952b4
+  cloudProjectId: 
   framebufferDepthMemorylessMode: 0
-  projectName: Dominatrix Simulator
-  organizationId: deviant-dev
+  projectName: 
+  organizationId: 
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
   disableOldInputManagerSupport: 0
