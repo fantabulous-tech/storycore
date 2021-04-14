@@ -18,8 +18,8 @@ MonoBehaviour:
   m_EyeController: {fileID: 3726126447311939244}
   m_LookAtIK: {fileID: 3355345942095783082}
   m_VoiceSource: {fileID: 2157604978197588744}
-  m_SubtitlePoint: {fileID: 3758011082341580161}
-  m_IdleAnim: {fileID: 7400000, guid: 3ffc519c636b44d9bb16d100f2106005, type: 2}
+  m_SubtitlePoint: {fileID: 0}
+  m_IdleAnim: {fileID: 7400000, guid: d2748961c4c2faf42942bd27867df2a2, type: 2}
 --- !u!114 &3355345942095783082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -234,66 +234,16 @@ MonoBehaviour:
   useBones: 0
   boneUpdateAnimation: 0
   phonemes:
-  - blendShapes: 23000000290000002a0000001a0000001b000000
-    blendableNames:
-    - Blink_Left (0)
-    - Blink_Right (1)
-    - BrowsDown_Left (2)
-    - BrowsDown_Right (3)
-    - BrowsIn_Left (4)
-    weights:
-    - 36.3
-    - 39.6
-    - 40.1
-    - 35
-    - 35
-    bones: []
-    verified: 1
-    phonemeName: AI
-    phoneme: 0
-  - blendShapes: 2300000016000000
-    blendableNames:
-    - Blink_Left (0)
-    - Blink_Right (1)
-    weights:
-    - 5.5
-    - 43.4
-    bones: []
-    verified: 1
-    phonemeName: E
-    phoneme: 0
-  - blendShapes: 230000001e0000001f000000
-    blendableNames:
-    - Blink_Left (0)
-    - Blink_Right (1)
-    - BrowsDown_Left (2)
-    weights:
-    - 55.7
-    - 11
-    - 11
-    bones: []
-    verified: 1
-    phonemeName: U
-    phoneme: 0
-  - blendShapes: 23000000
-    blendableNames:
-    - Blink_Left (0)
-    weights:
-    - 44.1
-    bones: []
-    verified: 1
-    phonemeName: O
-    phoneme: 0
   - blendShapes: 16000000
     blendableNames:
     - Blink_Left (0)
     weights:
-    - 38.3
+    - 78.3
     bones: []
     verified: 1
-    phonemeName: CDGKNRSThYZ
+    phonemeName: AI
     phoneme: 0
-  - blendShapes: 1c00000024000000300000003100000023000000
+  - blendShapes: 1600000030000000310000001a0000001b000000
     blendableNames:
     - Blink_Left (0)
     - Blink_Right (1)
@@ -301,38 +251,55 @@ MonoBehaviour:
     - BrowsDown_Right (3)
     - BrowsIn_Left (4)
     weights:
-    - 100
-    - 29.1
-    - 35.9
-    - 36.8
-    - 10.6
+    - 41.5
+    - 22.2
+    - 22.2
+    - 8.7
+    - 8.2
     bones: []
     verified: 1
-    phonemeName: FV
+    phonemeName: E
     phoneme: 0
-  - blendShapes: 230000002d000000
+  - blendShapes: 160000002100000022000000
     blendableNames:
     - Blink_Left (0)
     - Blink_Right (1)
+    - BrowsDown_Left (2)
     weights:
-    - 39.2
-    - 100
+    - 83.5
+    - 44.8
+    - 44.3
     bones: []
     verified: 1
-    phonemeName: L
+    phonemeName: U
     phoneme: 0
-  - blendShapes: 1c0000002e000000
+  - blendShapes: 160000002100000022000000
     blendableNames:
     - Blink_Left (0)
     - Blink_Right (1)
+    - BrowsDown_Left (2)
     weights:
-    - 100
-    - 100
+    - 91.1
+    - 20.9
+    - 20.7
     bones: []
     verified: 1
-    phonemeName: MBP
+    phonemeName: O
     phoneme: 0
-  - blendShapes: 23000000200000001e0000001f0000001a0000001b0000003000000031000000
+  - blendShapes: 160000001a0000001b000000
+    blendableNames:
+    - Blink_Left (0)
+    - Blink_Right (1)
+    - BrowsDown_Left (2)
+    weights:
+    - 20.2
+    - 29.5
+    - 29.3
+    bones: []
+    verified: 1
+    phonemeName: CDGKNRSThYZ
+    phoneme: 0
+  - blendShapes: 1c00000024000000230000000e0000000f00000010000000
     blendableNames:
     - Blink_Left (0)
     - Blink_Right (1)
@@ -340,17 +307,58 @@ MonoBehaviour:
     - BrowsDown_Right (3)
     - BrowsIn_Left (4)
     - BrowsIn_Right (5)
-    - BrowsOuterLower_Left (6)
-    - BrowsOuterLower_Right (7)
     weights:
-    - 17.5
-    - 27.8
-    - 37.9
-    - 38.3
-    - 22.5
-    - 22.5
-    - 23.8
-    - 23.3
+    - 77.4
+    - 22.2
+    - 11.3
+    - 32.4
+    - 32.4
+    - 20.7
+    bones: []
+    verified: 1
+    phonemeName: FV
+    phoneme: 0
+  - blendShapes: 23000000300000002d000000310000001a0000001b000000
+    blendableNames:
+    - Blink_Left (0)
+    - Blink_Right (1)
+    - BrowsDown_Left (2)
+    - BrowsDown_Right (3)
+    - BrowsIn_Left (4)
+    - BrowsIn_Right (5)
+    weights:
+    - 34.6
+    - 15.9
+    - 68
+    - 14.8
+    - 15.4
+    - 17.2
+    bones: []
+    verified: 1
+    phonemeName: L
+    phoneme: 0
+  - blendShapes: 240000001c0000002e000000
+    blendableNames:
+    - Blink_Left (0)
+    - Blink_Right (1)
+    - BrowsDown_Left (2)
+    weights:
+    - 29.3
+    - 77.4
+    - 100
+    bones: []
+    verified: 1
+    phonemeName: MBP
+    phoneme: 0
+  - blendShapes: 230000002100000022000000
+    blendableNames:
+    - Blink_Left (0)
+    - Blink_Right (1)
+    - BrowsDown_Left (2)
+    weights:
+    - 32.6
+    - 39.6
+    - 39.6
     bones: []
     verified: 1
     phonemeName: WQ
@@ -363,41 +371,17 @@ MonoBehaviour:
     phonemeName: Rest
     phoneme: 0
   emotions:
-  - blendShapes: 090000002a0000002900000021000000
+  - blendShapes: 2900000009000000
     blendableNames:
     - Blink_Left (0)
     - Blink_Right (1)
-    - BrowsDown_Left (2)
-    - BrowsDown_Right (3)
     weights:
-    - 99
-    - 100
-    - 40
-    - 65.2
-    bones: []
-    verified: 1
-    emotion: Amused
-  - blendShapes: 290000002a00000008000000090000000c0000000d00000024000000
-    blendableNames:
-    - Blink_Left (0)
-    - Blink_Right (1)
-    - BrowsDown_Left (2)
-    - BrowsDown_Right (3)
-    - BrowsIn_Left (4)
-    - BrowsIn_Right (5)
-    - BrowsOuterLower_Left (6)
-    weights:
-    - 83.8
-    - 85.3
-    - 77.6
-    - 78.1
-    - 4
-    - 3.8
+    - 71.3
     - 84.8
     bones: []
     verified: 1
-    emotion: Happy
-  - blendShapes: 0c0000000d00000024000000290000002a0000000800000009000000
+    emotion: Amused
+  - blendShapes: 290000002a00000008000000090000000c0000000d000000
     blendableNames:
     - Blink_Left (0)
     - Blink_Right (1)
@@ -405,63 +389,63 @@ MonoBehaviour:
     - BrowsDown_Right (3)
     - BrowsIn_Left (4)
     - BrowsIn_Right (5)
-    - BrowsOuterLower_Left (6)
+    weights:
+    - 77.6
+    - 77.8
+    - 72.8
+    - 73.7
+    - 52.6
+    - 53
+    bones: []
+    verified: 1
+    emotion: Happy
+  - blendShapes: 0c0000000d000000
+    blendableNames:
+    - Blink_Left (0)
+    - Blink_Right (1)
     weights:
     - 100
     - 100
-    - 54.5
-    - 42.8
-    - 43
-    - 52.9
-    - 53.4
     bones: []
     verified: 1
     emotion: Excited
-  - blendShapes: 1f0000000500000009000000070000002c0000002b00000024000000
+  - blendShapes: 
+    blendableNames: []
+    weights: []
+    bones: []
+    verified: 1
+    emotion: Aroused
+  - blendShapes: 0e0000000f000000090000002b0000002c000000
     blendableNames:
     - Blink_Left (0)
     - Blink_Right (1)
     - BrowsDown_Left (2)
     - BrowsDown_Right (3)
     - BrowsIn_Left (4)
-    - BrowsIn_Right (5)
-    - BrowsOuterLower_Left (6)
     weights:
-    - 68.9
-    - 85.1
-    - 63.7
-    - 48.8
-    - 60.7
-    - 60.9
-    - 51
+    - 47
+    - 47.2
+    - 80.4
+    - 70.4
+    - 70.4
     bones: []
     verified: 1
     emotion: Skeptical
-  - blendShapes: 0c0000000d000000200000000e0000000f00000008000000070000000600000007000000
+  - blendShapes: 0c0000000d000000200000002e000000
     blendableNames:
     - Blink_Left (0)
     - Blink_Right (1)
     - BrowsDown_Left (2)
     - BrowsDown_Right (3)
-    - BrowsIn_Left (4)
-    - BrowsIn_Right (5)
-    - BrowsOuterLower_Left (6)
-    - BrowsOuterLower_Right (7)
-    - BrowsUp_Left (8)
     weights:
     - 100
     - 100
-    - 40
-    - 24.6
-    - 23.9
-    - 62.2
-    - 62.9
-    - 60.7
-    - 61.4
+    - 46.5
+    - 100
     bones: []
     verified: 1
     emotion: Scared
-  - blendShapes: 2700000028000000240000002b0000002c0000000300000002000000
+  - blendShapes: 27000000280000002b0000002c0000000e0000000f00000024000000
     blendableNames:
     - Blink_Left (0)
     - Blink_Right (1)
@@ -471,17 +455,41 @@ MonoBehaviour:
     - BrowsIn_Right (5)
     - BrowsOuterLower_Left (6)
     weights:
-    - 91.3
-    - 92
-    - 70.1
-    - 71.4
-    - 71.1
-    - 54
-    - 55
+    - 84.3
+    - 87
+    - 53.5
+    - 53.7
+    - 47.4
+    - 47.6
+    - 62.8
     bones: []
     verified: 1
     emotion: Disgusted
-  - blendShapes: 0e0000000f0000002700000028000000020000000300000004000000050000002b0000002c00000024000000
+  - blendShapes: 240000002b0000002c0000000e0000000f00000002000000030000000000000001000000
+    blendableNames:
+    - Blink_Left (0)
+    - Blink_Right (1)
+    - BrowsDown_Left (2)
+    - BrowsDown_Right (3)
+    - BrowsIn_Left (4)
+    - BrowsIn_Right (5)
+    - BrowsOuterLower_Left (6)
+    - Blink_Left (0)
+    - BrowsUp_Left (8)
+    weights:
+    - 50
+    - 63.3
+    - 63
+    - 54.6
+    - 55.7
+    - 100
+    - 100
+    - 13
+    - 13
+    bones: []
+    verified: 1
+    emotion: Angry
+  - blendShapes: 05000000040000000e0000000f0000000c0000000d000000200000000900000008000000
     blendableNames:
     - Blink_Left (0)
     - Blink_Right (1)
@@ -492,34 +500,16 @@ MonoBehaviour:
     - BrowsOuterLower_Left (6)
     - BrowsOuterLower_Right (7)
     - BrowsUp_Left (8)
-    - BrowsUp_Right (9)
-    - CheekPuff_Left (10)
-    weights:
-    - 23.1
-    - 22.7
-    - 28.7
-    - 31.3
-    - 100
-    - 100
-    - 100
-    - 100
-    - 88.6
-    - 88.6
-    - 62.9
-    bones: []
-    verified: 1
-    emotion: Angry
-  - blendShapes: 07000000060000000e0000000f000000
-    blendableNames:
-    - Blink_Left (0)
-    - Blink_Right (1)
-    - BrowsDown_Left (2)
-    - BrowsDown_Right (3)
     weights:
     - 100
     - 100
-    - 58.2
-    - 59
+    - 70.6
+    - 70.7
+    - 65.2
+    - 65
+    - 62.4
+    - 34.8
+    - 34.6
     bones: []
     verified: 1
     emotion: Sad
@@ -529,12 +519,6 @@ MonoBehaviour:
     bones: []
     verified: 1
     emotion: Neutral
-  - blendShapes: 
-    blendableNames: []
-    weights: []
-    bones: []
-    verified: 1
-    emotion: Aroused
   playOnAwake: 0
   loop: 0
   defaultClip: {fileID: 0}
@@ -819,7 +803,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: d15b50a9332ae6d4b89730f6a39a88e3,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.07105637
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: d15b50a9332ae6d4b89730f6a39a88e3,
         type: 3}
@@ -829,27 +813,27 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: d15b50a9332ae6d4b89730f6a39a88e3,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 5.736
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: d15b50a9332ae6d4b89730f6a39a88e3,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: d15b50a9332ae6d4b89730f6a39a88e3,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: d15b50a9332ae6d4b89730f6a39a88e3,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0.0000059604636
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: d15b50a9332ae6d4b89730f6a39a88e3,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: d15b50a9332ae6d4b89730f6a39a88e3,
         type: 3}
@@ -859,7 +843,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: d15b50a9332ae6d4b89730f6a39a88e3,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -359.999
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: d15b50a9332ae6d4b89730f6a39a88e3,
         type: 3}
