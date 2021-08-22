@@ -9,16 +9,16 @@ EditorBuildSettings:
     path: Assets/Main.unity
     guid: 687eab66e2402584e9cc0830a119b199
   - enabled: 1
-    path: assets/_scenes/office.hallway.unity
+    path: Assets/_Scenes/Office.Hallway.unity
     guid: 7c5379d7aa6752c4ba348ed85b482e4b
   - enabled: 1
-    path: assets/_scenes/office.interior.unity
+    path: Assets/_Scenes/Office.Interior.unity
     guid: 83f8c7fa1fe6ecb41a651687b433bc3c
   - enabled: 1
-    path: assets/_scenes/office.interiorclose.unity
+    path: Assets/_Scenes/Office.InteriorClose.unity
     guid: 7255cf6c266324a42b86d5b0c96d1321
   - enabled: 1
-    path: assets/_scenes/office.unity
+    path: Assets/_Scenes/Office.unity
     guid: af7890d03697ee447b83e63014566013
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 3002360d1a4b72045a04bb3f28284ffb,

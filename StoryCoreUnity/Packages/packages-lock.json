@@ -175,7 +175,7 @@
       "url": "https://packages.unity.com"
     },
     "tech.fantabulous.coreutils": {
-      "version": "1.0.9",
+      "version": "1.0.12",
       "depth": 0,
       "source": "registry",
       "dependencies": {
