@@ -1,0 +1,17 @@
+1 <root>
+2 game_start
+4 scenario_test
+5 scenario_test.start
+6 scenario_test.enter
+7 scenario_test.respond
+8 scenario_test.exit
+#
+4 5 scenario/test:5<br/>scenario/test:5
+5 6 scenario/test:17<br/>scenario/test:7<br/>scenario/test:17
+6 7 scenario/test:35<br/>scenario/test:35
+7 8 scenario/test:66<br/>scenario/test:66
+1 2 _game.ink:11
+2 4 _game.ink:19
+5 5 scenario/test:11<br/>scenario/test:15
+7 7 scenario/test:62
+8 4 scenario/test:70
