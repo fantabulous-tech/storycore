@@ -2494,6 +2494,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ToggleVariable: {fileID: 11400000, guid: fb3adee4600fb884490853832b208085, type: 2}
+  m_Target: {fileID: 639893359}
 --- !u!114 &639893363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4586,9 +4587,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GameVariablesToSave: {fileID: 11400000, guid: d32673e48a90a964ca03b3af06c2b528,
     type: 2}
-  m_ResetProgressEvent: {fileID: 11400000, guid: c58795ade33fb65488f508441df9ed75,
-    type: 2}
-  m_StoryTellerLocator: {fileID: 11400000, guid: 85a4a29d31b08ac4483a67cbd6781dae,
+  m_ResetProgressEvent: {fileID: 11400000, guid: aa4d47a11c283774281e75ede6c5fbc0,
     type: 2}
 --- !u!1 &1126410280
 GameObject:
