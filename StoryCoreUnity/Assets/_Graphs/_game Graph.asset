@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 856f63cdbbc04d8c8300ac9d547ce594, type: 3}
   m_Name: _game Graph
   m_EditorClassIdentifier: 
-  m_RootInkScript: {fileID: 0}
+  m_RootInkScript: {fileID: 102900000, guid: 2753338a61128b448ab5406aeb99c893, type: 3}
   m_ExportDepth: 2
-  m_ExportPath: Exports/
+  m_ExportPath: Assets/_Graphs
   m_TunnelNodesHandling: 0
   m_OpenOnComplete: 1
   m_ExcludePaths: []
