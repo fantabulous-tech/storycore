@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CoreUtils;
-using Ink.Runtime;
 using CoreUtils.AssetBuckets;
-using StoryCore.Choices;
-using StoryCore.Commands;
 using CoreUtils.GameEvents;
 using CoreUtils.GameVariables;
+using Ink.Runtime;
 using StoryCore.Characters;
+using StoryCore.Choices;
+using StoryCore.Commands;
 using StoryCore.SaveLoad;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -38,11 +38,10 @@ namespace StoryCore {
         private BaseCharacter m_FocusedCharacter;
         private string m_LastFocusedCharacterName;
         private string m_LastSection;
-        private string m_LastPath;
         private bool m_Loading = true;
 
         public SubtitleUI PromptUI => m_PromptUI;
-        public string CurrentStoryPath => m_LastPath;
+        public string CurrentStoryPath { get; private set; }
         private bool PlayingSequence => m_CurrentSequence != null && !m_CurrentSequence.IsComplete;
         public bool UseSubtitles => m_OptionSubtitles.Value;
         private static string OverrideInkPath => Application.persistentDataPath + "/_game.json";
@@ -83,11 +82,7 @@ namespace StoryCore {
             }
         }
 
-        public string FocusedCharacterName {
-            get {
-                return m_FocusedCharacterName.Value;
-            }
-        }
+        public string FocusedCharacterName => m_FocusedCharacterName.Value;
 
         public Transform AttentionPoint => FocusedCharacter ? FocusedCharacter.AttentionPoint : null;
         public Transform SubtitlePoint => FocusedCharacter ? FocusedCharacter.SubtitlePoint : null;
@@ -169,7 +164,7 @@ namespace StoryCore {
             if (AppTracker.IsQuitting) {
                 return;
             }
-            
+
             AllChoices.Clear();
             CurrentChoices.Clear();
             Story = null;
@@ -227,15 +222,16 @@ namespace StoryCore {
 
             if (Application.isEditor && StoryCoreSettings.UseDebugInInk && !StoryCoreSettings.DebugJump.IsNullOrEmpty()) {
                 try {
+                    Story.EvaluateFunction("setGender", "m");
                     JumpStory(StoryCoreSettings.DebugJump);
                 }
-                catch (Exception) {
-                    GetNextQueue("Starting story. (Jump didn't work.)");
+                catch (Exception e) {
+                    GetNextQueue($"Starting story. (Jump didn't work because {e.Message}.)");
                 }
             } else {
                 GetNextQueue("Starting story.");
             }
-            
+
             // Now that initial variable notifications have run, we can subscribe to future events.
             SaveLoadVariables.SubscribeAll();
         }
@@ -251,21 +247,43 @@ namespace StoryCore {
             }
 
             StoryDebug.Log("Resetting game state.");
-            m_Story.ResetState(); 
+            m_Story.ResetState();
 
             OnStoryReadyToLoad?.Invoke();
             OnStoryReady?.Invoke();
 
             Story.variablesState["debug"] = Application.isEditor && StoryCoreSettings.UseDebugInInk;
-            
+
             m_Story.ChoosePathString(storyPath);
             CancelQueue();
-            
+
             // Add loading an empty scene as the first command.
             CommandSceneHandler.LoadScene("none").Then(() => {
                 m_Complete = false;
                 GetNextQueue("Restarting story.");
             });
+        }
+
+        public void SkipTo(string storyPath) {
+            string save = m_Story.state.ToJson();
+            try {
+                m_Story.ChoosePathString(storyPath);
+            }
+            catch (Exception e) {
+                Debug.LogWarning($"Can't skip to '{storyPath}' because {e.Message}");
+                m_Story.state.LoadJson(save);
+                throw;
+            }
+
+            StoryDebug.Log($"Skipping story to {storyPath}.", this);
+            CancelQueue();
+            m_Complete = false;
+            GetNextQueue($"Jumping story to {storyPath}.");
+        }
+
+        public void Continue() {
+            m_Complete = false;
+            GetNextQueue($"Continuing story.");
         }
 
         public void JumpStory(string storyPath) {
@@ -278,7 +296,7 @@ namespace StoryCore {
                 m_Story.state.LoadJson(save);
                 throw;
             }
-            
+
             StoryDebug.Log($"Jumping story to {storyPath}.", this);
             CancelQueue();
 
@@ -294,11 +312,10 @@ namespace StoryCore {
 
         public void LoadStory() {
             // Add loading an empty scene as the first command.
-            CommandSceneHandler.LoadScene("none").Then(() => GetNextQueue($"Loading story."));
+            CommandSceneHandler.LoadScene("none").Then(() => GetNextQueue("Loading story."));
         }
 
         private void GetNextQueue(string reason) {
-
             if (!CanContinue) {
                 Debug.LogWarning($"StoryTeller can't get new sequences. This shouldn't happen. Story Queue Updating: {reason}", this);
                 // return;
@@ -309,19 +326,19 @@ namespace StoryCore {
             CancelQueue();
             m_Loading = false;
             m_SequenceQueue.AddLast(new ActionSequence(EnableInterruptChoices));
-            
+
             DialogLineSequence lastLine = null;
             LinkedListNode<ISequence> lastLineNode = null;
             RaiseUpdatingQueue();
 
             while (CanContinue) {
                 // Check for the current path before and after the 'continue' as it is something null after 'Continue' is called.
-                m_LastPath = Story.state.currentPathString;
+                CurrentStoryPath = Story.state.currentPathString;
                 string text = Story.Continue().Trim();
                 string path = Story.state.currentPathString;
 
                 if (path.IsNullOrEmpty()) {
-                    path = m_LastPath;
+                    path = CurrentStoryPath;
                 }
 
                 if (!path.IsNullOrEmpty()) {
@@ -352,7 +369,7 @@ namespace StoryCore {
                 m_SequenceQueue.AddLast(lastLine);
                 lastLineNode = m_SequenceQueue.Last;
             }
-            
+
             // We can no longer continue. Let's create all the available choices at once.
             AllChoices = Story.currentChoices.Select((c, i) => new StoryChoice(c, this)).ToList();
 
@@ -401,7 +418,7 @@ namespace StoryCore {
             if (cancelList.Any()) {
                 StoryDebug.Log($"Queue cancelling {cancelList.Count} items:\n{cancelList.AggregateToString("\n")}");
             }
-            
+
             if (m_CurrentSequence != null) {
                 m_CurrentSequence.Cancel();
                 m_CurrentSequence = null;
@@ -419,8 +436,8 @@ namespace StoryCore {
 
         private DialogLineSequence CreateDialogLine(string text, string section) {
             return m_CustomDialogLineProvider
-                                          ? m_CustomDialogLineProvider.CreateDialogLine(this, text, section)
-                                          : new DialogLineSequence(this, text, section);
+                       ? m_CustomDialogLineProvider.CreateDialogLine(this, text, section)
+                       : new DialogLineSequence(this, text, section);
         }
 
         private void EnableInterruptChoices() {
@@ -480,6 +497,7 @@ namespace StoryCore {
             }
 
             // Clear out choices now that we have the next choice.
+            AllChoices.ForEach(c => c.Disable());
             CurrentChoices.Clear();
             AllChoices.Clear();
             StartChoice(choice);
@@ -552,6 +570,8 @@ namespace StoryCore {
                 return CurrentChoices.AggregateToString(c => c.Key);
             }
         }
+
+        public bool QueueDone => m_SequenceQueue.Count == 0 && (m_CurrentSequence == null || m_CurrentSequence.IsComplete);
 
         private void OnFocusChanged(string characterName) {
             BaseCharacter character = m_CharacterBucket.Get(characterName);

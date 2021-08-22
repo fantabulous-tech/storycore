@@ -75,10 +75,6 @@ namespace StoryCore {
             m_Delay?.Cancel("Dialog line cancelled.", m_StoryTeller);
         }
 
-        protected void Log(string log, Object context = null) {
-            StoryDebug.Log(log, context);
-        }
-
         public override string ToString() {
             return $"{base.ToString()}: {m_Text}";
         }

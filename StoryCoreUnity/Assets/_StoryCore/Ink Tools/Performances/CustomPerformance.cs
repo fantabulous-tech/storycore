@@ -1,8 +1,7 @@
 using System.Linq;
 using CoreUtils;
-using RogoDigital.Lipsync;
 using CoreUtils.GameEvents;
-using StoryCore.Commands;
+using RogoDigital.Lipsync;
 using UnityEngine;
 
 namespace StoryCore.Characters {
@@ -17,23 +16,15 @@ namespace StoryCore.Characters {
         [SerializeField] private float m_EventDelay;
         [SerializeField] private AnimationCurve m_LookAtWeight = AnimationCurve.Constant(0, 1, 1);
 
-        private AnimationClip m_ChosenAnim;
-
         public bool HasClip => m_AnimationClips.Length > 0;
         public AnimationClip[] Clips => m_AnimationClips;
-        public AnimationClip ChosenAnim => m_ChosenAnim;
+        public AnimationClip ChosenAnim { get; private set; }
 
         public DelaySequence Play(BaseCharacter character) {
-            m_ChosenAnim = null;
+            ChosenAnim = null;
             DelaySequence animSequence = TryPlayAnimation(character);
-            DelaySequence audioSequence = TryPlayLipSync(character);
-
-            if (audioSequence == null) {
-                audioSequence = TryPlayAudio(character);
-            }
-
+            DelaySequence audioSequence = TryPlayLipSync(character) ?? TryPlayAudio(character);
             DelaySequence eventSequence = TryTriggerEvent();
-
             return Delay.Until(() => SequencesComplete(animSequence, audioSequence, eventSequence), this);
         }
 
@@ -59,11 +50,25 @@ namespace StoryCore.Characters {
         }
 
         private DelaySequence TryPlayAnimation(BaseCharacter character) {
-            m_ChosenAnim = m_AnimationClips.GetRandomItem();
-            if (m_ChosenAnim != null && character is IPerformAnim animCharacter) {
-                return animCharacter.PlayAnim(m_ChosenAnim, m_AnimTransition, -1, m_LookAtWeight);
+            ChosenAnim = m_AnimationClips.GetRandomItem();
+            if (ChosenAnim != null && character is IPerformAnim animCharacter) {
+                return animCharacter.PlayAnim(ChosenAnim, m_AnimTransition, -1, AnimUpdate);
             }
             return null;
+        }
+
+        protected virtual void AnimUpdate(object sender, AnimationClip clip, float progress, float weight) {
+            if (weight > 0.5f && Clips.Contains(clip) && sender is Character character) {
+                UpdateLookAt(character, progress);
+            }
+        }
+
+        private void UpdateLookAt(Character character, float progress) {
+            if (m_LookAtWeight != null) {
+                character.SetLookWeight(m_LookAtWeight.Evaluate(progress));
+            } else {
+                character.SetLookWeight(1);
+            }
         }
 
         private DelaySequence TryPlayLipSync(BaseCharacter character) {

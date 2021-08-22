@@ -71,7 +71,7 @@ namespace StoryCore {
             if (Globals.CurrentSpawnPoint != null) {
                 Globals.CurrentSpawnPoint.Value = this;
             }
-            VRUtils.Teleport(transform, m_UseHeadsetOffset);
+            VRUtils.Teleport(transform, m_UseHeadsetOffset, true);
         }
     }
 }

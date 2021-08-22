@@ -1,51 +1,41 @@
-﻿using CoreUtils;
-using StoryCore.Utils;
+﻿using System;
+using CoreUtils;
+using CoreUtils.GameVariables;
 using UnityEngine;
-using VRTK;
 
 namespace StoryCore {
     public class MoveOnHeadRotation : MonoBehaviour {
         [SerializeField] private Vector3 m_MinOffset = Vector3.zero;
         [SerializeField] private Vector3 m_MaxOffset = new Vector3(0, 1, 0);
         [SerializeField] private float m_Speed = 1;
+        [SerializeField, AutoFillAsset] private GameVariableTransform m_HeadLocation;
+        [SerializeField, AutoFillAsset] private GameVariableFloatRange m_ProgressTracker;
 
-        private Vector3 m_StartPos;
         private Transform m_Head;
+        private Vector3 m_StartPos;
         private Vector3 m_MinPos;
         private Vector3 m_MaxPos;
-        private float m_Progress;
         private Vector3 m_LastForward;
         private Vector3 m_LastMinOffset;
         private Vector3 m_LastMaxOffset;
+
+        public float Progress {
+            get => m_ProgressTracker.Progress;
+            set => m_ProgressTracker.Progress = value;
+        }
 
         private void Start() {
             m_StartPos = transform.localPosition;
             m_MinPos = m_StartPos + m_MinOffset;
             m_MaxPos = m_StartPos + m_MaxOffset;
-
-            if (VRTK_SDKManager.instance.loadedSetup && VRTK_SDKManager.instance.loadedSetup.isValid) {
-                SetupHead(VRTK_SDKManager.instance.loadedSetup);
-                m_Head = VRTK_SDKManager.instance.loadedSetup.actualHeadset.transform;
-            }
-
-            VRTK_SDKManager.instance.LoadedSetupChanged += OnSetupChanged;
+            m_LastForward = m_Head ? m_Head.forward : Vector3.forward;
+            OnHeadChanged(m_HeadLocation.Value);
+            m_HeadLocation.Changed += OnHeadChanged;
         }
 
-        private void SetupHead(VRTK_SDKSetup setup) {
-            if (!setup.isValid) {
-                m_Head = null;
-                m_LastForward = Vector3.forward;
-                return;
-            }
-
-            m_Head = setup.actualHeadset.transform;
-            m_LastForward = m_Head.forward;
-        }
-
-        private void OnSetupChanged(VRTK_SDKManager sender, VRTK_SDKManager.LoadedSetupChangeEventArgs e) {
-            if (e.currentSetup) {
-                m_Head = e.currentSetup.actualHeadset.transform;
-            }
+        private void OnHeadChanged(Transform head) {
+            m_Head = head;
+            m_LastForward = head ? head.forward : Vector3.forward;
         }
 
         private void FixedUpdate() {
@@ -65,10 +55,11 @@ namespace StoryCore {
             Vector3 newForward = m_Head.forward;
             float delta = Vector3.SignedAngle(m_LastForward, newForward, m_Head.right);
 
-            m_Progress = Mathf.Clamp01(m_Progress + delta*m_Speed);
-            transform.localPosition = Vector3.Lerp(m_MinPos, m_MaxPos, m_Progress);
+            Progress = Mathf.Clamp01(Progress + delta*m_Speed);
+            transform.localPosition = Vector3.Lerp(m_MinPos, m_MaxPos, Progress);
 
             m_LastForward = newForward;
         }
     }
+
 }

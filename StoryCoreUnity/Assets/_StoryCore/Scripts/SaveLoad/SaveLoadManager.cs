@@ -1,10 +1,9 @@
 using System;
 using System.IO;
 using CoreUtils;
+using CoreUtils.GameVariables;
 using Ink.Runtime;
 using StoryCore.Commands;
-using CoreUtils.GameVariables;
-using StoryCore.Utils;
 using UnityEngine;
 
 namespace StoryCore.SaveLoad {
@@ -27,7 +26,7 @@ namespace StoryCore.SaveLoad {
 
         public override void OnEnable() {
             base.OnEnable();
-            
+
             if (!m_StoryTellerLocator.Value) {
                 m_StoryTellerLocator.Changed += SubscribeToStoryTeller;
             } else {
@@ -40,7 +39,7 @@ namespace StoryCore.SaveLoad {
 
         public override void OnDisable() {
             base.OnDisable();
-            
+
             if (m_StoryTellerLocator) {
                 m_StoryTellerLocator.Changed -= SubscribeToStoryTeller;
                 UnsubscribeFromStoryTeller(m_StoryTellerLocator.Value);
@@ -88,7 +87,7 @@ namespace StoryCore.SaveLoad {
             if (!File.Exists(loadPath)) {
                 StoryDebug.Log($"Load called, but no save to load found at path: {loadPath}. Starting a new story.", this);
                 story.variablesState[kProfileLoadTime] = Time.time;
-                
+
                 // Create new save for this game.
                 OnSave();
                 return;
@@ -141,15 +140,14 @@ namespace StoryCore.SaveLoad {
 
             int profileNum = m_ProfileNum.Value;
             string storyPath = story.variablesState[kSceneName].ToString();
-            
+
             string totalTimeString = story.variablesState[kProfileTotalTime].ToString();
             string loadTimeString = story.variablesState[kProfileLoadTime].ToString();
             string saveTimeString = story.variablesState[kProfileSaveTime].ToString();
 
-            if (float.TryParse(totalTimeString, out float totalTime) 
-                && float.TryParse(loadTimeString, out float loadTime) 
+            if (float.TryParse(totalTimeString, out float totalTime)
+                && float.TryParse(loadTimeString, out float loadTime)
                 && float.TryParse(saveTimeString, out float saveTime)) {
-
                 // If we have an old save time from a previous session, add it to 'profile_total_time'.
                 if (saveTime > 0 && saveTime - loadTime > 0) {
                     story.variablesState[kProfileTotalTime] = totalTime + (saveTime - loadTime);

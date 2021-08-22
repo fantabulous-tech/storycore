@@ -66,7 +66,7 @@ namespace StoryCore.Characters {
         public override Transform AttentionPoint => m_EyeController && m_EyeController.LeftEyeLookAtBone ? m_EyeController.LeftEyeLookAtBone : m_VoiceSource ? m_VoiceSource.transform : transform;
         public override Transform SubtitlePoint => m_SubtitlePoint ? m_SubtitlePoint : m_VoiceSource ? m_VoiceSource.transform : AttentionPoint;
 
-        public AnimationClip CurrentAnim => m_LastAnim.IsValid() ? m_LastAnim.GetAnimationClip() : null;
+        public AnimationClip CurrentAnim => m_CurrentAnim.IsValid() ? m_CurrentAnim.GetAnimationClip() : m_LastAnim.IsValid() ? m_LastAnim.GetAnimationClip() : null;
         public bool IsTalking => m_LipSync.IsPlaying;
         public bool InTransition {
             get {
@@ -398,7 +398,7 @@ namespace StoryCore.Characters {
             m_Sequence.Join(DOVirtual.DelayedCall(delay, () => Play(m_LastLoopingPerformance)));
         }
 
-        public DelaySequence PlayAnim(AnimationClip clip, float delay = 0, float transition = -1, AnimationCurve lookWeight = null) {
+        public DelaySequence PlayAnim(AnimationClip clip, float delay = 0, float transition = -1, PerformProgressDelegate performUpdateCallback = null) {
             if (!m_Animator) {
                 Debug.LogWarningFormat(this, "No animator found.");
                 return DelaySequence.Empty;
@@ -439,29 +439,28 @@ namespace StoryCore.Characters {
                 m_TransitionMixer.SetInputWeight(1, weight);
             }, 1, transition));
 
-            if (m_LookAtIK) {
-                IKSolverLookAt lookAt = m_LookAtIK.solver;
-
-                if (lookWeight != null && clip != null) {
-                    float progress = 0;
-                    Sequence lookAtSequence = DOTween.Sequence();
-                    lookAtSequence.SetTarget(this);
-                    lookAtSequence.Append(DOTween.To(() => progress, weight => {
-                        progress = weight;
-                        lookAt.IKPositionWeight = lookWeight.Evaluate(weight);
-                        // Debug.Log("Setting lookAt weight to " + lookAt.IKPositionWeight.ToString("N2"));
-                    }, 1, clip.averageDuration)).SetLoops(clip.isLooping ? -1 : 0);
-                } else {
-                    m_Sequence.Join(DOTween.To(() => lookAt.IKPositionWeight, weight =>
-                                                   lookAt.IKPositionWeight = weight, 1, transition)).SetEase(Ease.InOutSine);
-                }
-            }
+            Sequence progressSequence = DOTween.Sequence();
+            float progress = 0;
+            float duration = clip.averageDuration;
+            AnimationClipPlayable currentAnim = m_CurrentAnim;
+            progressSequence.SetTarget(this);
+            progressSequence.Append(DOTween.To(() => progress, p => {
+                progress = p;
+                float clipProgress = (float) (currentAnim.GetTime()/duration%1);
+                performUpdateCallback(this, clip, clipProgress, m_TransitionMixer.GetInputWeight(1));
+            }, 1, duration)).SetEase(Ease.Linear).SetLoops(clip.isLooping ? -1 : 0);
 
             if (m_LastLoopingPerformance == null && clip.isLooping) {
                 m_LastLoopingPerformance = clip;
             }
 
             return DelaySequence.Empty;
+        }
+
+        public void SetLookWeight(float weight) {
+            if (m_LookAtIK != null && m_LookAtIK.solver != null) {
+                m_LookAtIK.solver.IKPositionWeight = weight;
+            }
         }
 
         public DelaySequence PlayAudio(AudioClip clip, float delay = 0) {

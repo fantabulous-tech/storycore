@@ -51,16 +51,16 @@ namespace StoryCore {
             Localization.Instance.AddOnLocalizeEvent(this);
         }
 
-        ~StoryChoice() {
-            Localization.Instance.RemoveOnLocalizeEvent(this);
-        }
-
         private string[] GetChoicePieces() {
             return m_InkChoice.text.Split(new[] {' ', '\t', ':'}, StringSplitOptions.RemoveEmptyEntries);
         }
 
         public void Choose() {
             m_StoryTeller.Choose(this);
+        }
+
+        public void Disable() {
+            Localization.Instance.RemoveOnLocalizeEvent(this);
         }
 
         public string GetLocalizedText() {

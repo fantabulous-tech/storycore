@@ -1,12 +1,13 @@
 ﻿using CoreUtils;
 using RogoDigital.Lipsync;
-using StoryCore.Utils;
 using UnityEngine;
 using UnityEngine.Timeline;
 
 namespace StoryCore {
+    public delegate void PerformProgressDelegate(object sender, AnimationClip clip, float progress, float weight);
+
     public interface IPerformAnim {
-        DelaySequence PlayAnim(AnimationClip clip, float delay = 0, float transition = -1, AnimationCurve lookAtWeight = null);
+        DelaySequence PlayAnim(AnimationClip clip, float delay = 0, float transition = -1, PerformProgressDelegate progressCallback = null);
     }
 
     public interface IPerformLipSync {

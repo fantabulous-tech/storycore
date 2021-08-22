@@ -44,6 +44,8 @@ namespace CoreUtils.AssetBuckets {
         [NonSerialized] private Object m_BaseFolder;
         [NonSerialized] private string m_BaseFolderPath;
 
+        private const string kVOPATH = "Assets/_VO/";
+
         private Object BaseFolder => UnityUtils.GetOrSet(ref m_BaseFolder, () => EDITOR_Sources.FirstOrDefault());
         private string BaseFolderPath => UnityUtils.GetOrSet(ref m_BaseFolderPath, () => BaseFolder ? UnityEditor.AssetDatabase.GetAssetPath(BaseFolder) : null);
 
@@ -53,7 +55,16 @@ namespace CoreUtils.AssetBuckets {
             }
             string path = UnityEditor.AssetDatabase.GetAssetPath(asset);
             string number = Path.GetFileNameWithoutExtension(path);
-            string relativePath = path.Substring(BaseFolderPath.Length);
+            // Either remove the base folder path or show the full path - 'Assests/'
+            string relativePath;
+            
+            if (path.StartsWith(kVOPATH)) {
+                relativePath = path.Substring(kVOPATH.Length);
+            } else {
+                Debug.LogError($"Trying to get name of an asset not in the VO folder: {path}");
+                return null;
+            }
+
             string directory = Path.GetDirectoryName(relativePath);
             string prefix = directory.Replace('\\', '/').Trim('/').Replace('/', '.');
             return $"{prefix}.{number}";

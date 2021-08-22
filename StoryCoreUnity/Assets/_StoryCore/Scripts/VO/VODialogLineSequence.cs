@@ -10,7 +10,7 @@ using UnityEngine;
 namespace StoryCore {
 
     public class VODialogLineSequence : DialogLineSequence, ILocalize {
-        private readonly string m_OriginalText;
+        protected readonly string m_OriginalText;
         private readonly string m_LineId;
         private readonly Regex m_NumberRegex = new Regex(@"^[0-9]+$");
 
@@ -28,7 +28,7 @@ namespace StoryCore {
                 }
 
                 string section = m_Section.IsNullOrEmpty() ? "" : m_Section + ".";
-                m_Clip = GetVO(m_LineId);
+                m_Clip = m_LineId.IsNullOrEmpty() ? null : GetVO(m_LineId);
                 m_LocalizationKey = m_Clip ? section + m_Clip.name.ReplaceRegex("-[0-9]+$", "") : m_LineId;
                 Localization.Instance.AddOnLocalizeEvent(this);
                 m_ClipSearched = true;
@@ -83,7 +83,7 @@ namespace StoryCore {
         }
 
         protected override float GetDuration() {
-            return Clip != null ? Clip.length + GetPunctuationPause(m_Text) : base.GetDuration();
+            return Clip != null ? Clip.length + GetPunctuationPause(m_OriginalText) : base.GetDuration();
         }
 
         public override void Interrupt() {
@@ -101,10 +101,11 @@ namespace StoryCore {
 
             // Log("Audio clip '" + Clip.name + "' duration complete.", Clip);
             IsComplete = true;
+            Localization.Instance.RemoveOnLocalizeEvent(this);
         }
 
         private void Play(LipSyncData clip, string section) {
-            Log($"PLAYING VO: {section}.{clip.name}: \"{m_Text}\"", clip);
+            StoryDebug.Log($"PLAYING VO: {section}.{clip.name}: \"{m_OriginalText}\"", clip);
 
             if (m_StoryTeller.FocusedCharacter is IPerformLipSync lipSyncCharacter) {
                 m_Character = lipSyncCharacter;
@@ -116,18 +117,29 @@ namespace StoryCore {
         }
 
         private void Stop(LipSyncData clip, string section) {
-            Log($"STOPPING VO: {section}.{(clip ? clip.name : "null")}", clip);
+            StoryDebug.Log($"STOPPING VO: {section}.{(clip ? clip.name : "null")}", clip);
 
             if (m_Character != null) {
                 m_Character.StopLipSync();
             } else if (clip && clip.clip) {
-                // TODO: Stop one-shot clip here.
-                // clip.clip.StopOneShot();
+                clip.clip.StopOneShot();
             }
+
+            Localization.Instance.RemoveOnLocalizeEvent(this);
+        }
+
+        protected virtual string GetLocalizedText(string key) {
+            return Localization.Get(key);
         }
 
         public void OnLocalize() {
-            string localizationText = Localization.Get(m_LocalizationKey); // text;
+            if (!Application.isPlaying) {
+                Debug.LogWarning($"Removing old localization event: {m_OriginalText}");
+                Localization.Instance.RemoveOnLocalizeEvent(this);
+                return;
+            }
+
+            string localizationText = GetLocalizedText(m_LocalizationKey); // text;
 
             if (!Globals.Exists || !Localization.KeyExist(m_LocalizationKey) || localizationText.IsNullOrEmpty()) {
                 Debug.LogWarning($"Could not find localization text for {m_LocalizationKey}: {m_OriginalText}");

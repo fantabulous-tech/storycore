@@ -9,12 +9,16 @@ using VRTK;
 namespace StoryCore {
     public class MovePoint : MonoBehaviour {
         [SerializeField] private VRTK_InteractableObject m_InteractableObject;
+        [SerializeField] private GameObject m_Inactive;
         [SerializeField] private GameObject m_Normal;
         [SerializeField] private GameObject m_Hover;
         [SerializeField] private GameObject m_Label;
         [SerializeField] private Collider m_Collision;
-
+        [SerializeField] private bool m_IsChoice = true;
         [SerializeField] private bool m_AlwaysHover;
+        [SerializeField] private bool m_RecenterOnHeadset = true;
+        [SerializeField] private bool m_MatchRotation = true;
+
         private StoryTeller m_StoryTeller;
         private string m_MoveName;
         private readonly List<GameObject> m_Touchers = new List<GameObject>();
@@ -23,7 +27,7 @@ namespace StoryCore {
 
         private bool IsActive => m_MoveState != MoveStates.Inactive;
 
-        private enum MoveStates {
+        public enum MoveStates {
             Inactive,
             Normal,
             Hover
@@ -31,28 +35,38 @@ namespace StoryCore {
 
         public event Action Activate;
         public event Action Deactivate;
+        public event Action<MoveStates> StateChange;
 
         private void Start() {
             if (!Globals.Exists) {
                 return;
             }
 
-            m_StoryTeller = Globals.StoryTeller;
-            m_StoryTeller.OnChoicesReady += UpdateState;
-            m_StoryTeller.OnChoosing += OnChoosing;
-            m_StoryTeller.OnChosen += UpdateState;
-
-            m_MoveName = name.Split(':').ElementAtOrDefault(1);
-
-            UpdateState();
-
             m_InteractableObject.InteractableObjectTouched += OnTouch;
             m_InteractableObject.InteractableObjectUntouched += OnUntouch;
             m_InteractableObject.InteractableObjectUsed += OnUse;
 
+            if (m_IsChoice) {
+                m_StoryTeller = Globals.StoryTeller;
+                m_StoryTeller.OnChoicesReady += UpdateState;
+                m_StoryTeller.OnChoosing += OnChoosing;
+                m_StoryTeller.OnChosen += UpdateState;
+                m_MoveName = name.Split(':').ElementAtOrDefault(1);
+            }
+
             if (Globals.CommandRecenter != null) {
                 Globals.CommandRecenter.GenericEvent += OnRecenter;
             }
+
+            if (Globals.RecenterTarget != null) {
+                Globals.RecenterTarget.Changed += OnRecenterTargetChanged;
+            }
+
+            UpdateState();
+        }
+
+        private void OnRecenterTargetChanged(GameObject obj) {
+            UpdateState();
         }
 
         private void OnTriggerEnter(Collider other) {
@@ -79,18 +93,22 @@ namespace StoryCore {
                 m_InteractableObject.InteractableObjectUsed -= OnUse;
             }
 
-            if (m_StoryTeller) {
+            if (m_IsChoice && m_StoryTeller) {
                 m_StoryTeller.OnChoicesReady -= UpdateState;
                 m_StoryTeller.OnChoosing -= OnChoosing;
                 m_StoryTeller.OnChosen -= UpdateState;
             }
 
-            m_Touchers.Clear();
-            UpdateState();
-
             if (Globals.CommandRecenter != null) {
                 Globals.CommandRecenter.GenericEvent -= OnRecenter;
             }
+
+            if (Globals.RecenterTarget != null) {
+                Globals.RecenterTarget.Changed -= OnRecenterTargetChanged;
+            }
+
+            m_Touchers.Clear();
+            UpdateState();
         }
 
         private void OnChoosing(StoryChoice choice) {
@@ -106,7 +124,10 @@ namespace StoryCore {
         }
 
         private void OnUse(object sender, InteractableObjectEventArgs e) {
-            if (m_MoveChoice != null) {
+            if (!m_IsChoice) {
+                VRUtils.Teleport(transform, m_RecenterOnHeadset, m_MatchRotation);
+                Globals.RecenterTarget.Value = gameObject;
+            } else if (m_MoveChoice != null) {
                 m_MoveChoice.Choose();
             } else {
                 Debug.LogWarningFormat(this, "No move choice found, but we are somehow trying to move to " + name);
@@ -115,7 +136,7 @@ namespace StoryCore {
 
         private void OnRecenter() {
             if (Globals.RecenterTarget.Value == gameObject) {
-                VRUtils.Teleport(transform, true);
+                VRUtils.Teleport(transform, m_RecenterOnHeadset, m_MatchRotation);
             }
         }
 
@@ -134,16 +155,26 @@ namespace StoryCore {
         }
 
         private void UpdateState() {
-            m_MoveChoice = m_StoryTeller.CurrentChoices.FirstOrDefault(MyChoice);
+            if (m_IsChoice) {
+                m_MoveChoice = m_StoryTeller.CurrentChoices.FirstOrDefault(MyChoice);
 
-            if (m_MoveChoice == null) {
-                m_MoveState = MoveStates.Inactive;
-            } else if (m_Touchers.Count == 0 && !m_AlwaysHover) {
-                m_MoveState = MoveStates.Normal;
+                if (m_MoveChoice == null) {
+                    m_MoveState = MoveStates.Inactive;
+                } else if (m_Touchers.Count == 0 && !m_AlwaysHover) {
+                    m_MoveState = MoveStates.Normal;
+                } else {
+                    m_MoveState = MoveStates.Hover;
+                }
             } else {
-                m_MoveState = MoveStates.Hover;
+                if (Globals.RecenterTarget.Value == gameObject) {
+                    m_MoveState = MoveStates.Inactive;
+                } else if (m_Touchers.Count == 0) {
+                    m_MoveState = MoveStates.Normal;
+                } else {
+                    m_MoveState = MoveStates.Hover;
+                }
             }
-            
+
             if (!IsActive) {
                 m_Touchers.Clear();
             }
@@ -158,10 +189,38 @@ namespace StoryCore {
 
             m_Collision.enabled = IsActive;
 
-            m_Normal.SetActive(m_MoveState == MoveStates.Normal);
-            m_Hover.SetActive(m_MoveState == MoveStates.Hover);
-            m_Label.SetActive(m_MoveState == MoveStates.Hover);
+
+            switch (m_MoveState) {
+                case MoveStates.Inactive:
+                    SetActive(m_Normal, false);
+                    SetActive(m_Hover, false);
+                    SetActive(m_Label, false);
+                    SetActive(m_Inactive, true);
+                    break;
+                case MoveStates.Normal:
+                    SetActive(m_Inactive, false);
+                    SetActive(m_Hover, false);
+                    SetActive(m_Label, false);
+                    SetActive(m_Normal, true);
+                    break;
+                case MoveStates.Hover:
+                    SetActive(m_Inactive, false);
+                    SetActive(m_Normal, false);
+                    SetActive(m_Hover, true);
+                    SetActive(m_Label, true);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            StateChange?.Invoke(m_MoveState);
             // StoryDebug.Log($"Move point {name} updated state to {m_MoveState}");
+        }
+
+        private void SetActive(GameObject obj, bool state) {
+            if (obj) {
+                obj.SetActive(state);
+            }
         }
     }
 }

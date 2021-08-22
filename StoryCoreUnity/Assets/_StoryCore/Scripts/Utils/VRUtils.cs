@@ -5,7 +5,7 @@ using CoreUtils;
 
 namespace StoryCore.Utils {
     public static class VRUtils {
-        public static void Teleport(Transform t, bool recenterOnHeadset) {
+        public static void Teleport(Transform t, bool recenterOnHeadset, bool matchRotation) {
             Transform playArea = VRTK_DeviceFinder.PlayAreaTransform();
             Transform hmd = recenterOnHeadset ? VRTK_DeviceFinder.HeadsetTransform() : null;
             playArea.position = t.position;
@@ -18,7 +18,11 @@ namespace StoryCore.Utils {
                     children[i].gameObject.SetActive(false);
                 }
             }
-            playArea.rotation = t.rotation;
+
+            if (matchRotation) {
+                playArea.rotation = t.rotation;
+            }
+
             playArea.position = t.position;
             for (int i = 0; i < children.Count; i++) {
                 if (priorState[i]) {
